@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CTY Config — Mock</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Inter', -apple-system, sans-serif; background: #F5F6FA; color: #1a1a2e; }
+
+  .topbar { background: white; padding: 12px 24px; display: flex; align-items: center; gap: 16px; border-bottom: 1px solid #E5E7EB; }
+  .topbar h1 { font-size: 18px; font-weight: 700; }
+  .topbar .subtitle { font-size: 12px; color: #6B7280; }
+
+  .layout { display: flex; height: calc(100vh - 52px); }
+
+  /* ─── Country Sidebar ─── */
+  .sidebar { width: 200px; background: white; border-right: 1px solid #E5E7EB; padding: 16px 0; overflow-y: auto; flex-shrink: 0; }
+  .sidebar h3 { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: #9CA3AF; padding: 0 16px; margin-bottom: 8px; }
+  .country-item { display: flex; align-items: center; gap: 8px; padding: 10px 16px; cursor: pointer; border-left: 3px solid transparent; transition: all 0.15s; }
+  .country-item:hover { background: #F9FAFB; }
+  .country-item.active { background: #F0EEFF; border-left-color: #5519E6; }
+  .country-item .name { font-weight: 600; font-size: 13px; }
+  .country-item .meta { font-size: 10px; color: #9CA3AF; }
+  .country-item .status { font-size: 9px; font-weight: 700; padding: 2px 6px; border-radius: 4px; margin-left: auto; flex-shrink: 0; }
+  .status-active { background: #CDDC5020; color: #6B7A00; }
+  .status-pilot { background: #FF823220; color: #B85600; }
+
+  /* ─── Main Content ─── */
+  .main { flex: 1; overflow-y: auto; padding: 20px 24px; }
+
+  .country-header { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+  .country-header h2 { font-size: 20px; font-weight: 800; }
+  .country-header .status { font-size: 11px; padding: 4px 10px; }
+
+  /* ─── Tabs ─── */
+  .tabs { display: flex; gap: 0; margin-bottom: 20px; border-bottom: 2px solid #E5E7EB; }
+  .tab { padding: 10px 24px; font-size: 13px; font-weight: 600; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -2px; color: #9CA3AF; transition: all 0.15s; }
+  .tab:hover { color: #374151; }
+  .tab.active { color: #5519E6; border-bottom-color: #5519E6; }
+
+  /* ─── Section Cards ─── */
+  .section { background: white; border-radius: 12px; border: 1px solid #E5E7EB; margin-bottom: 16px; overflow: hidden; }
+  .section-header { display: flex; align-items: center; justify-content: space-between; padding: 14px 20px; border-bottom: 1px solid #F3F4F6; }
+  .section-header h3 { font-size: 14px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+  .section-body { padding: 16px 20px; }
+
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+
+  .field { display: flex; flex-direction: column; gap: 4px; }
+  .field label { font-size: 11px; font-weight: 600; color: #6B7280; text-transform: uppercase; letter-spacing: 0.04em; }
+  .field .value { font-size: 13px; font-weight: 500; padding: 8px 12px; background: #F9FAFB; border: 1px solid #E5E7EB; border-radius: 8px; }
+  .field .value.editable { background: white; cursor: text; }
+  .field .value.highlight { background: #F0EEFF; border-color: #5519E640; color: #5519E6; font-weight: 600; }
+
+  /* ─── Tags (multi-select) ─── */
+  .tags { display: flex; flex-wrap: wrap; gap: 6px; padding: 8px 12px; background: white; border: 1px solid #E5E7EB; border-radius: 8px; min-height: 38px; align-items: center; }
+  .tag { font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 6px; background: #5519E610; color: #5519E6; display: flex; align-items: center; gap: 4px; }
+  .tag .remove { cursor: pointer; font-size: 13px; color: #5519E680; }
+  .tag .remove:hover { color: #5519E6; }
+  .tag-add { font-size: 11px; color: #9CA3AF; cursor: pointer; padding: 3px 8px; border: 1px dashed #D1D5DB; border-radius: 6px; }
+  .tag-add:hover { border-color: #5519E6; color: #5519E6; }
+
+  /* ─── Toggle Row ─── */
+  .toggle-row { display: flex; align-items: center; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #F9FAFB; }
+  .toggle-row:last-child { border: none; }
+  .toggle-label { font-size: 13px; font-weight: 500; }
+  .toggle-desc { font-size: 11px; color: #9CA3AF; }
+  .toggle { width: 36px; height: 20px; border-radius: 10px; background: #D1D5DB; position: relative; cursor: pointer; flex-shrink: 0; }
+  .toggle.on { background: #5519E6; }
+  .toggle::after { content: ''; position: absolute; width: 16px; height: 16px; border-radius: 50%; background: white; top: 2px; left: 2px; transition: 0.15s; }
+  .toggle.on::after { left: 18px; }
+
+  /* ─── Tab Content ─── */
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  .save-bar { position: sticky; bottom: 0; background: white; border-top: 1px solid #E5E7EB; padding: 12px 24px; display: flex; justify-content: flex-end; gap: 10px; }
+  .btn { padding: 8px 20px; border-radius: 8px; font-size: 13px; font-weight: 600; border: none; cursor: pointer; }
+  .btn-primary { background: #5519E6; color: white; }
+  .btn-secondary { background: #F3F4F6; color: #374151; }
+
+  .badge { font-size: 9px; font-weight: 700; padding: 2px 6px; border-radius: 4px; background: #5519E610; color: #5519E6; }
+
+  .section-divider { font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: #9CA3AF; font-weight: 600; margin: 18px 0 10px; padding-top: 14px; border-top: 1px solid #F3F4F6; }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div>
+    <h1>CTY Config</h1>
+    <div class="subtitle">Country configuration — Localization & Billing</div>
+  </div>
+</div>
+
+<div class="layout">
+
+  <!-- ─── Sidebar: Country List ─── -->
+  <div class="sidebar">
+    <h3>Countries (3)</h3>
+
+    <div class="country-item active">
+      <div>
+        <div class="name">India</div>
+        <div class="meta">4 clinics</div>
+      </div>
+      <span class="status status-active">Active</span>
+    </div>
+
+    <div class="country-item">
+      <div>
+        <div class="name">Thailand</div>
+        <div class="meta">4 clinics</div>
+      </div>
+      <span class="status status-active">Active</span>
+    </div>
+
+    <div class="country-item">
+      <div>
+        <div class="name">Maldives</div>
+        <div class="meta">4 clinics</div>
+      </div>
+      <span class="status status-pilot">Pilot</span>
+    </div>
+  </div>
+
+  <!-- ─── Main: Selected Country Config ─── -->
+  <div class="main">
+
+    <div class="country-header">
+      <h2>India</h2>
+      <span class="status status-active">Active</span>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs">
+      <div class="tab active" onclick="switchTab('localization')">Localization</div>
+      <div class="tab" onclick="switchTab('billing')">Billing</div>
+    </div>
+
+    <!-- ═══ Tab 1: Localization (General + Locale merged) ═══ -->
+    <div class="tab-content active" id="tab-localization">
+
+      <!-- General Info -->
+      <div class="section">
+        <div class="section-header">
+          <h3>Country Details</h3>
+        </div>
+        <div class="section-body">
+          <div class="form-grid">
+            <div class="field">
+              <label>ISO Code</label>
+              <div class="value">IN</div>
+            </div>
+            <div class="field">
+              <label>Currency</label>
+              <div class="value editable">INR</div>
+            </div>
+            <div class="field">
+              <label>Status</label>
+              <div class="value highlight">Active</div>
+            </div>
+          </div>
+          <div style="margin-top: 14px;">
+            <div class="field">
+              <label>Regulatory Bodies</label>
+              <div class="tags">
+                <span class="tag">NMC <span class="remove">&times;</span></span>
+                <span class="tag">ABDM <span class="remove">&times;</span></span>
+                <span class="tag">FHIR R4 <span class="remove">&times;</span></span>
+                <span class="tag-add">+ Add</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Locale -->
+      <div class="section">
+        <div class="section-header">
+          <h3>Language & Format</h3>
+        </div>
+        <div class="section-body">
+          <div class="form-grid">
+            <div class="field">
+              <label>Primary Language</label>
+              <div class="value editable">English</div>
+            </div>
+            <div class="field">
+              <label>Secondary Language</label>
+              <div class="value editable">Hindi</div>
+            </div>
+            <div class="field">
+              <label>Timezone</label>
+              <div class="value editable">Asia/Kolkata</div>
+            </div>
+            <div class="field">
+              <label>Date Format</label>
+              <div class="value editable">DD/MM/YYYY</div>
+            </div>
+            <div class="field">
+              <label>Weight Unit</label>
+              <div class="value editable">kg</div>
+            </div>
+            <div class="field">
+              <label>Height Unit</label>
+              <div class="value editable">cm</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="save-bar">
+        <button class="btn btn-secondary">Reset</button>
+        <button class="btn btn-primary">Save Changes</button>
+      </div>
+    </div>
+
+    <!-- ═══ Tab 2: Billing ═══ -->
+    <div class="tab-content" id="tab-billing">
+
+      <div class="section">
+        <div class="section-header">
+          <h3>Tax & Invoice</h3>
+        </div>
+        <div class="section-body">
+          <div class="form-grid">
+            <div class="field">
+              <label>Tax Type</label>
+              <div class="value editable">GST</div>
+            </div>
+            <div class="field">
+              <label>Tax Rate</label>
+              <div class="value editable">18.00%</div>
+            </div>
+            <div class="field">
+              <label>Tax Split</label>
+              <div class="value editable">CGST 9% + SGST 9%</div>
+            </div>
+            <div class="field">
+              <label>Invoice Prefix</label>
+              <div class="value editable">TC-IN-</div>
+            </div>
+            <div class="field">
+              <label>Invoice Format</label>
+              <div class="value editable">GST Tax Invoice</div>
+            </div>
+            <div class="field">
+              <label>Claim Code</label>
+              <div class="value" style="color:#9CA3AF; font-style:italic;">Not set</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-header">
+          <h3>Billing Toggles</h3>
+        </div>
+        <div class="section-body">
+          <div class="toggle-row">
+            <div>
+              <div class="toggle-label">ABDM DHIS Credits</div>
+              <div class="toggle-desc">Enable Ayushman Bharat DHIS credit tracking</div>
+            </div>
+            <div class="toggle on"></div>
+          </div>
+          <div class="toggle-row">
+            <div>
+              <div class="toggle-label">UPI QR on Invoice</div>
+              <div class="toggle-desc">Show UPI QR code on patient invoices</div>
+            </div>
+            <div class="toggle on"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="save-bar">
+        <button class="btn btn-secondary">Reset</button>
+        <button class="btn btn-primary">Save Changes</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+function switchTab(tab) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  event.target.classList.add('active');
+}
+</script>
+
+</body>
+</html>
