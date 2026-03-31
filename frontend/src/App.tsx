@@ -4,6 +4,8 @@ import { Box, CircularProgress } from '@mui/material';
 
 // Auth Pages
 import LoginPage from '@/pages/auth/LoginPage';
+import SignupPage from '@/pages/auth/SignupPage';
+import ChangePasswordPage from '@/pages/auth/ChangePasswordPage';
 import OtpVerifyPage from '@/pages/auth/OtpVerifyPage';
 import ProtectedRoute from '@/components/common/ProtectedRoute';
 import DevRoleSwitcher from '@/components/common/DevRoleSwitcher';
@@ -19,6 +21,7 @@ const SAGlobalRoster = lazy(() => import('@/pages/superadmin/GlobalRoster'));
 const SAClinics = lazy(() => import('@/pages/superadmin/Clinics'));
 const SAEquidor = lazy(() => import('@/pages/superadmin/Equidor'));
 const SACountries = lazy(() => import('@/pages/superadmin/Countries'));
+const SAUserManagement = lazy(() => import('@/pages/superadmin/UserManagement'));
 
 // Clinic Admin Pages
 const CADashboard = lazy(() => import('@/pages/clinicadmin/Dashboard'));
@@ -98,6 +101,8 @@ const App: React.FC = () => {
         <Routes>
           {/* Public Routes */}
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/signup" element={<SignupPage />} />
+          <Route path="/change-password" element={<ChangePasswordPage />} />
           <Route path="/verify-otp" element={<OtpVerifyPage />} />
 
           {/* ═══ Super Admin Routes ═══ */}
@@ -116,6 +121,7 @@ const App: React.FC = () => {
                   <Route path="clinics" element={<SAClinics />} />
                   <Route path="equidor" element={<SAEquidor />} />
                   <Route path="countries" element={<SACountries />} />
+                  <Route path="users" element={<SAUserManagement />} />
                 </Routes>
               </ProtectedRoute>
             }

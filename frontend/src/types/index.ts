@@ -1,5 +1,11 @@
 // User & Authentication Types
-export type UserRole = 'SUPERADMIN' | 'CLINIC_ADMIN' | 'DOCTOR' | 'PATIENT';
+export type UserRole = 'SUPERADMIN' | 'CLINIC_ADMIN' | 'DOCTOR' | 'PATIENT' | 'NURSE' | 'ASSISTANT';
+
+export interface RoleClinicAssignment {
+  role: UserRole;
+  clinicId: string;
+  clinicName: string;
+}
 
 export interface User {
   id: string;
@@ -11,6 +17,10 @@ export interface User {
   profilePicture?: string;
   clinicId?: string;
   clinicName?: string;
+  /** Multiple role+clinic assignments for clinic switcher */
+  assignments?: RoleClinicAssignment[];
+  /** Flag for SA-created accounts requiring password change */
+  mustChangePassword?: boolean;
 }
 
 export interface AuthState {

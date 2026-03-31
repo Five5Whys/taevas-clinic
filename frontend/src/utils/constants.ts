@@ -6,6 +6,8 @@ export const ROLES = {
   CLINIC_ADMIN: 'CLINIC_ADMIN' as UserRole,
   DOCTOR: 'DOCTOR' as UserRole,
   PATIENT: 'PATIENT' as UserRole,
+  NURSE: 'NURSE' as UserRole,
+  ASSISTANT: 'ASSISTANT' as UserRole,
 };
 
 // API Endpoints
@@ -65,6 +67,7 @@ export const NAVIGATION_CONFIG = {
     // Access
     { id: 'roster',         label: 'Global Roster',      emoji: '👥', icon: 'People',       path: '/superadmin/roster',         section: 'Access', badge: '47' },
     { id: 'clinics',        label: 'Clinics',            emoji: '🏥', icon: 'LocationCity', path: '/superadmin/clinics',        section: 'Access', badge: '12' },
+    { id: 'users',          label: 'User Management',    emoji: '👤', icon: 'PersonAdd',    path: '/superadmin/users',          section: 'Access' },
   ],
   [ROLES.CLINIC_ADMIN]: [
     // Overview
@@ -159,9 +162,11 @@ export const PAGE_SIZES = [10, 25, 50, 100];
 export const SEARCH_DEBOUNCE_TIME = 300; // ms
 
 // Redirect URLs by Role after successful login
-export const ROLE_REDIRECT_MAP: Record<UserRole, string> = {
+export const ROLE_REDIRECT_MAP: Record<string, string> = {
   [ROLES.SUPERADMIN]: '/superadmin',
   [ROLES.CLINIC_ADMIN]: '/admin',
   [ROLES.DOCTOR]: '/doctor',
   [ROLES.PATIENT]: '/patient',
+  [ROLES.NURSE]: '/doctor',      // Nurse shares Doctor view
+  [ROLES.ASSISTANT]: '/doctor',  // Assistant shares Doctor view
 };

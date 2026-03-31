@@ -13,10 +13,15 @@ import {
   useTheme,
   Breadcrumbs,
   Typography,
+  Select,
+  type SelectChangeEvent,
 } from '@mui/material';
 import * as Icons from '@mui/icons-material';
 import { useAuth } from '@/hooks/useAuth';
+import { useNavigate } from 'react-router-dom';
 import { getFullName, getUserInitials } from '@/utils/helpers';
+import { ROLE_REDIRECT_MAP } from '@/utils/constants';
+import type { UserRole } from '@/types';
 
 interface TopBarProps {
   onMenuClick?: () => void;
@@ -24,13 +29,38 @@ interface TopBarProps {
   breadcrumbs?: Array<{ label: string; path?: string }>;
 }
 
+const ROLE_LABELS: Record<string, string> = {
+  SUPERADMIN: 'Super Admin',
+  CLINIC_ADMIN: 'Clinic Admin',
+  DOCTOR: 'Doctor',
+  PATIENT: 'Patient',
+  NURSE: 'Nurse',
+  ASSISTANT: 'Assistant',
+};
+
 const TopBar: React.FC<TopBarProps> = ({ onMenuClick, pageTitle, breadcrumbs }) => {
   const theme = useTheme();
-  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+  const { user, logout, setUser } = useAuth();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
   const [userMenuAnchor, setUserMenuAnchor] = useState<null | HTMLElement>(null);
   const [notificationAnchor, setNotificationAnchor] = useState<null | HTMLElement>(null);
+
+  // Clinic switcher: build key from role+clinicId
+  const assignments = user?.assignments || [];
+  const hasMultipleAssignments = assignments.length > 1;
+  const currentKey = `${user?.role || ''}::${user?.clinicId || ''}`;
+
+  const handleSwitchAssignment = (event: SelectChangeEvent<string>) => {
+    const key = event.target.value;
+    const [role, clinicId] = key.split('::');
+    const assignment = assignments.find(a => a.role === role && a.clinicId === clinicId);
+    if (assignment && user) {
+      setUser({ ...user, role: assignment.role, clinicId: assignment.clinicId, clinicName: assignment.clinicName });
+      navigate(ROLE_REDIRECT_MAP[assignment.role as UserRole] || '/');
+    }
+  };
 
   const handleUserMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
     setUserMenuAnchor(event.currentTarget);
@@ -99,6 +129,35 @@ const TopBar: React.FC<TopBarProps> = ({ onMenuClick, pageTitle, breadcrumbs }) 
             </Box>
           )}
         </Box>
+
+        {/* Clinic Switcher — shows when user has multiple role+clinic assignments */}
+        {hasMultipleAssignments && (
+          <Select
+            value={currentKey}
+            onChange={handleSwitchAssignment}
+            size="small"
+            variant="outlined"
+            sx={{
+              minWidth: 200,
+              maxWidth: 280,
+              borderRadius: '8px',
+              fontSize: '0.8rem',
+              fontWeight: 600,
+              backgroundColor: '#F8F9FC',
+              '& .MuiSelect-select': { py: '6px', display: 'flex', alignItems: 'center', gap: 0.5 },
+              '& .MuiOutlinedInput-notchedOutline': { borderColor: '#E5E7EB' },
+            }}
+          >
+            {assignments.map(a => {
+              const key = `${a.role}::${a.clinicId}`;
+              return (
+                <MenuItem key={key} value={key} sx={{ fontSize: '0.8rem', fontWeight: 600 }}>
+                  {ROLE_LABELS[a.role] || a.role} @ {a.clinicName}
+                </MenuItem>
+              );
+            })}
+          </Select>
+        )}
 
         {/* Right Section */}
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>

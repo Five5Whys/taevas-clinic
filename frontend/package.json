@@ -7,7 +7,11 @@
     "build": "tsc && vite build",
     "preview": "vite preview",
     "lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-    "format": "prettier --write \"src/**/*.{ts,tsx,json,css,md}\""
+    "format": "prettier --write \"src/**/*.{ts,tsx,json,css,md}\"",
+    "test": "jest --verbose",
+    "e2e": "playwright test",
+    "e2e:headed": "playwright test --headed",
+    "e2e:ui": "playwright test --ui"
   },
   "dependencies": {
     "@emotion/react": "^11.11.0",
@@ -33,6 +37,8 @@
   "devDependencies": {
     "@axe-core/playwright": "^4.11.1",
     "@playwright/test": "^1.58.2",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
     "@types/jest": "^30.0.0",
     "@types/node": "^20.10.0",
     "@types/react": "^18.2.0",
@@ -40,6 +46,7 @@
     "@vitejs/plugin-react": "^6.0.1",
     "eslint": "^8.56.0",
     "jest": "^30.3.0",
+    "jest-environment-jsdom": "^30.3.0",
     "prettier": "^3.1.0",
     "snyk": "^1.1303.2",
     "sonarqube-scanner": "^4.3.0",

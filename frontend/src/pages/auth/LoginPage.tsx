@@ -39,11 +39,11 @@ const COUNTRY_CODES = [
   { code: '+977', country: 'Nepal', flag: '🇳🇵', maxLen: 10 },
 ];
 
-const ROLE_META: Record<UserRole, { label: string; color: string; icon: string }> = {
-  SUPERADMIN: { label: 'Super Admin', color: '#A046F0', icon: '🌍' },
-  CLINIC_ADMIN: { label: 'Clinic Admin', color: '#FF8232', icon: '🏥' },
-  DOCTOR: { label: 'Doctor', color: '#CDDC50', icon: '🩺' },
-  PATIENT: { label: 'Patient', color: '#3B82F6', icon: '👤' },
+const ROLE_META: Partial<Record<UserRole, { label: string; color: string; icon: string }>> = {
+  SUPERADMIN: { label: 'Super Admin', color: '#A046F0', icon: '\u{1F30D}' },
+  CLINIC_ADMIN: { label: 'Clinic Admin', color: '#FF8232', icon: '\u{1F3E5}' },
+  DOCTOR: { label: 'Doctor', color: '#CDDC50', icon: '\u{1FA7A}' },
+  PATIENT: { label: 'Patient', color: '#3B82F6', icon: '\u{1F464}' },
 };
 
 const LoginPage: React.FC = () => {
@@ -117,8 +117,12 @@ const LoginPage: React.FC = () => {
         const identifier = loginMethod === 'phone' ? phone : email;
         const response = await authService.login(identifier, password);
         login(response.user, response.token);
-        const role = response.user.role as UserRole;
-        navigate(ROLE_REDIRECT_MAP[role] || '/superadmin');
+        if (response.user.mustChangePassword) {
+          navigate('/change-password');
+        } else {
+          const role = response.user.role as UserRole;
+          navigate(ROLE_REDIRECT_MAP[role] || '/superadmin');
+        }
       }
     } catch (err) {
       setError(getErrorMessage(err) || 'Invalid credentials. Please try again.');
@@ -226,7 +230,7 @@ const LoginPage: React.FC = () => {
                   }}
                 >
                   {(Object.keys(ROLE_META) as UserRole[]).map((role) => {
-                    const meta = ROLE_META[role];
+                    const meta = ROLE_META[role]!;
                     return (
                       <Button
                         key={role}
@@ -306,7 +310,7 @@ const LoginPage: React.FC = () => {
                 },
               }}
             >
-              Email
+              Email ID
             </Button>
           </Box>
 
@@ -355,7 +359,7 @@ const LoginPage: React.FC = () => {
             ) : (
               <>
                 <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1 }}>
-                  Email Address
+                  Email ID
                 </Typography>
                 <TextField
                   fullWidth
@@ -446,7 +450,7 @@ const LoginPage: React.FC = () => {
               <Typography variant="body2" color="textSecondary">
                 Don't have an account?{' '}
                 <Link
-                  href="/register"
+                  href="/signup"
                   sx={{
                     color: '#5519E6',
                     fontWeight: 600,
@@ -454,7 +458,7 @@ const LoginPage: React.FC = () => {
                     '&:hover': { textDecoration: 'underline' },
                   }}
                 >
-                  Register here
+                  Signup
                 </Link>
               </Typography>
             </Box>

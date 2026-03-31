@@ -107,34 +107,74 @@ export const getStatusColor = (status: string): 'success' | 'error' | 'warning' 
 };
 
 /**
- * Parse error message from API response
+ * Parse error message from API response with user-friendly mapping
  */
 export const getErrorMessage = (error: unknown): string => {
+  let raw = '';
+
   if (typeof error === 'string') {
-    return error;
-  }
-  if (error && typeof error === 'object') {
-    if ('message' in error && typeof error.message === 'string') {
-      return error.message;
-    }
-    if ('data' in error && error.data && typeof error.data === 'object') {
-      if ('message' in error.data && typeof error.data.message === 'string') {
-        return error.data.message;
-      }
-    }
+    raw = error;
+  } else if (error && typeof error === 'object') {
+    // Axios error shape
     if ('response' in error && error.response && typeof error.response === 'object') {
-      if ('data' in error.response && error.response.data) {
-        if (
-          typeof error.response.data === 'object' &&
-          'message' in error.response.data &&
-          typeof error.response.data.message === 'string'
-        ) {
-          return error.response.data.message;
-        }
+      const resp = error.response as { status?: number; data?: { message?: string } };
+      const status = resp.status;
+      const msg = resp.data?.message || '';
+
+      // HTTP status-based friendly messages
+      if (status === 401) return msg || 'Invalid credentials. Please check your phone/email and password.';
+      if (status === 403) return 'Access denied. You do not have permission for this action.';
+      if (status === 404) return 'Account not found. Please check your details or sign up.';
+      if (status === 409) return msg || 'An account with this phone/email already exists.';
+      if (status === 422) return msg || 'Invalid input. Please check the form and try again.';
+      if (status === 429) return 'Too many attempts. Please wait a few minutes and try again.';
+      if (status === 500) return 'Server error. Please try again later.';
+      if (status === 502 || status === 503) return 'Service temporarily unavailable. Please try again shortly.';
+      if (msg) raw = msg;
+    }
+    if (!raw && 'message' in error && typeof error.message === 'string') {
+      raw = error.message;
+    }
+    if (!raw && 'data' in error && error.data && typeof error.data === 'object') {
+      if ('message' in error.data && typeof error.data.message === 'string') {
+        raw = error.data.message;
       }
     }
   }
-  return 'An error occurred';
+
+  // Map common backend messages to user-friendly text
+  if (raw) return mapErrorMessage(raw);
+  return 'Something went wrong. Please try again.';
+};
+
+/**
+ * Map raw backend error messages to user-friendly messages
+ */
+const ERROR_MAP: Record<string, string> = {
+  'Bad credentials': 'Incorrect password. Please try again.',
+  'Invalid credentials': 'Invalid credentials. Please check your phone/email and password.',
+  'User not found': 'No account found with these details. Please sign up.',
+  'Account is locked': 'Account locked due to too many failed attempts. Try again in 15 minutes.',
+  'Account is disabled': 'Your account has been deactivated. Contact your administrator.',
+  'Token expired': 'Your session has expired. Please login again.',
+  'Invalid token': 'Session invalid. Please login again.',
+  'Phone number already exists': 'An account with this phone number already exists. Try logging in.',
+  'Email already exists': 'An account with this email already exists. Try logging in.',
+  'OTP expired': 'OTP has expired. Please request a new one.',
+  'Invalid OTP': 'Invalid OTP code. Please check and try again.',
+  'Max OTP retries exceeded': 'Too many failed OTP attempts. Please request a new code.',
+  'Network Error': 'Unable to connect to server. Please check your internet connection.',
+  'timeout of': 'Request timed out. Please check your connection and try again.',
+};
+
+const mapErrorMessage = (raw: string): string => {
+  // Exact match
+  if (ERROR_MAP[raw]) return ERROR_MAP[raw];
+  // Partial match
+  for (const [key, friendly] of Object.entries(ERROR_MAP)) {
+    if (raw.toLowerCase().includes(key.toLowerCase())) return friendly;
+  }
+  return raw;
 };
 
 /**
