@@ -1,0 +1,9 @@
+import api from '../api';
+export interface StaffListParams { role?: string; status?: string; search?: string; page?: number; size?: number; }
+export const staffService = {
+  getAll: async (params: StaffListParams = {}) => { const r = await api.get('/clinicadmin/staff', { params }); return r.data.data; },
+  getById: async (id: string) => { const r = await api.get(`/clinicadmin/staff/${id}`); return r.data.data; },
+  create: async (data: any) => { const r = await api.post('/clinicadmin/staff', data); return r.data.data; },
+  update: async (id: string, data: any) => { const r = await api.put(`/clinicadmin/staff/${id}`, data); return r.data.data; },
+  delete: async (id: string) => { const r = await api.delete(`/clinicadmin/staff/${id}`); return r.data.data; },
+};

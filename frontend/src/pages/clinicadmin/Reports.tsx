@@ -16,8 +16,11 @@ import {
   Chip,
   Button,
   SelectChangeEvent,
+  Alert,
+  CircularProgress,
 } from '@mui/material';
 import DashboardLayout from '@/components/layout/DashboardLayout';
+import { useClinicReport } from '@/hooks/clinicadmin/useReports';
 
 const BRAND = '#5519E6';
 const SUB = '#6B7280';
@@ -38,23 +41,25 @@ const StatCard: React.FC<StatCardProps> = ({ value, label }) => (
   </Card>
 );
 
-// ─── Top Doctors Data ─────────────────────────────────────────────────────────
-const topDoctors = [
-  { name: 'Dr. Rajesh Kumar', appointments: 78, patientsSeen: 65, rating: 4.8 },
-  { name: 'Dr. Meena Iyer', appointments: 52, patientsSeen: 48, rating: 4.9 },
-];
-
-// ─── Appointment Breakdown Data ───────────────────────────────────────────────
-const appointmentBreakdown = [
-  { type: 'Follow-up', count: 68, percentage: '44%', color: '#5519E6' },
-  { type: 'New Visit', count: 42, percentage: '27%', color: '#10B981' },
-  { type: 'Surgery Consult', count: 28, percentage: '18%', color: '#F59E0B' },
-  { type: 'Emergency', count: 18, percentage: '11%', color: '#EF4444' },
-];
+// ─── Default colors for breakdown types ───────────────────────────────────────
+const BREAKDOWN_COLORS: Record<string, string> = {
+  'Follow-up': '#5519E6',
+  'New Visit': '#10B981',
+  'Surgery Consult': '#F59E0B',
+  'Emergency': '#EF4444',
+};
 
 // ─── Reports Page ─────────────────────────────────────────────────────────────
 const Reports: React.FC = () => {
+  const { data: reportData, isLoading } = useClinicReport();
   const [period, setPeriod] = useState('This Month');
+
+  const stats = reportData?.stats ?? {};
+  const topDoctors: any[] = reportData?.topDoctors ?? [];
+  const appointmentBreakdown: any[] = (reportData?.appointmentBreakdown ?? []).map((row: any) => ({
+    ...row,
+    color: row.color ?? BREAKDOWN_COLORS[row.type] ?? '#6B7280',
+  }));
 
   const handlePeriodChange = (event: SelectChangeEvent<string>) => {
     setPeriod(event.target.value);
@@ -62,6 +67,9 @@ const Reports: React.FC = () => {
 
   return (
     <DashboardLayout pageTitle="Reports">
+      <Alert severity="warning" sx={{ mb: 2, borderRadius: '12px' }}>
+        🚧 This feature is under development — coming soon!
+      </Alert>
       {/* Header */}
       <Box sx={{ mb: 3 }}>
         <Typography variant="h5" sx={{ fontWeight: 700 }}>
@@ -84,11 +92,17 @@ const Reports: React.FC = () => {
       </FormControl>
 
       {/* Stats Cards */}
+      {isLoading ? (
+        <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
+          <CircularProgress sx={{ color: BRAND }} />
+        </Box>
+      ) : (
+      <>
       <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 2, mb: 4 }}>
-        <StatCard value={156} label="Total Appointments" />
-        <StatCard value={34} label="New Patients" />
-        <StatCard value="₹4,82,000" label="Revenue" />
-        <StatCard value="8%" label="Cancellation Rate" />
+        <StatCard value={stats.totalAppointments ?? 0} label="Total Appointments" />
+        <StatCard value={stats.newPatients ?? 0} label="New Patients" />
+        <StatCard value={stats.revenue ?? '---'} label="Revenue" />
+        <StatCard value={stats.cancellationRate ?? '---'} label="Cancellation Rate" />
       </Box>
 
       {/* Top Doctors Table */}
@@ -155,6 +169,8 @@ const Reports: React.FC = () => {
           Export Report
         </Button>
       </Box>
+      </>
+      )}
     </DashboardLayout>
   );
 };

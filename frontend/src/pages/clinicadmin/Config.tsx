@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   Typography,
@@ -9,8 +9,10 @@ import {
   Alert,
   Chip,
   Grid,
+  CircularProgress,
 } from '@mui/material';
 import DashboardLayout from '@/components/layout/DashboardLayout';
+import { useClinicConfig } from '@/hooks/clinicadmin/useConfig';
 
 const BRAND = '#5519E6';
 const SUB = '#6B7280';
@@ -29,21 +31,38 @@ const cardSx = {
 };
 
 const Config: React.FC = () => {
-  const [clinicName, setClinicName] = useState('ENT Care Center, Pune');
-  const [address, setAddress] = useState('123 Medical Plaza, Baner Road');
-  const [city, setCity] = useState('Pune');
-  const [state, setState] = useState('Maharashtra');
-  const [pincode, setPincode] = useState('411045');
-  const [phone, setPhone] = useState('+91 9876543210');
-  const [email, setEmail] = useState('clinic@entcarecenter.in');
+  const { data: configData, isLoading } = useClinicConfig();
 
-  const [establishedYear, setEstablishedYear] = useState('2018');
-  const [bedCount, setBedCount] = useState('12');
-  const [licenseNumber, setLicenseNumber] = useState('MH-CL-2018-0456');
+  const [clinicName, setClinicName] = useState('');
+  const [address, setAddress] = useState('');
+  const [city, setCity] = useState('');
+  const [state, setState] = useState('');
+  const [pincode, setPincode] = useState('');
+  const [phone, setPhone] = useState('');
+  const [email, setEmail] = useState('');
+
+  const [establishedYear, setEstablishedYear] = useState('');
+  const [bedCount, setBedCount] = useState('');
+  const [licenseNumber, setLicenseNumber] = useState('');
 
   const [snackOpen, setSnackOpen] = useState(false);
 
-  const specializations = ['ENT', 'Audiology', 'Speech Therapy'];
+  const specializations: string[] = configData?.specializations ?? [];
+
+  useEffect(() => {
+    if (configData) {
+      setClinicName(configData.clinicName ?? '');
+      setAddress(configData.address ?? '');
+      setCity(configData.city ?? '');
+      setState(configData.state ?? '');
+      setPincode(configData.pincode ?? '');
+      setPhone(configData.phone ?? '');
+      setEmail(configData.email ?? '');
+      setEstablishedYear(configData.establishedYear ?? '');
+      setBedCount(String(configData.bedCount ?? ''));
+      setLicenseNumber(configData.licenseNumber ?? '');
+    }
+  }, [configData]);
 
   const handleSave = () => {
     setSnackOpen(true);
@@ -51,6 +70,14 @@ const Config: React.FC = () => {
 
   return (
     <DashboardLayout pageTitle="Clinic Config">
+      <Alert severity="warning" sx={{ mb: 2, borderRadius: '12px' }}>
+        🚧 This feature is under development — coming soon!
+      </Alert>
+      {isLoading ? (
+        <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
+          <CircularProgress sx={{ color: BRAND }} />
+        </Box>
+      ) : (
       <Box sx={{ maxWidth: 900, mx: 'auto', py: 3, px: 2 }}>
         <Typography variant="h5" sx={{ fontWeight: 700, mb: 3, color: '#1F2937' }}>
           Clinic Configuration
@@ -218,6 +245,7 @@ const Config: React.FC = () => {
           </Alert>
         </Snackbar>
       </Box>
+      )}
     </DashboardLayout>
   );
 };

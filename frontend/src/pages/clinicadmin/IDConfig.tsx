@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Container,
   Card,
@@ -16,48 +16,37 @@ import {
   Button,
   Box,
   Stack,
+  CircularProgress,
 } from '@mui/material';
 import { Warning as AlertTriangle } from '@mui/icons-material';
 import DashboardLayout from '@/components/layout/DashboardLayout';
+import { useIdConfig } from '@/hooks/clinicadmin/useConfig';
+
+const DEFAULT_ENTITIES = [
+  { name: 'Patient', inherited: 'PAT-YYYYMMDD-{seq:5}', key: 'patient', preview: '', nextSeq: '' },
+  { name: 'Doctor', inherited: 'DOC-{clinic}-{seq:3}', key: 'doctor', preview: '', nextSeq: '' },
+  { name: 'Encounter', inherited: 'ENC-{patient}-{seq:4}', key: 'encounter', preview: '', nextSeq: '' },
+  { name: 'Clinic', inherited: 'CLI-{name:3}-{seq:2}', key: 'clinic', preview: '', nextSeq: '' },
+];
 
 const IDConfig: React.FC = () => {
+  const { data: idConfigData, isLoading } = useIdConfig();
+
   const [overrides, setOverrides] = useState({
-    patient: 'CLIN-',
-    doctor: 'DOC-',
-    encounter: 'ENC-',
-    clinic: 'CLI-',
+    patient: '',
+    doctor: '',
+    encounter: '',
+    clinic: '',
   });
 
-  const entities = [
-    {
-      name: 'Patient',
-      inherited: 'PAT-YYYYMMDD-{seq:5}',
-      key: 'patient',
-      preview: 'CLIN-20260327-00001',
-      nextSeq: '00142',
-    },
-    {
-      name: 'Doctor',
-      inherited: 'DOC-{clinic}-{seq:3}',
-      key: 'doctor',
-      preview: 'DOC-PUN-045',
-      nextSeq: '046',
-    },
-    {
-      name: 'Encounter',
-      inherited: 'ENC-{patient}-{seq:4}',
-      key: 'encounter',
-      preview: 'ENC-CLIN-20260327-00001-0001',
-      nextSeq: '0215',
-    },
-    {
-      name: 'Clinic',
-      inherited: 'CLI-{name:3}-{seq:2}',
-      key: 'clinic',
-      preview: 'CLI-PUN-01',
-      nextSeq: '02',
-    },
-  ];
+  const [entities, setEntities] = useState(DEFAULT_ENTITIES);
+
+  useEffect(() => {
+    if (idConfigData) {
+      if (idConfigData.overrides) setOverrides(idConfigData.overrides);
+      if (idConfigData.entities) setEntities(idConfigData.entities);
+    }
+  }, [idConfigData]);
 
   const handleOverrideChange = (key: string, value: string) => {
     setOverrides({ ...overrides, [key]: value });
@@ -80,6 +69,11 @@ const IDConfig: React.FC = () => {
 
   return (
     <DashboardLayout pageTitle="ID Configuration">
+      {isLoading ? (
+        <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
+          <CircularProgress />
+        </Box>
+      ) : (
       <Container maxWidth="lg" sx={{ py: 3 }}>
         <Stack spacing={3}>
           <Alert severity="warning" icon={<AlertTriangle />}>
@@ -158,6 +152,7 @@ const IDConfig: React.FC = () => {
           </Card>
         </Stack>
       </Container>
+      )}
     </DashboardLayout>
   );
 };

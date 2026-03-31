@@ -93,10 +93,12 @@ const TopBar: React.FC<TopBarProps> = ({ onMenuClick, pageTitle, breadcrumbs }) 
       }}
     >
       <Toolbar
+        variant="dense"
         sx={{
           display: 'flex',
           justifyContent: 'space-between',
           gap: 2,
+          minHeight: '40px !important',
         }}
       >
         {/* Left Section */}
@@ -112,22 +114,7 @@ const TopBar: React.FC<TopBarProps> = ({ onMenuClick, pageTitle, breadcrumbs }) 
             </IconButton>
           )}
 
-          {pageTitle && !isMobile && (
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
-              <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                {pageTitle}
-              </Typography>
-              {breadcrumbs && breadcrumbs.length > 0 && (
-                <Breadcrumbs separator="/" sx={{ fontSize: '0.75rem' }}>
-                  {breadcrumbs.map((item, index) => (
-                    <Typography key={index} variant="caption" color="textSecondary">
-                      {item.label}
-                    </Typography>
-                  ))}
-                </Breadcrumbs>
-              )}
-            </Box>
-          )}
+          {/* Page title removed — shown inside page content */}
         </Box>
 
         {/* Clinic Switcher — shows when user has multiple role+clinic assignments */}
@@ -161,34 +148,7 @@ const TopBar: React.FC<TopBarProps> = ({ onMenuClick, pageTitle, breadcrumbs }) 
 
         {/* Right Section */}
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          {/* Search Bar - Hidden on mobile */}
-          {!isMobile && (
-            <Box
-              sx={{
-                display: 'flex',
-                alignItems: 'center',
-                backgroundColor: theme.palette.mode === 'light'
-                  ? '#F1F3F7'
-                  : '#252535',
-                borderRadius: '8px',
-                px: 1.5,
-                py: 0.75,
-                minWidth: 280,
-              }}
-            >
-              <Icons.Search sx={{ fontSize: '1.2rem', mr: 1, color: theme.palette.text.secondary }} />
-              <InputBase
-                placeholder="Search..."
-                sx={{
-                  flex: 1,
-                  fontSize: '0.9rem',
-                  '& input::placeholder': {
-                    opacity: 0.6,
-                  },
-                }}
-              />
-            </Box>
-          )}
+          {/* Search removed — each page has its own search */}
 
           {/* Notifications */}
           <IconButton

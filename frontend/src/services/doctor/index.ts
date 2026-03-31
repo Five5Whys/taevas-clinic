@@ -1,0 +1,10 @@
+export { doctorDashboardService } from './dashboardService';
+export { appointmentService } from './appointmentService';
+export { encounterService } from './encounterService';
+export { prescriptionService } from './prescriptionService';
+export { doctorPatientService } from './patientService';
+export { doctorBillingService } from './billingService';
+export { deviceReportService } from './deviceReportService';
+export { familyService } from './familyService';
+export { whatsappService } from './whatsappService';
+export { marketingService } from './marketingService';

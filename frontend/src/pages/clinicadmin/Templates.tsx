@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   Container,
   Card,
@@ -20,6 +20,7 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
+  CircularProgress,
 } from '@mui/material';
 import {
   CloudUpload as Upload,
@@ -28,8 +29,12 @@ import {
   Visibility,
 } from '@mui/icons-material';
 import DashboardLayout from '@/components/layout/DashboardLayout';
+import { useTemplates, useUpdateTemplate } from '@/hooks/clinicadmin/useTemplates';
 
 const Templates: React.FC = () => {
+  const { data: templatesData, isLoading } = useTemplates();
+  const updateTemplate = useUpdateTemplate();
+
   const [activeTab, setActiveTab] = useState(0);
   const [openQRDialog, setOpenQRDialog] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -51,42 +56,56 @@ const Templates: React.FC = () => {
   });
 
   const [qrConfig, setQrConfig] = useState({
-    doctorName: 'Dr. Rajesh Kumar',
-    clinicName: 'Taevas Clinic',
-    nmcRegistration: 'A1234567',
-    prescriptionHash: 'abc123def456',
+    doctorName: '',
+    clinicName: '',
+    nmcRegistration: '',
+    prescriptionHash: '',
   });
 
   const [stickerConfig, setStickerConfig] = useState({
-    title: 'Taevas Clinic',
-    line1: '123 Medical Plaza',
-    line2: 'Baner Road, Pune',
-    phone: '+91 9876543210',
-    website: 'taevas.in',
+    title: '',
+    line1: '',
+    line2: '',
+    phone: '',
+    website: '',
   });
+
+  useEffect(() => {
+    if (templatesData) {
+      if (templatesData.logo) setLogoSettings(prev => ({ ...prev, ...templatesData.logo }));
+      if (templatesData.signature) setSignatureSettings(prev => ({ ...prev, ...templatesData.signature }));
+      if (templatesData.qr) setQrConfig(prev => ({ ...prev, ...templatesData.qr }));
+      if (templatesData.sticker) setStickerConfig(prev => ({ ...prev, ...templatesData.sticker }));
+    }
+  }, [templatesData]);
 
   const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
     setActiveTab(newValue);
   };
 
   const handleLogoSave = () => {
-    console.log('Logo settings saved:', logoSettings);
+    updateTemplate.mutate({ type: 'logo', data: logoSettings });
   };
 
   const handleSignatureSave = () => {
-    console.log('Signature settings saved:', signatureSettings);
+    updateTemplate.mutate({ type: 'signature', data: signatureSettings });
   };
 
   const handleQRSave = () => {
-    console.log('QR config saved:', qrConfig);
+    updateTemplate.mutate({ type: 'qr', data: qrConfig });
   };
 
   const handleStickerSave = () => {
-    console.log('Sticker config saved:', stickerConfig);
+    updateTemplate.mutate({ type: 'sticker', data: stickerConfig });
   };
 
   return (
     <DashboardLayout pageTitle="Templates & Branding">
+      {isLoading ? (
+        <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
+          <CircularProgress />
+        </Box>
+      ) : (
       <Container maxWidth="lg" sx={{ py: 3 }}>
         <Card>
           <CardHeader title="Templates Configuration" />
@@ -95,7 +114,7 @@ const Templates: React.FC = () => {
               <Tab label="Clinic Logo" />
               <Tab label="Digital Signature" />
               <Tab label="Prescription QR Code" />
-              <Tab label="Address Sticker" />
+              <Tab label="Address QR" />
             </Tabs>
 
             {/* Tab 1: Clinic Logo */}
@@ -655,7 +674,7 @@ const Templates: React.FC = () => {
               </DialogActions>
             </Dialog>
 
-            {/* Tab 4: Address Sticker */}
+            {/* Tab 4: Address QR */}
             {activeTab === 3 && (
               <Grid container spacing={2}>
                 <Grid item xs={12} md={6}>
@@ -806,6 +825,7 @@ const Templates: React.FC = () => {
           </CardContent>
         </Card>
       </Container>
+      )}
     </DashboardLayout>
   );
 };

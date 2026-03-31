@@ -46,8 +46,12 @@ public class AuthService {
     @Transactional(readOnly = true)
     public AuthResponse login(LoginRequest request) {
         String identifier = request.getIdentifier();
+        // Try exact match first, then strip country code prefixes (+XX, +XXX, +XXXX) for phone lookup
         User user = userRepository.findByPhone(identifier)
                 .or(() -> userRepository.findByEmail(identifier))
+                .or(() -> identifier.startsWith("+") && identifier.length() > 3 ? userRepository.findByPhone(identifier.substring(3)) : java.util.Optional.empty())
+                .or(() -> identifier.startsWith("+") && identifier.length() > 4 ? userRepository.findByPhone(identifier.substring(4)) : java.util.Optional.empty())
+                .or(() -> identifier.startsWith("+") && identifier.length() > 5 ? userRepository.findByPhone(identifier.substring(5)) : java.util.Optional.empty())
                 .orElseThrow(() -> new UnauthorizedException("Invalid credentials"));
 
         if (user.getPasswordHash() == null || !passwordEncoder.matches(request.getPassword(), user.getPasswordHash())) {

@@ -16,6 +16,7 @@ import {
   TextField,
   IconButton,
   Rating,
+  CircularProgress,
 } from '@mui/material';
 import {
   PublishedWithChanges,
@@ -25,8 +26,11 @@ import {
   Share,
 } from '@mui/icons-material';
 import DashboardLayout from '@/components/layout/DashboardLayout';
+import { useMarketingReviews } from '@/hooks/doctor';
 
 const Marketing: React.FC = () => {
+  const { data: marketingData, isLoading } = useMarketingReviews();
+
   const [topic, setTopic] = useState('ENT Health Tips');
   const [generatedContent, setGeneratedContent] = useState(
     'Regular ear hygiene is essential for maintaining optimal hearing health. Avoid inserting cotton buds deep into the ear canal as it can damage the delicate eardrum. Instead, clean only the outer ear with a damp cloth. If you experience ear pain or hearing loss, consult an ENT specialist immediately.'
@@ -40,29 +44,20 @@ const Marketing: React.FC = () => {
     'Patient Success Stories',
   ];
 
-  const reviews = [
-    {
-      id: 1,
-      author: 'Priya Sharma',
-      rating: 5,
-      text: 'Dr. Rajesh Kumar is an excellent ENT specialist. Very professional and thorough in his diagnosis.',
-      date: '2 days ago',
-    },
-    {
-      id: 2,
-      author: 'Amit Kumar',
-      rating: 5,
-      text: 'Great service, friendly staff, and effective treatment. Highly recommended!',
-      date: '1 week ago',
-    },
-    {
-      id: 3,
-      author: 'Neha Patel',
-      rating: 4,
-      text: 'Good doctor, though waiting time can be a bit long during peak hours.',
-      date: '2 weeks ago',
-    },
-  ];
+  const reviews = (Array.isArray(marketingData) ? marketingData : marketingData?.reviews ?? marketingData?.content ?? []) as any[];
+  const practiceInfo = marketingData?.practiceInfo ?? {};
+  const totalReviews = marketingData?.totalReviews ?? reviews.length;
+  const avgRating = marketingData?.avgRating ?? (reviews.length > 0 ? reviews.reduce((s: number, r: any) => s + (r.rating ?? 0), 0) / reviews.length : 0);
+
+  if (isLoading) {
+    return (
+      <DashboardLayout pageTitle="Marketing">
+        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 400 }}>
+          <CircularProgress sx={{ color: '#5519E6' }} />
+        </Box>
+      </DashboardLayout>
+    );
+  }
 
   return (
     <DashboardLayout pageTitle="Marketing">
@@ -148,9 +143,9 @@ const Marketing: React.FC = () => {
                   </Box>
 
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
-                    <Rating value={4.9} readOnly size="small" />
+                    <Rating value={avgRating} readOnly size="small" precision={0.1} />
                     <Typography variant="caption" sx={{ fontWeight: 'bold' }}>
-                      4.9/5 (148 reviews)
+                      {avgRating.toFixed(1)}/5 ({totalReviews} reviews)
                     </Typography>
                   </Box>
 
@@ -304,7 +299,7 @@ const Marketing: React.FC = () => {
                     variant="text"
                     sx={{ color: '#5519E6' }}
                   >
-                    View All (148)
+                    View All ({totalReviews})
                   </Button>
                 </Box>
 

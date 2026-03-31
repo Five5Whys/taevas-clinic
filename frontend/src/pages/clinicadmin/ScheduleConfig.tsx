@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   Typography,
@@ -18,8 +18,10 @@ import {
   MenuItem,
   FormControl,
   InputLabel,
+  CircularProgress,
 } from '@mui/material';
 import DashboardLayout from '@/components/layout/DashboardLayout';
+import { useScheduleConfig, useDoctorSchedules, useUpdateScheduleConfig } from '@/hooks/clinicadmin/useConfig';
 
 const BRAND = '#5519E6';
 const SUB = '#6B7280';
@@ -38,27 +40,39 @@ interface DoctorOverride {
   availableDays: string;
 }
 
-const ScheduleConfig: React.FC = () => {
-  const [clinicHours, setClinicHours] = useState<ClinicHoursRow[]>([
-    { day: 'Monday', open: '09:00', close: '18:00', enabled: true },
-    { day: 'Tuesday', open: '09:00', close: '18:00', enabled: true },
-    { day: 'Wednesday', open: '09:00', close: '18:00', enabled: true },
-    { day: 'Thursday', open: '09:00', close: '18:00', enabled: true },
-    { day: 'Friday', open: '09:00', close: '18:00', enabled: true },
-    { day: 'Saturday', open: '09:00', close: '14:00', enabled: true },
-    { day: 'Sunday', open: '09:00', close: '18:00', enabled: false },
-  ]);
+const DEFAULT_HOURS: ClinicHoursRow[] = [
+  { day: 'Monday', open: '09:00', close: '18:00', enabled: true },
+  { day: 'Tuesday', open: '09:00', close: '18:00', enabled: true },
+  { day: 'Wednesday', open: '09:00', close: '18:00', enabled: true },
+  { day: 'Thursday', open: '09:00', close: '18:00', enabled: true },
+  { day: 'Friday', open: '09:00', close: '18:00', enabled: true },
+  { day: 'Saturday', open: '09:00', close: '14:00', enabled: true },
+  { day: 'Sunday', open: '09:00', close: '18:00', enabled: false },
+];
 
+const ScheduleConfig: React.FC = () => {
+  const { data: scheduleData, isLoading: scheduleLoading } = useScheduleConfig();
+  const { data: doctorData, isLoading: doctorsLoading } = useDoctorSchedules();
+  const updateSchedule = useUpdateScheduleConfig();
+  const isLoading = scheduleLoading || doctorsLoading;
+
+  const [clinicHours, setClinicHours] = useState<ClinicHoursRow[]>(DEFAULT_HOURS);
   const [slotDuration, setSlotDuration] = useState<number>(30);
   const [maxPatientsPerSlot, setMaxPatientsPerSlot] = useState<number>(1);
   const [bufferBetweenSlots, setBufferBetweenSlots] = useState<number>(5);
 
-  const [doctorOverrides] = useState<DoctorOverride[]>([
-    { name: 'Dr. Rajesh', slotDuration: 30, maxPatients: 1, availableDays: 'Mon-Fri' },
-    { name: 'Dr. Meena', slotDuration: 45, maxPatients: 1, availableDays: 'Mon, Wed, Fri' },
-  ]);
+  const doctorOverrides: DoctorOverride[] = doctorData ?? [];
 
   const [snackbarOpen, setSnackbarOpen] = useState(false);
+
+  useEffect(() => {
+    if (scheduleData) {
+      if (scheduleData.clinicHours) setClinicHours(scheduleData.clinicHours);
+      if (scheduleData.slotDuration != null) setSlotDuration(scheduleData.slotDuration);
+      if (scheduleData.maxPatientsPerSlot != null) setMaxPatientsPerSlot(scheduleData.maxPatientsPerSlot);
+      if (scheduleData.bufferBetweenSlots != null) setBufferBetweenSlots(scheduleData.bufferBetweenSlots);
+    }
+  }, [scheduleData]);
 
   const handleHoursChange = (
     index: number,
@@ -71,18 +85,21 @@ const ScheduleConfig: React.FC = () => {
   };
 
   const handleSave = () => {
-    console.log('Schedule saved:', {
-      clinicHours,
-      slotDuration,
-      maxPatientsPerSlot,
-      bufferBetweenSlots,
-      doctorOverrides,
+    updateSchedule.mutate({ clinicHours, slotDuration, maxPatientsPerSlot, bufferBetweenSlots }, {
+      onSuccess: () => setSnackbarOpen(true),
     });
-    setSnackbarOpen(true);
   };
 
   return (
     <DashboardLayout pageTitle="Schedule Config">
+      <Alert severity="warning" sx={{ mb: 2, borderRadius: '12px' }}>
+        🚧 This feature is under development — coming soon!
+      </Alert>
+      {isLoading ? (
+        <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
+          <CircularProgress sx={{ color: BRAND }} />
+        </Box>
+      ) : (
       <Box sx={{ p: 3, maxWidth: 1100, mx: 'auto' }}>
         {/* Header */}
         <Typography variant="h5" sx={{ fontWeight: 700, color: BRAND, mb: 3 }}>
@@ -261,6 +278,7 @@ const ScheduleConfig: React.FC = () => {
           </Alert>
         </Snackbar>
       </Box>
+      )}
     </DashboardLayout>
   );
 };

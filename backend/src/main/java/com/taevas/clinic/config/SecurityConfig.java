@@ -45,6 +45,9 @@ public class SecurityConfig {
                         .requestMatchers("/actuator/**").permitAll()
                         .requestMatchers("/h2-console/**").permitAll()
                         .requestMatchers("/api/superadmin/**").hasRole("SUPERADMIN")
+                        .requestMatchers("/api/clinicadmin/**").hasRole("CLINIC_ADMIN")
+                        .requestMatchers("/api/doctor/**").hasAnyRole("DOCTOR", "CLINIC_ADMIN")
+                        .requestMatchers("/api/patient/**").hasAnyRole("PATIENT", "DOCTOR", "CLINIC_ADMIN")
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(ex -> ex

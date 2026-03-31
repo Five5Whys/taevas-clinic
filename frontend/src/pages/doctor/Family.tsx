@@ -16,6 +16,7 @@ import {
   TableCell,
   TableHead,
   TableRow,
+  CircularProgress,
 } from '@mui/material';
 import {
   FamilyRestroom,
@@ -23,47 +24,24 @@ import {
   People,
   AutoAwesome as Sparkles,
 } from '@mui/icons-material';
+import { useSearchParams } from 'react-router-dom';
 import DashboardLayout from '@/components/layout/DashboardLayout';
+import { useFamilyByPatient } from '@/hooks/doctor';
+
+const MEMBER_COLORS = ['#5519E6', '#A046F0', '#CDDC50', '#FF8232', '#25D366', '#1976D2'];
 
 const Family: React.FC = () => {
-  const familyMembers = [
-    {
-      id: 1,
-      name: 'Anita',
-      age: 35,
-      gender: 'F',
-      condition: 'Allergic Rhinitis',
-      status: 'Active',
-      color: '#5519E6',
-    },
-    {
-      id: 2,
-      name: 'Vijay',
-      age: 42,
-      gender: 'M',
-      condition: 'Hypertension',
-      status: 'Referred',
-      color: '#A046F0',
-    },
-    {
-      id: 3,
-      name: 'Riya',
-      age: 12,
-      gender: 'F',
-      condition: 'Healthy',
-      status: 'Monitor',
-      color: '#CDDC50',
-    },
-    {
-      id: 4,
-      name: 'Dadi',
-      age: 72,
-      gender: 'F',
-      condition: 'Vertigo',
-      status: 'Monitor',
-      color: '#FF8232',
-    },
-  ];
+  const [searchParams] = useSearchParams();
+  const patientId = searchParams.get('patientId') ?? '';
+  const { data: familyData, isLoading } = useFamilyByPatient(patientId);
+
+  const familyMembers = ((familyData?.members ?? familyData ?? []) as any[]).map((m: any, i: number) => ({
+    ...m,
+    color: m.color ?? MEMBER_COLORS[i % MEMBER_COLORS.length],
+  }));
+  const familyInfo = familyData?.familyInfo ?? {};
+  const healthSummary = familyData?.healthSummary ?? {};
+  // familyData?.aiInsight available for future AI insight card integration
 
   const getStatusBgColor = (status: string) => {
     switch (status) {
@@ -80,6 +58,16 @@ const Family: React.FC = () => {
     }
   };
 
+  if (isLoading && patientId) {
+    return (
+      <DashboardLayout pageTitle="Family">
+        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 400 }}>
+          <CircularProgress sx={{ color: '#5519E6' }} />
+        </Box>
+      </DashboardLayout>
+    );
+  }
+
   return (
     <DashboardLayout pageTitle="Family">
       <Container maxWidth="lg" sx={{ py: 3 }}>
@@ -93,10 +81,10 @@ const Family: React.FC = () => {
                   <FamilyRestroom sx={{ fontSize: 40, color: '#5519E6' }} />
                   <Box>
                     <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
-                      Sharma Family
+                      {familyInfo.familyName ?? 'Family'}
                     </Typography>
                     <Typography variant="body2" color="textSecondary">
-                      Pune, Maharashtra • 4 Members
+                      {familyInfo.location ?? ''} {familyInfo.location ? '•' : ''} {familyMembers.length} Members
                     </Typography>
                   </Box>
                 </Box>
@@ -105,7 +93,7 @@ const Family: React.FC = () => {
                     Family Head
                   </Typography>
                   <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
-                    Vijay Sharma (42M)
+                    {familyInfo.familyHead ?? (familyMembers[0]?.name ?? '-')}
                   </Typography>
                 </Box>
               </CardContent>
@@ -220,7 +208,7 @@ const Family: React.FC = () => {
                       </TableCell>
                       <TableCell sx={{ border: 'none', paddingY: 1.5, textAlign: 'right' }}>
                         <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
-                          4
+                          {healthSummary.totalMembers ?? familyMembers.length}
                         </Typography>
                       </TableCell>
                     </TableRow>
@@ -235,7 +223,7 @@ const Family: React.FC = () => {
                       </TableCell>
                       <TableCell sx={{ border: 'none', paddingY: 1.5, textAlign: 'right' }}>
                         <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
-                          14
+                          {healthSummary.totalVisits ?? '-'}
                         </Typography>
                       </TableCell>
                     </TableRow>
@@ -247,7 +235,7 @@ const Family: React.FC = () => {
                       </TableCell>
                       <TableCell sx={{ border: 'none', paddingY: 1.5, textAlign: 'right' }}>
                         <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
-                          ₹8,400
+                          {healthSummary.totalSpend ?? '-'}
                         </Typography>
                       </TableCell>
                     </TableRow>
@@ -259,7 +247,7 @@ const Family: React.FC = () => {
                       </TableCell>
                       <TableCell sx={{ border: 'none', paddingY: 1.5, textAlign: 'right' }}>
                         <Chip
-                          label="3/4"
+                          label={healthSummary.abhaLinked ?? '-'}
                           sx={{
                             backgroundColor: '#CDDC50',
                             color: '#000',
@@ -276,7 +264,7 @@ const Family: React.FC = () => {
                       </TableCell>
                       <TableCell sx={{ border: 'none', paddingY: 1.5, textAlign: 'right' }}>
                         <Chip
-                          label="2/4"
+                          label={healthSummary.whatsappActive ?? '-'}
                           sx={{
                             backgroundColor: '#25D366',
                             color: '#fff',

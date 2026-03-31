@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Container,
   Card,
@@ -16,25 +16,39 @@ import {
   TableContainer,
   TableHead,
   TableRow,
+  Alert,
+  Box,
+  CircularProgress,
 } from '@mui/material';
 import DashboardLayout from '@/components/layout/DashboardLayout';
+import { useBillingConfig, useUpdateBillingConfig } from '@/hooks/clinicadmin/useConfig';
 
 const BillingSetup: React.FC = () => {
+  const { data: billingData, isLoading } = useBillingConfig();
+  const updateBilling = useUpdateBillingConfig();
+
   const [consultationFees, setConsultationFees] = useState({
-    newPatient: 600,
-    followUp: 400,
-    earCleaning: 250,
-    nasalEndoscopy: 800,
-    audiometry: 350,
+    newPatient: 0,
+    followUp: 0,
+    earCleaning: 0,
+    nasalEndoscopy: 0,
+    audiometry: 0,
   });
 
   const [invoiceSettings, setInvoiceSettings] = useState({
-    prefix: 'EC-PUN-',
-    footerNote: 'Thank you for choosing us',
-    gstNumber: '27AABCT1234H1Z0',
-    autoGenerateGST: true,
-    emailInvoice: true,
+    prefix: '',
+    footerNote: '',
+    gstNumber: '',
+    autoGenerateGST: false,
+    emailInvoice: false,
   });
+
+  useEffect(() => {
+    if (billingData) {
+      if (billingData.consultationFees) setConsultationFees(billingData.consultationFees);
+      if (billingData.invoiceSettings) setInvoiceSettings(billingData.invoiceSettings);
+    }
+  }, [billingData]);
 
   const handleFeeChange = (field: string, value: number) => {
     setConsultationFees({ ...consultationFees, [field]: value });
@@ -45,13 +59,15 @@ const BillingSetup: React.FC = () => {
   };
 
   const handleSaveFees = () => {
-    console.log('Fees saved:', consultationFees);
-    alert('Consultation fees saved successfully!');
+    updateBilling.mutate({ consultationFees }, {
+      onSuccess: () => alert('Consultation fees saved successfully!'),
+    });
   };
 
   const handleSaveInvoice = () => {
-    console.log('Invoice settings saved:', invoiceSettings);
-    alert('Invoice settings saved successfully!');
+    updateBilling.mutate({ invoiceSettings }, {
+      onSuccess: () => alert('Invoice settings saved successfully!'),
+    });
   };
 
   const feesList = [
@@ -64,6 +80,14 @@ const BillingSetup: React.FC = () => {
 
   return (
     <DashboardLayout pageTitle="Billing Setup">
+      <Alert severity="warning" sx={{ mb: 2, borderRadius: '12px' }}>
+        🚧 This feature is under development — coming soon!
+      </Alert>
+      {isLoading ? (
+        <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
+          <CircularProgress />
+        </Box>
+      ) : (
       <Container maxWidth="lg" sx={{ py: 3 }}>
         <Grid container spacing={3}>
           {/* Consultation Fees */}
@@ -188,6 +212,7 @@ const BillingSetup: React.FC = () => {
           </Grid>
         </Grid>
       </Container>
+      )}
     </DashboardLayout>
   );
 };

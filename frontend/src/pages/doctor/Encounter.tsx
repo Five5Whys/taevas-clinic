@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   Card,
@@ -19,6 +19,7 @@ import {
   MenuItem,
   IconButton,
   InputAdornment,
+  CircularProgress,
 } from '@mui/material';
 import {
   Mic,
@@ -28,7 +29,9 @@ import {
   Description,
   CloudUpload,
 } from '@mui/icons-material';
+import { useSearchParams } from 'react-router-dom';
 import DashboardLayout from '@/components/layout/DashboardLayout';
+import { useEncounterByAppointment } from '@/hooks/doctor';
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -52,13 +55,17 @@ function TabPanel(props: TabPanelProps) {
 }
 
 const Encounter: React.FC = () => {
+  const [searchParams] = useSearchParams();
+  const appointmentId = searchParams.get('appointmentId') ?? '';
+  const { data: encounterData, isLoading } = useEncounterByAppointment(appointmentId);
+
   const [tabValue, setTabValue] = useState(0);
-  const [chiefComplaint, setChiefComplaint] = useState('Nasal congestion, sneezing, throat irritation');
+  const [chiefComplaint, setChiefComplaint] = useState('');
   const [hpi, setHpi] = useState('');
   const [examination, setExamination] = useState('');
   const [assessment, setAssessment] = useState('');
   const [plan, setPlan] = useState('');
-  const [icdCode, setIcdCode] = useState('J30.1');
+  const [icdCode, setIcdCode] = useState('');
   const [rightTm, setRightTm] = useState('Normal');
   const [leftTm, setLeftTm] = useState('Normal');
   const [cerumen, setCerumen] = useState('No');
@@ -72,9 +79,47 @@ const Encounter: React.FC = () => {
   const [vocalCords, setVocalCords] = useState('Normal');
   const [throatNotes, setThroatNotes] = useState('');
 
+  useEffect(() => {
+    if (encounterData) {
+      setChiefComplaint(encounterData.chiefComplaint ?? encounterData.chief_complaint ?? '');
+      setHpi(encounterData.hpi ?? encounterData.historyOfPresentingIllness ?? '');
+      setExamination(encounterData.examination ?? encounterData.examinationFindings ?? '');
+      setAssessment(encounterData.assessment ?? '');
+      setPlan(encounterData.plan ?? '');
+      setIcdCode(encounterData.icdCode ?? encounterData.icd_code ?? '');
+      if (encounterData.entExam) {
+        const ent = encounterData.entExam;
+        setRightTm(ent.rightTm ?? 'Normal');
+        setLeftTm(ent.leftTm ?? 'Normal');
+        setCerumen(ent.cerumen ?? 'No');
+        setEarNotes(ent.earNotes ?? '');
+        setSeptum(ent.septum ?? 'Normal');
+        setTurbinates(ent.turbinates ?? 'Mild hypertrophy');
+        setDischarge(ent.discharge ?? 'Mucoid');
+        setPolyps(ent.polyps ?? 'No');
+        setTonsils(ent.tonsils ?? 'Grade 2');
+        setPharynx(ent.pharynx ?? 'Mild erythema');
+        setVocalCords(ent.vocalCords ?? 'Normal');
+        setThroatNotes(ent.throatNotes ?? '');
+      }
+    }
+  }, [encounterData]);
+
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
   };
+
+  const patient = encounterData?.patient ?? {};
+
+  if (isLoading && appointmentId) {
+    return (
+      <DashboardLayout pageTitle="Encounter">
+        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 400 }}>
+          <CircularProgress sx={{ color: '#5519E6' }} />
+        </Box>
+      </DashboardLayout>
+    );
+  }
 
   return (
     <DashboardLayout pageTitle="Encounter">
@@ -100,16 +145,16 @@ const Encounter: React.FC = () => {
                   fontWeight: 'bold',
                 }}
               >
-                AS
+                {(patient.name ?? 'AS').split(' ').map((n: string) => n[0]).join('').slice(0, 2)}
               </Avatar>
             </Grid>
             <Grid item xs>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 0.5 }}>
                 <Typography variant="h6" sx={{ fontWeight: 'bold', fontSize: '0.95rem' }}>
-                  Anita Sharma
+                  {patient.name ?? 'Patient'}
                 </Typography>
                 <Chip
-                  label="Token 14"
+                  label={`Token ${encounterData?.token ?? patient.token ?? '-'}`}
                   size="small"
                   sx={{
                     backgroundColor: 'rgba(255,255,255,0.3)',
@@ -121,7 +166,7 @@ const Encounter: React.FC = () => {
                 />
               </Box>
               <Typography variant="caption" sx={{ opacity: 0.9, fontSize: '0.8rem', display: 'block', mb: 0.5 }}>
-                ID: TC-PUN-042 · Age: 35F · Allergic Rhinitis · Token 14
+                {`ID: ${patient.id ?? '-'} · Age: ${patient.age ?? '-'}${patient.gender ?? ''} · ${patient.condition ?? encounterData?.diagnosis ?? '-'} · Token ${encounterData?.token ?? '-'}`}
               </Typography>
               <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mb: 0.5 }}>
                 <Chip

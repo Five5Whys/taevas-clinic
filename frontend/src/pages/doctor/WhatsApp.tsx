@@ -13,6 +13,7 @@ import {
   InputAdornment,
   IconButton,
   Chip,
+  CircularProgress,
 } from '@mui/material';
 import {
   Send,
@@ -22,42 +23,25 @@ import {
   DoneAll as CheckDouble,
 } from '@mui/icons-material';
 import DashboardLayout from '@/components/layout/DashboardLayout';
+import { useWhatsAppConfig } from '@/hooks/doctor';
 
 const WhatsApp: React.FC = () => {
   const [messageText, setMessageText] = useState('');
+  const { data: waConfig, isLoading } = useWhatsAppConfig();
 
-  const chatMessages = [
-    {
-      type: 'bot',
-      text: 'Hello! I am Taevas Bot. How can I help you today?',
-      time: '10:00 AM',
-    },
-    {
-      type: 'user',
-      text: '1',
-      time: '10:01 AM',
-    },
-    {
-      type: 'bot',
-      text: 'Please provide your ABHA number or mobile number for registration.',
-      time: '10:01 AM',
-    },
-    {
-      type: 'user',
-      text: '+91 98765 43200',
-      time: '10:02 AM',
-    },
-    {
-      type: 'bot',
-      text: 'Great! Found your profile - Anita Sharma. Here are available appointment slots for tomorrow.',
-      time: '10:02 AM',
-    },
-    {
-      type: 'bot',
-      text: '1. 09:00 AM (Available)\n2. 10:30 AM (Available)\n3. 02:00 PM (Available)',
-      time: '10:03 AM',
-    },
-  ];
+  const chatMessages = (waConfig?.recentMessages ?? waConfig?.chatMessages ?? []) as any[];
+  const botPerformance = waConfig?.botPerformance ?? waConfig?.performance ?? {};
+  const botSettings = waConfig?.settings ?? waConfig?.botSettings ?? {};
+
+  if (isLoading) {
+    return (
+      <DashboardLayout pageTitle="WhatsApp">
+        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 400 }}>
+          <CircularProgress sx={{ color: '#25D366' }} />
+        </Box>
+      </DashboardLayout>
+    );
+  }
 
   return (
     <DashboardLayout pageTitle="WhatsApp">
@@ -98,7 +82,7 @@ const WhatsApp: React.FC = () => {
                       Taevas Bot
                     </Typography>
                     <Typography variant="caption" color="textSecondary">
-                      +91 98765 43200 • 3 active chats
+                      {waConfig?.phoneNumber ?? ''} {waConfig?.activeChats ? `• ${waConfig.activeChats} active chats` : ''}
                     </Typography>
                   </Box>
                 </Box>
@@ -218,7 +202,7 @@ const WhatsApp: React.FC = () => {
                       Messages Sent
                     </Typography>
                     <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#5519E6' }}>
-                      47
+                      {botPerformance.messagesSent ?? '-'}
                     </Typography>
                   </Box>
 
@@ -227,7 +211,7 @@ const WhatsApp: React.FC = () => {
                       Appointments Booked
                     </Typography>
                     <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#A046F0' }}>
-                      6
+                      {botPerformance.appointmentsBooked ?? '-'}
                     </Typography>
                   </Box>
 
@@ -236,7 +220,7 @@ const WhatsApp: React.FC = () => {
                       Reports Received
                     </Typography>
                     <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#FF8232' }}>
-                      4
+                      {botPerformance.reportsReceived ?? '-'}
                     </Typography>
                   </Box>
 
@@ -245,7 +229,7 @@ const WhatsApp: React.FC = () => {
                       Automation Rate
                     </Typography>
                     <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#CDDC50' }}>
-                      78%
+                      {botPerformance.automationRate ?? '-'}
                     </Typography>
                   </Box>
                 </Stack>

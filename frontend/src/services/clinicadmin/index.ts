@@ -1,0 +1,9 @@
+export { dashboardService } from './dashboardService';
+export { staffService } from './staffService';
+export { patientService } from './patientService';
+export { configService } from './configService';
+export { customFieldService } from './customFieldService';
+export { templateService } from './templateService';
+export { importService } from './importService';
+export { complianceService } from './complianceService';
+export { reportService } from './reportService';

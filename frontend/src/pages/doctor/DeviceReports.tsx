@@ -13,6 +13,7 @@ import {
   List,
   ListItem,
   ListItemText,
+  CircularProgress,
 } from '@mui/material';
 import {
   Cloud,
@@ -23,41 +24,26 @@ import {
   Assignment,
 } from '@mui/icons-material';
 import DashboardLayout from '@/components/layout/DashboardLayout';
+import { useDoctorDeviceReports } from '@/hooks/doctor';
 
 const DeviceReports: React.FC = () => {
   const [dragActive, setDragActive] = useState(false);
+  const { data: reportsData, isLoading } = useDoctorDeviceReports();
 
-  const pendingReports = [
-    {
-      id: 1,
-      type: 'Audiogram',
-      patient: 'Priya Nair',
-      device: 'Audecom',
-      time: '8 min ago',
-      values: 'PTA: 25 dB HL (Bilateral)',
-    },
-    {
-      id: 2,
-      type: 'VNG Report',
-      patient: 'Kamala Devi',
-      device: 'Equipoise VNG',
-      time: '22 min ago',
-      values: 'Smooth pursuit: Normal, Caloric response: Reduced',
-    },
-    {
-      id: 3,
-      type: 'CBC Report',
-      patient: 'Anita Sharma',
-      device: 'WhatsApp AI-extracted',
-      time: '45 min ago',
-      values: 'WBC: 7.2, Hb: 13.5 g/dL, Platelets: 245',
-    },
-  ];
+  const allReports = (Array.isArray(reportsData) ? reportsData : reportsData?.reports ?? reportsData?.content ?? []) as any[];
+  const pendingReports = allReports.filter((r: any) => r.status === 'PENDING' || r.status === 'Review' || !r.reviewed) ?? [];
+  const recentlyIngested = reportsData?.recentlyIngested ?? allReports.filter((r: any) => r.status === 'Completed' || r.status === 'Processing') ?? [];
+  const agentStatus = reportsData?.agentStatus ?? {};
 
-  const recentlyIngested = [
-    { id: 1, name: 'CBC extracted', status: 'Completed', time: '2 hours ago' },
-    { id: 2, name: 'CT Scan processing', status: 'Processing', time: 'In progress' },
-  ];
+  if (isLoading) {
+    return (
+      <DashboardLayout pageTitle="Device Reports">
+        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 400 }}>
+          <CircularProgress sx={{ color: '#5519E6' }} />
+        </Box>
+      </DashboardLayout>
+    );
+  }
 
   return (
     <DashboardLayout pageTitle="Device Reports">
@@ -117,7 +103,7 @@ const DeviceReports: React.FC = () => {
                       Reports Generated Today
                     </Typography>
                     <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#5519E6' }}>
-                      8
+                      {agentStatus.reportsToday ?? allReports.length}
                     </Typography>
                   </Box>
                 </Stack>

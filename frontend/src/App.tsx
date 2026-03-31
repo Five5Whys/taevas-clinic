@@ -53,6 +53,14 @@ const DRMarketing = lazy(() => import('@/pages/doctor/Marketing'));
 
 // Patient
 const PatientDashboard = lazy(() => import('@/pages/patient/Dashboard'));
+const PatientAppointments = lazy(() => import('@/pages/patient/Appointments'));
+const PatientPrescriptions = lazy(() => import('@/pages/patient/Prescriptions'));
+const PatientHealthRecords = lazy(() => import('@/pages/patient/HealthRecords'));
+const PatientFamily = lazy(() => import('@/pages/patient/Family'));
+
+// SA extras
+const SATemplates = lazy(() => import('@/pages/superadmin/Templates'));
+const SADataImport = lazy(() => import('@/pages/superadmin/DataImport'));
 
 // Stores
 import { useAuthStore } from '@/stores/authStore';
@@ -127,6 +135,8 @@ const App: React.FC = () => {
                   <Route path="countries" element={<SACountries />} />
                   <Route path="users" element={<SAUserManagement />} />
                   <Route path="audit" element={<SAAuditLog />} />
+                  <Route path="templates" element={<SATemplates />} />
+                  <Route path="data-import" element={<SADataImport />} />
                 </Routes>
               </ProtectedRoute>
             }
@@ -184,6 +194,10 @@ const App: React.FC = () => {
               <ProtectedRoute requiredRole={ROLES.PATIENT}>
                 <Routes>
                   <Route index element={<PatientDashboard />} />
+                  <Route path="appointments" element={<PatientAppointments />} />
+                  <Route path="prescriptions" element={<PatientPrescriptions />} />
+                  <Route path="health" element={<PatientHealthRecords />} />
+                  <Route path="family" element={<PatientFamily />} />
                 </Routes>
               </ProtectedRoute>
             }

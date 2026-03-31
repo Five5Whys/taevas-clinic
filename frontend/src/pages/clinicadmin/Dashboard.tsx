@@ -12,8 +12,10 @@ import {
   TableContainer,
   TableHead,
   TableRow,
+  CircularProgress,
 } from '@mui/material';
 import DashboardLayout from '@/components/layout/DashboardLayout';
+import { useClinicDashboard } from '@/hooks/clinicadmin';
 
 const BRAND = '#5519E6';
 const SUB = '#6B7280';
@@ -25,15 +27,17 @@ interface StatCardProps {
   label: string;
 }
 const StatCard: React.FC<StatCardProps> = ({ icon, value, label }) => (
-  <Card sx={{ borderRadius: '12px', height: '100%' }}>
-    <CardContent sx={{ p: 2.5, textAlign: 'center' }}>
-      <Box sx={{ fontSize: 28, mb: 1 }}>{icon}</Box>
-      <Typography variant="h4" sx={{ fontWeight: 800, color: BRAND, lineHeight: 1 }}>
-        {value}
-      </Typography>
-      <Typography variant="body2" sx={{ color: SUB, mt: 0.5, fontWeight: 500 }}>
-        {label}
-      </Typography>
+  <Card sx={{ borderRadius: '8px', height: '100%' }}>
+    <CardContent sx={{ p: 1.2, display: 'flex', alignItems: 'center', gap: 1.2, '&:last-child': { pb: 1.2 } }}>
+      <Box sx={{ fontSize: 20 }}>{icon}</Box>
+      <Box>
+        <Typography variant="subtitle1" sx={{ fontWeight: 800, color: BRAND, lineHeight: 1.1, fontSize: '1rem' }}>
+          {value}
+        </Typography>
+        <Typography variant="caption" sx={{ color: SUB, fontWeight: 500, fontSize: '0.7rem' }}>
+          {label}
+        </Typography>
+      </Box>
     </CardContent>
   </Card>
 );
@@ -61,14 +65,7 @@ const QuickAction: React.FC<QuickActionProps> = ({ icon, label }) => (
   </Card>
 );
 
-// ─── Mock Data ───────────────────────────────────────────────────────────────
-const STATS = [
-  { icon: '📅', value: 12, label: "Today's Appointments" },
-  { icon: '🩺', value: 847, label: 'Total Patients' },
-  { icon: '👨‍⚕️', value: 6, label: 'Active Doctors' },
-  { icon: '💰', value: '₹2,45,000', label: 'Revenue This Month' },
-];
-
+// ─── Mock Data (appointments – no list API yet) ─────────────────────────────
 const APPOINTMENTS = [
   { time: '9:00 AM', patient: 'Anita Sharma', doctor: 'Dr. Rajesh', type: 'Follow-up', status: 'Confirmed' },
   { time: '9:30 AM', patient: 'Priya Das', doctor: 'Dr. Rajesh', type: 'New Visit', status: 'Waiting' },
@@ -91,12 +88,43 @@ const QUICK_ACTIONS = [
 
 // ─── Main ─────────────────────────────────────────────────────────────────────
 const Dashboard: React.FC = () => {
+  const { data: dashboard, isLoading, isError } = useClinicDashboard();
+
+  const stats = dashboard
+    ? [
+        { icon: '📅', value: dashboard.todayAppointments, label: "Today's Appointments" },
+        { icon: '🩺', value: dashboard.totalPatients, label: 'Total Patients' },
+        { icon: '📋', value: dashboard.pendingAppointments, label: 'Pending Appointments' },
+        { icon: '💰', value: `₹${Number(dashboard.totalRevenue).toLocaleString('en-IN')}`, label: 'Total Revenue' },
+      ]
+    : [];
+
+  if (isLoading) {
+    return (
+      <DashboardLayout pageTitle="Clinic Overview">
+        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 300 }}>
+          <CircularProgress />
+        </Box>
+      </DashboardLayout>
+    );
+  }
+
+  if (isError) {
+    return (
+      <DashboardLayout pageTitle="Clinic Overview">
+        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 300 }}>
+          <Typography color="error">Failed to load dashboard data.</Typography>
+        </Box>
+      </DashboardLayout>
+    );
+  }
+
   return (
     <DashboardLayout pageTitle="Clinic Overview">
       <Box sx={{ px: 3, py: 3 }}>
 
         {/* Header */}
-        <Box sx={{ mb: 3 }}>
+        <Box sx={{ mb: 2 }}>
           <Typography variant="h5" sx={{ fontWeight: 800 }}>
             Clinic Overview
           </Typography>
@@ -105,9 +133,21 @@ const Dashboard: React.FC = () => {
           </Typography>
         </Box>
 
+        {/* Quick Actions */}
+        <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1 }}>
+          Quick Actions
+        </Typography>
+        <Grid container spacing={2} sx={{ mb: 2.5 }}>
+          {QUICK_ACTIONS.map((action) => (
+            <Grid item xs={12} sm={4} key={action.label}>
+              <QuickAction icon={action.icon} label={action.label} />
+            </Grid>
+          ))}
+        </Grid>
+
         {/* Stats Row */}
-        <Grid container spacing={2.5} sx={{ mb: 4 }}>
-          {STATS.map((s) => (
+        <Grid container spacing={1.5} sx={{ mb: 3 }}>
+          {stats.map((s) => (
             <Grid item xs={6} sm={3} key={s.label}>
               <StatCard icon={s.icon} value={s.value} label={s.label} />
             </Grid>
@@ -158,18 +198,6 @@ const Dashboard: React.FC = () => {
             </Table>
           </TableContainer>
         </Card>
-
-        {/* Quick Actions */}
-        <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>
-          Quick Actions
-        </Typography>
-        <Grid container spacing={2.5}>
-          {QUICK_ACTIONS.map((action) => (
-            <Grid item xs={12} sm={4} key={action.label}>
-              <QuickAction icon={action.icon} label={action.label} />
-            </Grid>
-          ))}
-        </Grid>
 
       </Box>
     </DashboardLayout>

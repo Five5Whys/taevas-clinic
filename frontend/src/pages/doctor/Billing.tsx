@@ -16,6 +16,7 @@ import {
   TableHead,
   TableRow,
   Chip,
+  CircularProgress,
 } from '@mui/material';
 import {
   AttachMoney,
@@ -24,16 +25,22 @@ import {
   FileDownload,
 } from '@mui/icons-material';
 import DashboardLayout from '@/components/layout/DashboardLayout';
+import { useDoctorBilling } from '@/hooks/doctor';
 
 const Billing: React.FC = () => {
-  const todaysBills = [
-    { invoiceNo: 'INV-001', patient: 'Rajiv Kumar', amount: 800, status: 'Paid' },
-    { invoiceNo: 'INV-002', patient: 'Priya Singh', amount: 1200, status: 'Paid' },
-    { invoiceNo: 'INV-003', patient: 'Amit Patel', amount: 2500, status: 'Pending' },
-    { invoiceNo: 'INV-004', patient: 'Neha Sharma', amount: 950, status: 'Paid' },
-    { invoiceNo: 'INV-005', patient: 'Anita Sharma', amount: 1300, status: 'Paid' },
-    { invoiceNo: 'INV-006', patient: 'Kamala Devi', amount: 11650, status: 'Pending' },
-  ];
+  const { data: billingData, isLoading } = useDoctorBilling();
+  const todaysBills = (Array.isArray(billingData) ? billingData : billingData?.invoices ?? billingData?.bills ?? billingData?.content ?? []) as any[];
+  const billingStats = billingData?.stats ?? {};
+
+  if (isLoading) {
+    return (
+      <DashboardLayout pageTitle="Billing">
+        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 400 }}>
+          <CircularProgress sx={{ color: '#5519E6' }} />
+        </Box>
+      </DashboardLayout>
+    );
+  }
 
   return (
     <DashboardLayout pageTitle="Billing">
@@ -49,10 +56,10 @@ const Billing: React.FC = () => {
                       Today's Revenue
                     </Typography>
                     <Typography variant="h5" sx={{ fontWeight: 'bold', my: 1 }}>
-                      ₹18,400
+                      {billingStats.todaysRevenue ?? `₹${todaysBills.reduce((s: number, b: any) => s + (b.amount ?? 0), 0).toLocaleString('en-IN')}`}
                     </Typography>
                     <Typography variant="caption" sx={{ color: '#CDDC50', fontWeight: 'bold' }}>
-                      +5.2% from avg
+                      {billingStats.revenueDelta ?? ''}
                     </Typography>
                   </Box>
                   <Avatar sx={{ backgroundColor: '#5519E6', width: 48, height: 48 }}>
@@ -72,10 +79,10 @@ const Billing: React.FC = () => {
                       Month Revenue
                     </Typography>
                     <Typography variant="h5" sx={{ fontWeight: 'bold', my: 1 }}>
-                      ₹2.1L
+                      {billingStats.monthRevenue ?? '-'}
                     </Typography>
                     <Typography variant="caption" sx={{ color: '#CDDC50', fontWeight: 'bold' }}>
-                      +8% from last month
+                      {billingStats.monthDelta ?? ''}
                     </Typography>
                   </Box>
                   <Avatar sx={{ backgroundColor: '#A046F0', width: 48, height: 48 }}>
@@ -95,10 +102,10 @@ const Billing: React.FC = () => {
                       Bills Today
                     </Typography>
                     <Typography variant="h5" sx={{ fontWeight: 'bold', my: 1 }}>
-                      23
+                      {billingStats.billsToday ?? todaysBills.length}
                     </Typography>
                     <Typography variant="caption" sx={{ color: '#5519E6', fontWeight: 'bold' }}>
-                      4 pending
+                      {billingStats.pendingCount ?? todaysBills.filter((b: any) => b.status === 'Pending').length} pending
                     </Typography>
                   </Box>
                   <Avatar sx={{ backgroundColor: '#FF8232', width: 48, height: 48 }}>
@@ -118,10 +125,10 @@ const Billing: React.FC = () => {
                       Pending Amount
                     </Typography>
                     <Typography variant="h5" sx={{ fontWeight: 'bold', my: 1 }}>
-                      ₹3,200
+                      {billingStats.pendingAmount ?? `₹${todaysBills.filter((b: any) => b.status === 'Pending').reduce((s: number, b: any) => s + (b.amount ?? 0), 0).toLocaleString('en-IN')}`}
                     </Typography>
                     <Typography variant="caption" sx={{ color: '#FF8232', fontWeight: 'bold' }}>
-                      Follow-up needed
+                      {billingStats.pendingNote ?? ''}
                     </Typography>
                   </Box>
                   <Avatar sx={{ backgroundColor: '#CDDC50', width: 48, height: 48 }}>

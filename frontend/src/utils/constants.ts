@@ -40,23 +40,37 @@ export const API_ENDPOINTS = {
   SUPERADMIN_ACTIVITY: '/superadmin/activity',
 
   // Clinic Admin
-  CLINICADMIN_APPOINTMENTS: '/clinicadmin/appointments',
-  CLINICADMIN_DOCTORS: '/clinicadmin/doctors',
+  CLINICADMIN_DASHBOARD: '/clinicadmin/dashboard',
+  CLINICADMIN_STAFF: '/clinicadmin/staff',
   CLINICADMIN_PATIENTS: '/clinicadmin/patients',
-  CLINICADMIN_STATS: '/clinicadmin/stats',
-  CLINICADMIN_REVENUE: '/clinicadmin/revenue',
+  CLINICADMIN_CONFIG: '/clinicadmin/config',
+  CLINICADMIN_SCHEDULE_CONFIG: '/clinicadmin/schedule-config',
+  CLINICADMIN_BILLING: '/clinicadmin/billing',
+  CLINICADMIN_CUSTOM_FIELDS: '/clinicadmin/custom-fields',
+  CLINICADMIN_ID_CONFIG: '/clinicadmin/id-config',
+  CLINICADMIN_COMPLIANCE: '/clinicadmin/compliance',
+  CLINICADMIN_DATA_IMPORT: '/clinicadmin/data-import',
+  CLINICADMIN_TEMPLATES: '/clinicadmin/templates',
+  CLINICADMIN_REPORTS: '/clinicadmin/reports',
 
   // Doctor
+  DOCTOR_DASHBOARD: '/doctor/dashboard',
   DOCTOR_APPOINTMENTS: '/doctor/appointments',
-  DOCTOR_QUEUE: '/doctor/queue',
   DOCTOR_PATIENTS: '/doctor/patients',
+  DOCTOR_ENCOUNTERS: '/doctor/encounters',
   DOCTOR_PRESCRIPTIONS: '/doctor/prescriptions',
+  DOCTOR_BILLING: '/doctor/billing',
+  DOCTOR_DEVICE_REPORTS: '/doctor/device-reports',
+  DOCTOR_FAMILY: '/doctor/family',
+  DOCTOR_WHATSAPP: '/doctor/whatsapp',
+  DOCTOR_MARKETING: '/doctor/marketing',
 
   // Patient
+  PATIENT_DASHBOARD: '/patient/dashboard',
   PATIENT_APPOINTMENTS: '/patient/appointments',
   PATIENT_PRESCRIPTIONS: '/patient/prescriptions',
   PATIENT_HEALTH_RECORDS: '/patient/health-records',
-  PATIENT_PROFILE: '/patient/profile',
+  PATIENT_FAMILY: '/patient/family',
 
   // Shared
   NOTIFICATIONS: '/notifications',
@@ -82,6 +96,9 @@ export const NAVIGATION_CONFIG = {
     { id: 'compliance',     label: 'Compliance',         emoji: '🛡️', icon: 'VerifiedUser', path: '/superadmin/compliance',     section: 'Configuration' },
     { id: 'id-management',  label: 'ID Config',          emoji: '🔑', icon: 'Badge',        path: '/superadmin/id-management',  section: 'Configuration' },
     { id: 'roster',         label: 'Global Roster',      emoji: '👥', icon: 'People',       path: '/superadmin/roster',         section: 'Configuration', badge: '47' },
+    // Data
+    { id: 'data-import',    label: 'Data Import',        emoji: '📥', icon: 'CloudUpload',  path: '/superadmin/data-import',    section: 'Data' },
+    { id: 'templates',      label: 'Templates',          emoji: '🎨', icon: 'Palette',      path: '/superadmin/templates',      section: 'Data' },
   ],
   [ROLES.CLINIC_ADMIN]: [
     // Overview

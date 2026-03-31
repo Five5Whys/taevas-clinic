@@ -18,6 +18,7 @@ import {
   MenuItem,
   FormControl,
   InputLabel,
+  CircularProgress,
 } from '@mui/material';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 
@@ -32,14 +33,9 @@ interface ImportRecord {
   status: 'COMPLETED' | 'FAILED';
 }
 
-const mockHistory: ImportRecord[] = [
-  { date: '2026-03-28', type: 'Patients', file: 'patients_march.csv', records: 45, status: 'COMPLETED' },
-  { date: '2026-03-25', type: 'Staff', file: 'staff_update.csv', records: 8, status: 'COMPLETED' },
-  { date: '2026-03-20', type: 'Patients', file: 'patients_bulk.csv', records: 120, status: 'COMPLETED' },
-  { date: '2026-03-15', type: 'Appointments', file: 'appt_import.csv', records: 0, status: 'FAILED' },
-];
-
 const DataImport: React.FC = () => {
+  const historyLoading = false;
+  const importHistory: ImportRecord[] = [];
   const [file, setFile] = useState<File | null>(null);
   const [importType, setImportType] = useState<string>('Patients');
   const [importing, setImporting] = useState(false);
@@ -201,6 +197,15 @@ const DataImport: React.FC = () => {
           <Typography variant="h6" sx={{ fontWeight: 600, color: '#1F2937', mb: 2 }}>
             Import History
           </Typography>
+          {historyLoading ? (
+            <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
+              <CircularProgress sx={{ color: BRAND }} />
+            </Box>
+          ) : importHistory.length === 0 ? (
+            <Box sx={{ textAlign: 'center', py: 4, color: SUB }}>
+              <Typography>No import history yet.</Typography>
+            </Box>
+          ) : (
           <TableContainer>
             <Table size="small">
               <TableHead>
@@ -213,7 +218,7 @@ const DataImport: React.FC = () => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {mockHistory.map((row, idx) => (
+                {importHistory.map((row: ImportRecord, idx: number) => (
                   <TableRow key={idx} sx={{ '&:hover': { backgroundColor: '#F9FAFB' } }}>
                     <TableCell sx={{ fontSize: '0.85rem' }}>{row.date}</TableCell>
                     <TableCell sx={{ fontSize: '0.85rem' }}>{row.type}</TableCell>
@@ -236,6 +241,7 @@ const DataImport: React.FC = () => {
               </TableBody>
             </Table>
           </TableContainer>
+          )}
         </Card>
       </Box>
 

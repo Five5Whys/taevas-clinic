@@ -14,8 +14,10 @@ import {
   TableContainer,
   TableHead,
   TableRow,
+  CircularProgress,
 } from '@mui/material';
 import DashboardLayout from '@/components/layout/DashboardLayout';
+import { useDoctorDashboard } from '@/hooks/doctor';
 
 const getStatusColor = (status: string) => {
   switch (status) {
@@ -49,24 +51,23 @@ const MiniStat: React.FC<{ icon: string; value: string | number; label: string; 
 
 // ─── Main ─────────────────────────────────────────────────────────────────────
 const Dashboard: React.FC = () => {
-  const todaysAppointments = [
-    { token: 14, time: '9:40 AM',  patient: 'Anita Sharma', reason: 'Allergic Rhinitis · Follow-up', status: 'In Consult' },
-    { token: 15, time: '9:55 AM',  patient: 'Rahul Mehta',  reason: 'Hearing Loss · New Patient',    status: 'Waiting'    },
-    { token: 16, time: '10:10 AM', patient: 'Priya Nair',   reason: 'Tinnitus · Audiometry due',     status: 'Waiting'    },
-    { token: 17, time: '10:25 AM', patient: 'Kamala Devi',  reason: 'Vertigo · VNG Report ready',    status: 'Upcoming'   },
-    { token: 18, time: '10:40 AM', patient: 'Arun Sinha',   reason: 'Sinusitis · Post-op',           status: 'Upcoming'   },
-  ];
+  const { data: dashboardData, isLoading } = useDoctorDashboard();
 
-  const pendingReports = [
-    { icon: '🎧', type: 'Audiogram', patient: 'Priya Nair',   source: 'Audecom · 8 min ago',    badgeLabel: 'Review',   badgeColor: '#FF8232' },
-    { icon: '⚖️', type: 'VNG',       patient: 'Kamala Devi',  source: 'Equipoise · 22 min ago', badgeLabel: 'Review',   badgeColor: '#FF8232' },
-    { icon: '📄', type: 'CBC',       patient: 'Anita Sharma', source: 'AI-extracted · 1h ago',  badgeLabel: 'Ingested', badgeColor: '#5519E6' },
-  ];
+  const todaysAppointments = dashboardData?.todaysAppointments ?? dashboardData?.appointments ?? [];
+  const pendingReports = dashboardData?.pendingReports ?? [];
+  const aiInsights = dashboardData?.aiInsights ?? [];
+  const stats = dashboardData?.stats ?? {};
+  const queue = dashboardData?.queue ?? {};
 
-  const aiInsights = [
-    { title: 'Rahul Mehta — 82% No-Show Risk', body: 'WhatsApp reminder sent automatically.', accent: '#FF8232', bg: '#FFF5EE' },
-    { title: 'ABDM — ₹20 Credit Earned',       body: "Kamala Devi's VNG filed to HIE.",       accent: '#CDDC50', bg: '#F9FFDC' },
-  ];
+  if (isLoading) {
+    return (
+      <DashboardLayout pageTitle="Good morning, Doctor">
+        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 'calc(100vh - 64px)' }}>
+          <CircularProgress sx={{ color: '#5519E6' }} />
+        </Box>
+      </DashboardLayout>
+    );
+  }
 
   return (
     <DashboardLayout pageTitle="Good morning, Doctor 👋">
@@ -84,7 +85,7 @@ const Dashboard: React.FC = () => {
                   Now Serving
                 </Typography>
                 <Typography variant="h2" sx={{ fontWeight: 900, lineHeight: 1, color: '#5519E6' }}>
-                  14
+                  {queue.nowServing ?? todaysAppointments[0]?.token ?? '-'}
                 </Typography>
               </Box>
 
@@ -96,7 +97,7 @@ const Dashboard: React.FC = () => {
                   Up Next
                 </Typography>
                 <Box sx={{ display: 'flex', gap: 0.75 }}>
-                  {[15, 16, 17].map((t) => (
+                  {(queue.upNext ?? todaysAppointments.slice(1, 4).map((a: any) => a.token) ?? []).map((t: any) => (
                     <Box
                       key={t}
                       sx={{
@@ -119,9 +120,9 @@ const Dashboard: React.FC = () => {
               {/* Stats */}
               <Box sx={{ display: 'flex', gap: 3 }}>
                 {[
-                  { val: '23', lbl: 'Seen' },
-                  { val: '7',  lbl: 'Waiting' },
-                  { val: '~18m', lbl: 'Avg Wait' },
+                  { val: queue.seen ?? stats.seenToday ?? '-', lbl: 'Seen' },
+                  { val: queue.waiting ?? stats.waiting ?? '-',  lbl: 'Waiting' },
+                  { val: queue.avgWait ?? stats.avgWait ?? '-', lbl: 'Avg Wait' },
                 ].map((s) => (
                   <Box key={s.lbl} sx={{ textAlign: 'center' }}>
                     <Typography variant="h6" sx={{ fontWeight: 800, lineHeight: 1, color: '#0A0A0F' }}>{s.val}</Typography>
@@ -153,10 +154,10 @@ const Dashboard: React.FC = () => {
 
         {/* Row 2 — Stat Cards */}
         <Grid container spacing={1.5} sx={{ flexShrink: 0 }}>
-          <Grid item xs={3}><MiniStat icon="🩺" value={30}       label="Today's Patients" delta="↑ 4 more than yesterday"  accent="#5519E6" /></Grid>
-          <Grid item xs={3}><MiniStat icon="💰" value="₹18,400" label="Today's Revenue"   delta="↑ 12% vs last week"       accent="#FF8232" /></Grid>
-          <Grid item xs={3}><MiniStat icon="🔬" value={8}        label="Device Reports"   delta="3 pending review"          accent="#A046F0" /></Grid>
-          <Grid item xs={3}><MiniStat icon="💬" value={15}       label="WhatsApp Msgs"    delta="4 reports received"        accent="#25D366" /></Grid>
+          <Grid item xs={3}><MiniStat icon="🩺" value={stats.todaysPatients ?? 0}       label="Today's Patients" delta={stats.patientsDelta ?? ''}  accent="#5519E6" /></Grid>
+          <Grid item xs={3}><MiniStat icon="💰" value={stats.todaysRevenue ?? '-'} label="Today's Revenue"   delta={stats.revenueDelta ?? ''}       accent="#FF8232" /></Grid>
+          <Grid item xs={3}><MiniStat icon="🔬" value={stats.deviceReports ?? 0}        label="Device Reports"   delta={stats.deviceReportsDelta ?? ''}          accent="#A046F0" /></Grid>
+          <Grid item xs={3}><MiniStat icon="💬" value={stats.whatsappMsgs ?? 0}       label="WhatsApp Msgs"    delta={stats.whatsappDelta ?? ''}        accent="#25D366" /></Grid>
         </Grid>
 
         {/* Row 3 — Schedule + Right Column */}

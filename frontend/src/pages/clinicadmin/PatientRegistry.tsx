@@ -22,9 +22,12 @@ import {
   MenuItem,
   Snackbar,
   Alert,
+  FormHelperText,
+  CircularProgress,
 } from '@mui/material';
 import { Add as Plus } from '@mui/icons-material';
 import DashboardLayout from '@/components/layout/DashboardLayout';
+import { usePatientList, useCreatePatient } from '@/hooks/clinicadmin';
 
 const BRAND = '#5519E6';
 const SUB = '#6B7280';
@@ -42,21 +45,9 @@ interface Patient {
   status: 'ACTIVE' | 'INACTIVE';
 }
 
-const MOCK_PATIENTS: Patient[] = [
-  { id: '1', firstName: 'Anita', lastName: 'Sharma', phone: '+919876543213', email: 'anita@gmail.com', gender: 'Female', bloodGroup: 'B+', lastVisit: '2026-03-28', status: 'ACTIVE' },
-  { id: '2', firstName: 'Vikram', lastName: 'Singh', phone: '+919876543230', email: 'vikram@yahoo.com', gender: 'Male', bloodGroup: 'O+', lastVisit: '2026-03-25', status: 'ACTIVE' },
-  { id: '3', firstName: 'Priya', lastName: 'Das', phone: '+919876543215', email: '', gender: 'Female', bloodGroup: 'A+', lastVisit: '2026-03-20', status: 'ACTIVE' },
-  { id: '4', firstName: 'Ravi', lastName: 'Patel', phone: '+919876543231', email: 'ravi@gmail.com', gender: 'Male', bloodGroup: 'AB+', lastVisit: '2026-03-18', status: 'ACTIVE' },
-  { id: '5', firstName: 'Lakshmi', lastName: 'Iyer', phone: '+919876543232', email: 'lakshmi@gmail.com', gender: 'Female', bloodGroup: 'O-', lastVisit: '2026-03-15', status: 'ACTIVE' },
-  { id: '6', firstName: 'Suresh', lastName: 'Kumar', phone: '+919876543233', email: '', gender: 'Male', bloodGroup: 'B-', lastVisit: '2026-02-28', status: 'INACTIVE' },
-  { id: '7', firstName: 'Meena', lastName: 'Devi', phone: '+919876543234', email: 'meena.d@gmail.com', gender: 'Female', bloodGroup: 'A-', lastVisit: '2026-03-10', status: 'ACTIVE' },
-  { id: '8', firstName: 'Arjun', lastName: 'Reddy', phone: '+919876543235', email: 'arjun@outlook.com', gender: 'Male', bloodGroup: 'AB-', lastVisit: '2026-03-05', status: 'ACTIVE' },
-];
-
 const BLOOD_GROUPS = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
 
 const PatientRegistry: React.FC = () => {
-  const [patients, setPatients] = useState<Patient[]>(MOCK_PATIENTS);
   const [searchQuery, setSearchQuery] = useState('');
   const [dialogOpen, setDialogOpen] = useState(false);
   const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity: 'success' | 'error' }>({
@@ -64,6 +55,11 @@ const PatientRegistry: React.FC = () => {
     message: '',
     severity: 'success',
   });
+
+  const { data: patientData, isLoading, isError } = usePatientList({ search: searchQuery || undefined });
+  const createPatient = useCreatePatient();
+
+  const patients: Patient[] = (patientData?.content ?? patientData ?? []) as Patient[];
 
   const [form, setForm] = useState({
     firstName: '',
@@ -74,16 +70,20 @@ const PatientRegistry: React.FC = () => {
     bloodGroup: '',
     dob: '',
   });
+  const [contactError, setContactError] = useState(false);
 
-  const filteredPatients = patients.filter(
-    (p) =>
-      `${p.firstName} ${p.lastName}`.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      p.phone.includes(searchQuery) ||
-      p.email.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredPatients = searchQuery
+    ? patients.filter(
+        (p) =>
+          `${p.firstName} ${p.lastName}`.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          p.phone?.includes(searchQuery) ||
+          (p.email ?? '').toLowerCase().includes(searchQuery.toLowerCase())
+      )
+    : patients;
 
   const handleOpenDialog = () => {
     setForm({ firstName: '', lastName: '', phone: '', email: '', gender: '', bloodGroup: '', dob: '' });
+    setContactError(false);
     setDialogOpen(true);
   };
 
@@ -96,25 +96,57 @@ const PatientRegistry: React.FC = () => {
   };
 
   const handleRegister = () => {
-    if (!form.firstName || !form.lastName || !form.phone || !form.gender) {
+    if (!form.firstName || !form.lastName || !form.gender) {
       setSnackbar({ open: true, message: 'Please fill all required fields', severity: 'error' });
       return;
     }
-    const newPatient: Patient = {
-      id: String(patients.length + 1),
-      firstName: form.firstName,
-      lastName: form.lastName,
-      phone: form.phone,
-      email: form.email,
-      gender: form.gender,
-      bloodGroup: form.bloodGroup,
-      lastVisit: '',
-      status: 'ACTIVE',
-    };
-    setPatients((prev) => [newPatient, ...prev]);
-    setDialogOpen(false);
-    setSnackbar({ open: true, message: 'Patient registered successfully', severity: 'success' });
+    if (!form.phone && !form.email) {
+      setContactError(true);
+      setSnackbar({ open: true, message: 'At least one of phone or email must be provided', severity: 'error' });
+      return;
+    }
+    setContactError(false);
+    createPatient.mutate(
+      {
+        firstName: form.firstName,
+        lastName: form.lastName,
+        phone: form.phone || undefined,
+        email: form.email || undefined,
+        gender: form.gender,
+        bloodGroup: form.bloodGroup || undefined,
+        dateOfBirth: form.dob || undefined,
+      },
+      {
+        onSuccess: () => {
+          setDialogOpen(false);
+          setSnackbar({ open: true, message: 'Patient registered successfully', severity: 'success' });
+        },
+        onError: () => {
+          setSnackbar({ open: true, message: 'Failed to register patient', severity: 'error' });
+        },
+      }
+    );
   };
+
+  if (isLoading) {
+    return (
+      <DashboardLayout pageTitle="Patient Registry">
+        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 300 }}>
+          <CircularProgress />
+        </Box>
+      </DashboardLayout>
+    );
+  }
+
+  if (isError) {
+    return (
+      <DashboardLayout pageTitle="Patient Registry">
+        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 300 }}>
+          <Typography color="error">Failed to load patients.</Typography>
+        </Box>
+      </DashboardLayout>
+    );
+  }
 
   return (
     <DashboardLayout pageTitle="Patient Registry">
@@ -139,7 +171,7 @@ const PatientRegistry: React.FC = () => {
               fontWeight: 600,
             }}
           >
-            + Register Patient
+            Add New Patient
           </Button>
         </Box>
 
@@ -233,18 +265,21 @@ const PatientRegistry: React.FC = () => {
               <TextField
                 label="Phone"
                 value={form.phone}
-                onChange={(e) => handleFormChange('phone', e.target.value)}
+                onChange={(e) => { handleFormChange('phone', e.target.value); setContactError(false); }}
                 fullWidth
-                required
                 size="small"
+                error={contactError}
+                helperText={contactError ? 'At least one of phone or email is required' : ''}
                 inputProps={{ style: { fontFamily: 'monospace' } }}
               />
               <TextField
                 label="Email"
                 value={form.email}
-                onChange={(e) => handleFormChange('email', e.target.value)}
+                onChange={(e) => { handleFormChange('email', e.target.value); setContactError(false); }}
                 fullWidth
                 size="small"
+                error={contactError}
+                helperText={contactError ? 'At least one of phone or email is required' : ''}
               />
               <FormControl fullWidth size="small" required>
                 <InputLabel>Gender</InputLabel>
@@ -290,13 +325,14 @@ const PatientRegistry: React.FC = () => {
             <Button
               variant="contained"
               onClick={handleRegister}
+              disabled={createPatient.isPending}
               sx={{
                 background: `linear-gradient(135deg, ${BRAND} 0%, #A046F0 100%)`,
                 textTransform: 'none',
                 fontWeight: 600,
               }}
             >
-              Register
+              {createPatient.isPending ? 'Registering...' : 'Register'}
             </Button>
           </DialogActions>
         </Dialog>

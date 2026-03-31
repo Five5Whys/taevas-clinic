@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
   Box,
   Card,
@@ -16,23 +16,16 @@ import {
   TableRow,
   Stack,
   IconButton,
+  CircularProgress,
 } from '@mui/material';
 import { Phone, PhoneCallback, Add } from '@mui/icons-material';
 import DashboardLayout from '@/components/layout/DashboardLayout';
+import { useDoctorAppointments } from '@/hooks/doctor';
 
 const Appointments: React.FC = () => {
-  const [appointments] = useState([
-    { token: 1, time: '09:00', patient: 'Rajiv Kumar', reason: 'Ear Pain', status: 'Completed' },
-    { token: 2, time: '09:30', patient: 'Priya Singh', reason: 'Hearing Test', status: 'Completed' },
-    { token: 3, time: '10:00', patient: 'Amit Patel', reason: 'ENT Check', status: 'In Consult' },
-    { token: 4, time: '10:30', patient: 'Neha Sharma', reason: 'Throat Swab', status: 'In Consult' },
-    { token: 5, time: '11:00', patient: 'Anita Sharma', reason: 'Allergic Rhinitis', status: 'Waiting' },
-    { token: 6, time: '11:30', patient: 'Vijay Desai', reason: 'Follow-up', status: 'Waiting' },
-    { token: 7, time: '12:00', patient: 'Kamala Devi', reason: 'VNG Test', status: 'Upcoming' },
-    { token: 8, time: '12:30', patient: 'Rahul Singh', reason: 'Consultation', status: 'Upcoming' },
-    { token: 9, time: '01:00', patient: 'Priya Nair', reason: 'Audiogram', status: 'Upcoming' },
-    { token: 10, time: '01:30', patient: 'Deepak Kumar', reason: 'Nose Surgery', status: 'Upcoming' },
-  ]);
+  const { data: appointmentsData, isLoading } = useDoctorAppointments();
+  const appointments = (Array.isArray(appointmentsData) ? appointmentsData : appointmentsData?.content ?? appointmentsData?.appointments ?? []) as any[];
+  const queueStats = appointmentsData?.queueStats ?? {};
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -48,6 +41,16 @@ const Appointments: React.FC = () => {
         return '#999';
     }
   };
+
+  if (isLoading) {
+    return (
+      <DashboardLayout pageTitle="Appointments">
+        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 400 }}>
+          <CircularProgress sx={{ color: '#5519E6' }} />
+        </Box>
+      </DashboardLayout>
+    );
+  }
 
   return (
     <DashboardLayout pageTitle="Appointments">
@@ -162,7 +165,7 @@ const Appointments: React.FC = () => {
                       Seen Today
                     </Typography>
                     <Typography variant="h4" sx={{ fontWeight: 'bold', color: '#CDDC50' }}>
-                      23
+                      {queueStats.seen ?? appointments.filter((a: any) => a.status === 'Completed').length}
                     </Typography>
                   </Box>
                   <Box sx={{ borderTop: '1px solid #eee', pt: 2 }}>
@@ -170,7 +173,7 @@ const Appointments: React.FC = () => {
                       Waiting
                     </Typography>
                     <Typography variant="h4" sx={{ fontWeight: 'bold', color: '#FF8232' }}>
-                      7
+                      {queueStats.waiting ?? appointments.filter((a: any) => a.status === 'Waiting').length}
                     </Typography>
                   </Box>
                   <Box sx={{ borderTop: '1px solid #eee', pt: 2 }}>
@@ -178,7 +181,7 @@ const Appointments: React.FC = () => {
                       Average Wait Time
                     </Typography>
                     <Typography variant="h4" sx={{ fontWeight: 'bold', color: '#5519E6' }}>
-                      ~18m
+                      {queueStats.avgWait ?? '-'}
                     </Typography>
                   </Box>
                 </Stack>

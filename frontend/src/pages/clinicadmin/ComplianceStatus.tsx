@@ -8,6 +8,8 @@ import {
   Stack,
   Chip,
   Grid,
+  Alert,
+  CircularProgress,
 } from '@mui/material';
 import {
   CheckCircle,
@@ -18,6 +20,7 @@ import {
   VerifiedUser as FileCheck,
 } from '@mui/icons-material';
 import DashboardLayout from '@/components/layout/DashboardLayout';
+import { useComplianceStatus } from '@/hooks/clinicadmin/useCompliance';
 
 interface ComplianceItem {
   icon: React.ReactNode;
@@ -27,37 +30,24 @@ interface ComplianceItem {
   detailText: string;
 }
 
+const ICON_MAP: Record<string, React.ReactNode> = {
+  'ABHA ID Collection': <Link2 sx={{ fontSize: 24 }} />,
+  'FHIR R4 Record Push': <FileCheck sx={{ fontSize: 24 }} />,
+  'NMC Doctor Verification': <AlertCircle sx={{ fontSize: 24 }} />,
+  'Data Encryption': <Shield sx={{ fontSize: 24 }} />,
+};
+
 const ComplianceStatus: React.FC = () => {
-  const complianceItems: ComplianceItem[] = [
-    {
-      icon: <Link2 sx={{ fontSize: 24 }} />,
-      title: 'ABHA ID Collection',
-      status: 'active',
-      description: 'Ayushman Bharat Health Account linking',
-      detailText: '87% of patients linked (1,077 of 1,240)',
-    },
-    {
-      icon: <FileCheck sx={{ fontSize: 24 }} />,
-      title: 'FHIR R4 Record Push',
-      status: 'active',
-      description: 'Healthcare data standardization',
-      detailText: '124 records pushed to national registry',
-    },
-    {
-      icon: <AlertCircle sx={{ fontSize: 24 }} />,
-      title: 'NMC Doctor Verification',
-      status: 'partial',
-      description: 'Medical registration validation',
-      detailText: '6 verified, 2 pending verification',
-    },
-    {
-      icon: <Shield sx={{ fontSize: 24 }} />,
-      title: 'Data Encryption',
-      status: 'compliant',
-      description: 'Patient data protection',
-      detailText: 'AES-256 encryption, TLS 1.3 enabled',
-    },
-  ];
+  const { data: complianceData, isLoading } = useComplianceStatus();
+
+  const overallScore: number = complianceData?.overallScore ?? 0;
+  const complianceItems: ComplianceItem[] = (complianceData?.items ?? []).map((item: any) => ({
+    icon: ICON_MAP[item.title] ?? <Shield sx={{ fontSize: 24 }} />,
+    title: item.title,
+    status: item.status,
+    description: item.description,
+    detailText: item.detailText,
+  }));
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -100,6 +90,18 @@ const ComplianceStatus: React.FC = () => {
 
   return (
     <DashboardLayout pageTitle="Compliance Status">
+      <Alert severity="warning" sx={{ mb: 2, borderRadius: '12px' }}>
+        🚧 This feature is under development — coming soon!
+      </Alert>
+      {isLoading ? (
+        <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
+          <CircularProgress />
+        </Box>
+      ) : complianceItems.length === 0 ? (
+        <Box sx={{ textAlign: 'center', py: 8, color: '#6B7280' }}>
+          <Typography>No compliance data available.</Typography>
+        </Box>
+      ) : (
       <Container maxWidth="lg" sx={{ py: 3 }}>
         <Stack spacing={3}>
           {/* Compliance Score Header */}
@@ -107,7 +109,7 @@ const ComplianceStatus: React.FC = () => {
             <CardContent>
               <Box sx={{ textAlign: 'center', color: 'white' }}>
                 <Typography variant="h4" sx={{ fontWeight: 'bold', mb: 1 }}>
-                  92%
+                  {overallScore}%
                 </Typography>
                 <Typography variant="body1">Overall Compliance Score</Typography>
               </Box>
@@ -187,6 +189,7 @@ const ComplianceStatus: React.FC = () => {
           </Grid>
         </Stack>
       </Container>
+      )}
     </DashboardLayout>
   );
 };

@@ -1,0 +1,10 @@
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { configService } from '../../services/clinicadmin';
+export const useClinicConfig = () => useQuery({ queryKey: ['clinicadmin', 'config'], queryFn: () => configService.getClinicConfig() });
+export const useScheduleConfig = () => useQuery({ queryKey: ['clinicadmin', 'schedule'], queryFn: () => configService.getScheduleConfig() });
+export const useUpdateScheduleConfig = () => { const qc = useQueryClient(); return useMutation({ mutationFn: (data: any) => configService.updateScheduleConfig(data), onSuccess: () => qc.invalidateQueries({ queryKey: ['clinicadmin', 'schedule'] }) }); };
+export const useDoctorSchedules = () => useQuery({ queryKey: ['clinicadmin', 'doctorSchedules'], queryFn: () => configService.getDoctorSchedules() });
+export const useUpdateDoctorSchedule = () => { const qc = useQueryClient(); return useMutation({ mutationFn: ({ id, data }: { id: string; data: any }) => configService.updateDoctorSchedule(id, data), onSuccess: () => qc.invalidateQueries({ queryKey: ['clinicadmin', 'doctorSchedules'] }) }); };
+export const useBillingConfig = () => useQuery({ queryKey: ['clinicadmin', 'billing'], queryFn: () => configService.getBillingConfig() });
+export const useUpdateBillingConfig = () => { const qc = useQueryClient(); return useMutation({ mutationFn: (data: any) => configService.updateBillingConfig(data), onSuccess: () => qc.invalidateQueries({ queryKey: ['clinicadmin', 'billing'] }) }); };
+export const useIdConfig = () => useQuery({ queryKey: ['clinicadmin', 'idConfig'], queryFn: () => configService.getIdConfig() });

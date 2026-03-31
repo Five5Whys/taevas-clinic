@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   Card,
@@ -18,21 +18,38 @@ import {
   TableCell,
   TableHead,
   TableRow,
+  CircularProgress,
 } from '@mui/material';
 import { Add, Delete, Print, WhatsApp, QrCode } from '@mui/icons-material';
+import { useSearchParams } from 'react-router-dom';
 import DashboardLayout from '@/components/layout/DashboardLayout';
+import { usePrescriptionsByEncounter } from '@/hooks/doctor';
 
 const Prescriptions: React.FC = () => {
-  const [drugs, setDrugs] = useState([
-    { id: 1, name: 'Cetirizine', dose: '10mg', frequency: 'Once daily', duration: '7 days' },
-    { id: 2, name: 'Fluticasone Spray', dose: '50mcg', frequency: 'Twice daily', duration: '14 days' },
-    { id: 3, name: 'Montelukast', dose: '10mg', frequency: 'Once daily', duration: '30 days' },
-  ]);
+  const [searchParams] = useSearchParams();
+  const encounterId = searchParams.get('encounterId') ?? '';
+  const { data: prescriptionData, isLoading } = usePrescriptionsByEncounter(encounterId);
 
+  const [drugs, setDrugs] = useState<any[]>([]);
   const [newDrugName, setNewDrugName] = useState('');
   const [newDrugDose, setNewDrugDose] = useState('');
 
-  const templates = [
+  useEffect(() => {
+    if (prescriptionData) {
+      const apiDrugs = prescriptionData.drugs ?? prescriptionData.medications ?? prescriptionData;
+      if (Array.isArray(apiDrugs) && apiDrugs.length > 0) {
+        setDrugs(apiDrugs.map((d: any, i: number) => ({
+          id: d.id ?? i + 1,
+          name: d.name ?? d.drugName ?? d.medication ?? '',
+          dose: d.dose ?? d.dosage ?? '',
+          frequency: d.frequency ?? '',
+          duration: d.duration ?? '',
+        })));
+      }
+    }
+  }, [prescriptionData]);
+
+  const templates = prescriptionData?.templates ?? [
     { name: 'Allergic Rhinitis', icd: 'J30.1', drugCount: 3 },
     { name: 'Otitis Media', icd: 'H66.0', drugCount: 4 },
     { name: 'Acute Sinusitis', icd: 'J01.0', drugCount: 3 },
@@ -59,6 +76,18 @@ const Prescriptions: React.FC = () => {
       setNewDrugDose('');
     }
   };
+
+  const rxPatient = prescriptionData?.patient ?? {};
+
+  if (isLoading && encounterId) {
+    return (
+      <DashboardLayout pageTitle="Prescriptions">
+        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 400 }}>
+          <CircularProgress sx={{ color: '#5519E6' }} />
+        </Box>
+      </DashboardLayout>
+    );
+  }
 
   return (
     <DashboardLayout pageTitle="Prescriptions">
@@ -112,7 +141,7 @@ const Prescriptions: React.FC = () => {
             <Card sx={{ mb: 3 }}>
               <CardContent>
                 <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 2 }}>
-                  Current Prescription for Anita Sharma
+                  Current Prescription for {rxPatient.name ?? 'Patient'}
                 </Typography>
                 <Stack spacing={2}>
                   {drugs.map((drug) => (
@@ -284,13 +313,13 @@ const Prescriptions: React.FC = () => {
                 {/* Patient Info */}
                 <Box sx={{ mb: 3, p: 1.5, backgroundColor: '#fff', borderRadius: 1 }}>
                   <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
-                    To: Anita Sharma
+                    To: {rxPatient.name ?? 'Patient'}
                   </Typography>
                   <Typography variant="caption" color="textSecondary" display="block">
-                    Age: 35F | ID: TC-PUN-042
+                    Age: {rxPatient.age ?? '-'}{rxPatient.gender ?? ''} | ID: {rxPatient.id ?? '-'}
                   </Typography>
                   <Typography variant="caption" color="textSecondary" display="block">
-                    ABHA: 123-4567-8901
+                    ABHA: {rxPatient.abhaId ?? '-'}
                   </Typography>
                 </Box>
 

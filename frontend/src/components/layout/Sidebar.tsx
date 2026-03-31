@@ -1,13 +1,15 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useLocation, Link as RouterLink } from 'react-router-dom';
 import {
   Drawer,
   Box,
   Typography,
   Tooltip,
+  Collapse,
   useMediaQuery,
   useTheme,
 } from '@mui/material';
+import * as Icons from '@mui/icons-material';
 import { useAuth } from '@/hooks/useAuth';
 import { NAVIGATION_CONFIG, ROLES } from '@/utils/constants';
 
@@ -16,47 +18,30 @@ interface SidebarProps {
   onClose?: () => void;
 }
 
-// Role-specific branding config matching POC
 const ROLE_BRANDING = {
   SUPERADMIN: {
     dark: true,
     logoEmoji: '🌐',
     logoTitle: 'CommandControl',
     logoSub: 'Taevas Super Admin',
-    userInitials: 'SA',
-    userName: 'AAA',
-    userRole: 'Super Admin · Taevas HQ',
-    avatarColor: 'linear-gradient(135deg, #5519E6 0%, #A046F0 100%)',
   },
   CLINIC_ADMIN: {
     dark: false,
     logoEmoji: '🏥',
     logoTitle: 'Clinic Admin',
     logoSub: 'ENT Care Center',
-    userInitials: 'CA',
-    userName: 'Sunita Rao',
-    userRole: 'Clinic Admin · ENT Care',
-    avatarColor: 'linear-gradient(135deg, #FF8232 0%, #FFB366 100%)',
   },
   DOCTOR: {
     dark: true,
     logoEmoji: '🏥',
     logoTitle: 'Taevas Clinic',
     logoSub: 'ENT Platform',
-    userInitials: 'RK',
-    userName: 'Dr. Rajesh Kumar',
-    userRole: 'ENT Specialist · Pune',
-    avatarColor: 'linear-gradient(135deg, #CDDC50 0%, #99A830 100%)',
   },
   PATIENT: {
     dark: false,
     logoEmoji: '💙',
     logoTitle: 'My Health',
-    logoSub: 'Nexus Patient Portal',
-    userInitials: 'AS',
-    userName: 'Anita Sharma',
-    userRole: 'Patient',
-    avatarColor: 'linear-gradient(135deg, #3B82F6 0%, #6366F1 100%)',
+    logoSub: 'Patient Portal',
   },
 };
 
@@ -73,7 +58,7 @@ const Sidebar: React.FC<SidebarProps> = ({ open, onClose }) => {
   const navItems = userRole ? (NAVIGATION_CONFIG as any)[userRole] || [] : [];
   const isDark = branding.dark;
 
-  // Colours — deep purple gradient sidebar for SA & Doctor
+  // Colours
   const bg         = isDark ? 'linear-gradient(180deg, #1E0A4E 0%, #2D1566 50%, #1A0940 100%)' : '#FFFFFF';
   const borderCol  = isDark ? 'rgba(255,255,255,0.10)' : '#E5E7EB';
   const textPrimary  = isDark ? '#FFFFFF' : '#0A0A0F';
@@ -82,8 +67,6 @@ const Sidebar: React.FC<SidebarProps> = ({ open, onClose }) => {
   const activeText   = isDark ? '#C4A1FF' : '#5519E6';
   const hoverBg      = isDark ? 'rgba(255,255,255,0.07)' : 'rgba(85,25,230,0.05)';
   const sectionText  = isDark ? 'rgba(255,255,255,0.40)' : '#9CA3AF';
-
-  // Badge colours
   const badgeBg   = isDark ? 'rgba(196,161,255,0.20)' : 'rgba(85,25,230,0.1)';
   const badgeText = isDark ? '#C4A1FF' : '#5519E6';
 
@@ -91,13 +74,24 @@ const Sidebar: React.FC<SidebarProps> = ({ open, onClose }) => {
   const sections: { title: string; items: any[] }[] = [];
   navItems.forEach((item: any) => {
     const sectionTitle = item.section || '';
-    const existing = sections.find(s => s.title === sectionTitle);
+    const existing = sections.find((s: any) => s.title === sectionTitle);
     if (existing) {
       existing.items.push(item);
     } else {
       sections.push({ title: sectionTitle, items: [item] });
     }
   });
+
+  // Collapsible state — first section open by default, rest open too
+  const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
+
+  const toggleSection = (title: string) => {
+    setCollapsed(prev => ({ ...prev, [title]: !prev[title] }));
+  };
+
+  const isSectionOpen = (title: string) => {
+    return collapsed[title] !== true; // open by default
+  };
 
   const isActive = (path: string) => {
     if (path === '/superadmin' || path === '/admin' || path === '/doctor' || path === '/patient') {
@@ -120,7 +114,7 @@ const Sidebar: React.FC<SidebarProps> = ({ open, onClose }) => {
       <Box
         sx={{
           px: 2,
-          py: 1.75,
+          py: 1.5,
           display: 'flex',
           alignItems: 'center',
           gap: 1.25,
@@ -130,14 +124,14 @@ const Sidebar: React.FC<SidebarProps> = ({ open, onClose }) => {
       >
         <Box
           sx={{
-            width: 34,
-            height: 34,
+            width: 32,
+            height: 32,
             borderRadius: '8px',
             background: 'linear-gradient(135deg, #5519E6 0%, #A046F0 100%)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            fontSize: '1.1rem',
+            fontSize: '1rem',
             flexShrink: 0,
           }}
         >
@@ -146,26 +140,20 @@ const Sidebar: React.FC<SidebarProps> = ({ open, onClose }) => {
         <Box sx={{ minWidth: 0 }}>
           <Typography
             sx={{
-              fontSize: '0.8rem',
+              fontSize: '0.78rem',
               fontWeight: 700,
               color: textPrimary,
-              fontFamily: '"Clash Display", sans-serif',
               lineHeight: 1.2,
               whiteSpace: 'nowrap',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
             }}
           >
             {branding.logoTitle}
           </Typography>
           <Typography
             sx={{
-              fontSize: '0.65rem',
+              fontSize: '0.6rem',
               color: textMuted,
               lineHeight: 1.2,
-              whiteSpace: 'nowrap',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
             }}
           >
             {branding.logoSub}
@@ -174,200 +162,133 @@ const Sidebar: React.FC<SidebarProps> = ({ open, onClose }) => {
       </Box>
 
       {/* ── Navigation ── */}
-      <Box sx={{ flex: 1, overflowY: 'auto', py: 1, px: 1 }}>
-        {sections.map((section, si) => (
-          <Box key={si} sx={{ mb: 0.5 }}>
-            {/* Section header */}
-            {section.title && (
-              <Typography
-                sx={{
-                  fontSize: '0.6rem',
-                  fontWeight: 700,
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.08em',
-                  color: sectionText,
-                  px: 1.5,
-                  pt: si === 0 ? 0.5 : 1.25,
-                  pb: 0.5,
-                }}
-              >
-                {section.title}
-              </Typography>
-            )}
+      <Box sx={{ flex: 1, overflowY: 'auto', py: 0.5, px: 1 }}>
+        {sections.map((section, si) => {
+          const hasTitle = !!section.title;
+          const sectionOpen = isSectionOpen(section.title);
 
-            {/* Nav items */}
-            {section.items.map((item: any) => {
-              const active = isActive(item.path);
-              const isUpcoming = item.upcoming;
-              const navItem = (
+          return (
+            <Box key={si} sx={{ mb: 0.25 }}>
+              {/* Collapsible section header */}
+              {hasTitle ? (
                 <Box
-                  key={item.id}
-                  {...(!isUpcoming ? { component: RouterLink, to: item.path } : {})}
-                  onClick={!isUpcoming && isMobile ? onClose : undefined}
+                  onClick={() => toggleSection(section.title)}
                   sx={{
                     display: 'flex',
                     alignItems: 'center',
-                    gap: 1,
+                    justifyContent: 'space-between',
+                    cursor: 'pointer',
                     px: 1.5,
-                    py: 0.7,
-                    mb: 0.25,
-                    borderRadius: '7px',
-                    textDecoration: 'none',
-                    cursor: isUpcoming ? 'default' : 'pointer',
-                    opacity: isUpcoming ? 0.4 : 1,
-                    transition: 'background 0.15s, color 0.15s',
-                    backgroundColor: active ? activeBg : 'transparent',
-                    '&:hover': isUpcoming ? {} : { backgroundColor: active ? activeBg : hoverBg },
+                    pt: si === 0 ? 0.5 : 1,
+                    pb: 0.25,
+                    userSelect: 'none',
+                    '&:hover': { opacity: 0.8 },
                   }}
                 >
-                  {/* Emoji icon */}
-                  <Box
-                    sx={{
-                      fontSize: '0.9rem',
-                      width: 20,
-                      textAlign: 'center',
-                      flexShrink: 0,
-                    }}
-                  >
-                    {item.emoji || '•'}
-                  </Box>
-
-                  {/* Label */}
                   <Typography
                     sx={{
-                      flex: 1,
-                      fontSize: '0.775rem',
-                      fontWeight: active ? 600 : 500,
-                      color: active ? activeText : (isDark ? 'rgba(255,255,255,0.75)' : '#374151'),
-                      lineHeight: 1.3,
-                      whiteSpace: 'nowrap',
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis',
+                      fontSize: '0.58rem',
+                      fontWeight: 700,
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.08em',
+                      color: sectionText,
                     }}
                   >
-                    {item.label}
+                    {section.title}
                   </Typography>
-
-                  {/* Badge or Upcoming tag */}
-                  {isUpcoming ? (
-                    <Box
-                      sx={{
-                        px: 0.75,
-                        py: 0.1,
-                        borderRadius: '10px',
-                        fontSize: '0.55rem',
-                        fontWeight: 700,
-                        backgroundColor: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)',
-                        color: isDark ? 'rgba(255,255,255,0.35)' : '#9CA3AF',
-                        lineHeight: 1.6,
-                        flexShrink: 0,
-                        textTransform: 'uppercase',
-                        letterSpacing: '0.05em',
-                      }}
-                    >
-                      Soon
-                    </Box>
-                  ) : item.badge ? (
-                    <Box
-                      sx={{
-                        px: 0.75,
-                        py: 0.1,
-                        borderRadius: '10px',
-                        fontSize: '0.6rem',
-                        fontWeight: 700,
-                        backgroundColor: active ? (isDark ? 'rgba(196,161,255,0.18)' : 'rgba(85,25,230,0.15)') : badgeBg,
-                        color: active ? activeText : badgeText,
-                        lineHeight: 1.6,
-                        flexShrink: 0,
-                      }}
-                    >
-                      {item.badge}
-                    </Box>
-                  ) : null}
-
-                  {/* Active left bar */}
-                  {active && (
-                    <Box
-                      sx={{
-                        position: 'absolute',
-                        left: 0,
-                        top: '50%',
-                        transform: 'translateY(-50%)',
-                        width: 3,
-                        height: '60%',
-                        borderRadius: '0 3px 3px 0',
-                        backgroundColor: activeText,
-                      }}
-                    />
+                  {sectionOpen ? (
+                    <Icons.ExpandLess sx={{ fontSize: '0.85rem', color: sectionText }} />
+                  ) : (
+                    <Icons.ExpandMore sx={{ fontSize: '0.85rem', color: sectionText }} />
                   )}
                 </Box>
-              );
-              return isUpcoming ? (
-                <Tooltip key={item.id} title="Upcoming" arrow placement="right">
-                  {navItem}
-                </Tooltip>
-              ) : navItem;
-            })}
-          </Box>
-        ))}
-      </Box>
+              ) : null}
 
-      {/* ── User Footer ── */}
-      <Box
-        sx={{
-          borderTop: `1px solid ${borderCol}`,
-          px: 2,
-          py: 1.5,
-          display: 'flex',
-          alignItems: 'center',
-          gap: 1.25,
-          flexShrink: 0,
-        }}
-      >
-        <Box
-          sx={{
-            width: 30,
-            height: 30,
-            borderRadius: '50%',
-            background: branding.avatarColor,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontSize: '0.65rem',
-            fontWeight: 700,
-            color: '#FFFFFF',
-            flexShrink: 0,
-          }}
-        >
-          {branding.userInitials}
-        </Box>
-        <Box sx={{ minWidth: 0 }}>
-          <Typography
-            sx={{
-              fontSize: '0.73rem',
-              fontWeight: 600,
-              color: textPrimary,
-              lineHeight: 1.2,
-              whiteSpace: 'nowrap',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-            }}
-          >
-            {branding.userName}
-          </Typography>
-          <Typography
-            sx={{
-              fontSize: '0.62rem',
-              color: textMuted,
-              lineHeight: 1.2,
-              whiteSpace: 'nowrap',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-            }}
-          >
-            {branding.userRole}
-          </Typography>
-        </Box>
+              {/* Nav items — collapsible */}
+              <Collapse in={hasTitle ? sectionOpen : true} timeout={200}>
+                {section.items.map((item: any) => {
+                  const active = isActive(item.path);
+                  const isUpcoming = item.upcoming;
+                  const navItem = (
+                    <Box
+                      key={item.id}
+                      {...(!isUpcoming ? { component: RouterLink, to: item.path } : {})}
+                      onClick={!isUpcoming && isMobile ? onClose : undefined}
+                      sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 1,
+                        px: 1.5,
+                        py: 0.6,
+                        mb: 0.15,
+                        borderRadius: '7px',
+                        textDecoration: 'none',
+                        cursor: isUpcoming ? 'default' : 'pointer',
+                        opacity: isUpcoming ? 0.4 : 1,
+                        position: 'relative',
+                        transition: 'background 0.15s, color 0.15s',
+                        backgroundColor: active ? activeBg : 'transparent',
+                        '&:hover': isUpcoming ? {} : { backgroundColor: active ? activeBg : hoverBg },
+                      }}
+                    >
+                      <Box sx={{ fontSize: '0.85rem', width: 18, textAlign: 'center', flexShrink: 0 }}>
+                        {item.emoji || '•'}
+                      </Box>
+                      <Typography
+                        sx={{
+                          flex: 1,
+                          fontSize: '0.75rem',
+                          fontWeight: active ? 600 : 500,
+                          color: active ? activeText : (isDark ? 'rgba(255,255,255,0.75)' : '#374151'),
+                          lineHeight: 1.3,
+                          whiteSpace: 'nowrap',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                        }}
+                      >
+                        {item.label}
+                      </Typography>
+                      {isUpcoming ? (
+                        <Box
+                          sx={{
+                            px: 0.75, py: 0.1, borderRadius: '10px', fontSize: '0.5rem',
+                            fontWeight: 700, backgroundColor: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)',
+                            color: isDark ? 'rgba(255,255,255,0.35)' : '#9CA3AF',
+                            textTransform: 'uppercase', letterSpacing: '0.05em',
+                          }}
+                        >
+                          Soon
+                        </Box>
+                      ) : item.badge ? (
+                        <Box
+                          sx={{
+                            px: 0.6, py: 0.1, borderRadius: '10px', fontSize: '0.55rem',
+                            fontWeight: 700, minWidth: 18, textAlign: 'center',
+                            backgroundColor: active ? (isDark ? 'rgba(196,161,255,0.18)' : 'rgba(85,25,230,0.15)') : badgeBg,
+                            color: active ? activeText : badgeText,
+                          }}
+                        >
+                          {item.badge}
+                        </Box>
+                      ) : null}
+                      {active && (
+                        <Box
+                          sx={{
+                            position: 'absolute', left: 0, top: '50%', transform: 'translateY(-50%)',
+                            width: 3, height: '55%', borderRadius: '0 3px 3px 0', backgroundColor: activeText,
+                          }}
+                        />
+                      )}
+                    </Box>
+                  );
+                  return isUpcoming ? (
+                    <Tooltip key={item.id} title="Upcoming" arrow placement="right">{navItem}</Tooltip>
+                  ) : navItem;
+                })}
+              </Collapse>
+            </Box>
+          );
+        })}
       </Box>
     </Box>
   );
