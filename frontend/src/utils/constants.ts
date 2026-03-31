@@ -86,17 +86,18 @@ export const NAVIGATION_CONFIG = {
   [ROLES.CLINIC_ADMIN]: [
     // Overview
     { id: 'dashboard',    label: 'Clinic Overview',   emoji: '📊', icon: 'Dashboard',    path: '/admin',               section: 'Overview' },
-    { id: 'config',       label: 'Clinic Config',     emoji: '⚙️', icon: 'Settings',     path: '/admin/config',        section: 'Overview' },
+    { id: 'staff',        label: 'Staff Management',  emoji: '👥', icon: 'People',       path: '/admin/staff',         section: 'Overview' },
+    { id: 'patients',     label: 'Patient Registry',  emoji: '🏥', icon: 'PersonSearch', path: '/admin/patients',      section: 'Overview' },
+    { id: 'reports',      label: 'Reports',           emoji: '📈', icon: 'Assessment',   path: '/admin/reports',       section: 'Overview' },
     // Configuration
+    { id: 'config',       label: 'Clinic Config',     emoji: '⚙️', icon: 'Settings',     path: '/admin/config',        section: 'Configuration' },
+    { id: 'schedule',     label: 'Schedule Config',   emoji: '📅', icon: 'Schedule',     path: '/admin/schedule',      section: 'Configuration' },
     { id: 'custom-fields',label: 'Custom Fields',     emoji: '📋', icon: 'ListAlt',      path: '/admin/custom-fields', section: 'Configuration' },
     { id: 'billing',      label: 'Billing Setup',     emoji: '💰', icon: 'Payment',      path: '/admin/billing',       section: 'Configuration' },
     { id: 'id-config',    label: 'ID Config',         emoji: '🔑', icon: 'Badge',        path: '/admin/id-config',     section: 'Configuration' },
-    { id: 'schedule',     label: 'Schedule Config',   emoji: '📅', icon: 'Schedule',     path: '/admin/schedule',      section: 'Configuration' },
-    // People
-    { id: 'roster',       label: 'Roster',            emoji: '👥', icon: 'People',       path: '/admin/roster',        section: 'People' },
-    // Brand & Templates
-    { id: 'templates',    label: 'Templates',         emoji: '🎨', icon: 'Palette',      path: '/admin/templates',     section: 'Brand & Templates' },
-    { id: 'data-import',  label: 'Data Import',       emoji: '📥', icon: 'CloudUpload',  path: '/admin/data-import',   section: 'Brand & Templates' },
+    // Data
+    { id: 'data-import',  label: 'Data Import',       emoji: '📥', icon: 'CloudUpload',  path: '/admin/data-import',   section: 'Data' },
+    { id: 'templates',    label: 'Templates',         emoji: '🎨', icon: 'Palette',      path: '/admin/templates',     section: 'Data' },
     // Compliance
     { id: 'compliance',   label: 'Compliance Status', emoji: '🛡️', icon: 'VerifiedUser', path: '/admin/compliance',    section: 'Compliance' },
   ],

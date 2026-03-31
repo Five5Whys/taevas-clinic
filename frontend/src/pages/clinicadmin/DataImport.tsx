@@ -1,17 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import {
-  Container,
-  Card,
-  CardHeader,
-  CardContent,
-  Stepper,
-  Step,
-  StepLabel,
   Box,
-  Button,
   Typography,
-  Paper,
-  Stack,
+  Card,
+  Button,
+  Chip,
   Table,
   TableBody,
   TableCell,
@@ -19,405 +12,244 @@ import {
   TableHead,
   TableRow,
   LinearProgress,
-  FormControlLabel,
-  Radio,
-  RadioGroup,
+  Snackbar,
+  Alert,
   Select,
   MenuItem,
-  Link,
+  FormControl,
+  InputLabel,
 } from '@mui/material';
-import {
-  CloudUpload as Upload,
-  CheckCircle as Check,
-  Error as ErrorIcon,
-  Download,
-} from '@mui/icons-material';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 
+const BRAND = '#5519E6';
+const SUB = '#6B7280';
+
+interface ImportRecord {
+  date: string;
+  type: string;
+  file: string;
+  records: number;
+  status: 'COMPLETED' | 'FAILED';
+}
+
+const mockHistory: ImportRecord[] = [
+  { date: '2026-03-28', type: 'Patients', file: 'patients_march.csv', records: 45, status: 'COMPLETED' },
+  { date: '2026-03-25', type: 'Staff', file: 'staff_update.csv', records: 8, status: 'COMPLETED' },
+  { date: '2026-03-20', type: 'Patients', file: 'patients_bulk.csv', records: 120, status: 'COMPLETED' },
+  { date: '2026-03-15', type: 'Appointments', file: 'appt_import.csv', records: 0, status: 'FAILED' },
+];
+
 const DataImport: React.FC = () => {
-  const [activeStep, setActiveStep] = useState(0);
-  const [selectedFormat, setSelectedFormat] = useState<'taevas' | 'custom' | ''>('');
-  const [uploadedFile, setUploadedFile] = useState<string>('');
-  const [fileRows, setFileRows] = useState(142);
-  const [validationProgress, setValidationProgress] = useState(74);
+  const [file, setFile] = useState<File | null>(null);
+  const [importType, setImportType] = useState<string>('Patients');
+  const [importing, setImporting] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity: 'success' | 'error' }>({
+    open: false,
+    message: '',
+    severity: 'success',
+  });
 
-  const steps = ['Select Format', 'Upload Files', 'Validation', 'Review'];
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleNext = () => {
-    if (activeStep === 0 && !selectedFormat) {
-      alert('Please select a format');
-      return;
-    }
-    setActiveStep(Math.min(activeStep + 1, steps.length - 1));
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selected = e.target.files?.[0] || null;
+    setFile(selected);
+    setProgress(0);
+    setImporting(false);
   };
 
-  const handleBack = () => {
-    setActiveStep(Math.max(activeStep - 1, 0));
+  const handleUploadClick = () => {
+    fileInputRef.current?.click();
   };
 
-  const handleImport = (validOnly: boolean) => {
-    alert(`Importing ${validOnly ? 'valid records only' : 'all records'}...`);
-    setActiveStep(0);
-    setSelectedFormat('');
-    setUploadedFile('');
+  const formatFileSize = (bytes: number): string => {
+    if (bytes < 1024) return `${bytes} B`;
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
   };
 
-  const handleCancel = () => {
-    setActiveStep(0);
-    setSelectedFormat('');
-    setUploadedFile('');
+  const handleStartImport = () => {
+    setImporting(true);
+    setProgress(0);
+
+    const interval = setInterval(() => {
+      setProgress((prev) => {
+        if (prev >= 100) {
+          clearInterval(interval);
+          setImporting(false);
+          setSnackbar({ open: true, message: 'Import completed successfully!', severity: 'success' });
+          setFile(null);
+          return 100;
+        }
+        return prev + 10;
+      });
+    }, 300);
+  };
+
+  const handleSnackbarClose = () => {
+    setSnackbar((prev) => ({ ...prev, open: false }));
   };
 
   return (
     <DashboardLayout pageTitle="Data Import">
-      <Container maxWidth="lg" sx={{ py: 2 }}>
-        <Card>
-          <CardHeader title="Patient Data Import Wizard" />
-          <CardContent>
-            {/* Stepper */}
-            <Stepper activeStep={activeStep} sx={{ mb: 3 }}>
-              {steps.map((label) => (
-                <Step key={label}>
-                  <StepLabel sx={{ fontSize: '0.75rem' }}>{label}</StepLabel>
-                </Step>
-              ))}
-            </Stepper>
+      <Box sx={{ p: 3 }}>
+        {/* Header */}
+        <Typography variant="h5" sx={{ fontWeight: 700, color: '#1F2937', mb: 0.5 }}>
+          Data Import
+        </Typography>
+        <Typography sx={{ fontSize: '0.9rem', color: SUB, mb: 3 }}>
+          Bulk import patients and staff via CSV
+        </Typography>
 
-            {/* Step 1: Select Import Format */}
-            {activeStep === 0 && (
-              <Box>
-                <Typography sx={{ fontSize: '0.85rem', mb: 2, fontWeight: 500 }}>
-                  Choose your import format:
-                </Typography>
-                <RadioGroup
-                  value={selectedFormat}
-                  onChange={(e) => setSelectedFormat(e.target.value as 'taevas' | 'custom')}
-                  sx={{ mb: 3 }}
-                >
-                  <FormControlLabel
-                    value="taevas"
-                    control={<Radio />}
-                    label={
-                      <Box>
-                        <Typography sx={{ fontSize: '0.85rem', fontWeight: 500 }}>
-                          Taevas Standard Format (CSV)
-                        </Typography>
-                        <Typography sx={{ fontSize: '0.75rem', color: '#666' }}>
-                          Pre-mapped columns for faster import
-                        </Typography>
-                      </Box>
-                    }
-                  />
-                  <FormControlLabel
-                    value="custom"
-                    control={<Radio />}
-                    label={
-                      <Box>
-                        <Typography sx={{ fontSize: '0.85rem', fontWeight: 500 }}>
-                          Custom Format (upload mapping)
-                        </Typography>
-                        <Typography sx={{ fontSize: '0.75rem', color: '#666' }}>
-                          Map your own columns manually
-                        </Typography>
-                      </Box>
-                    }
-                  />
-                </RadioGroup>
+        {/* Import Type Selector */}
+        <Card sx={{ p: 3, mb: 3 }}>
+          <FormControl size="small" sx={{ minWidth: 240, mb: 3 }}>
+            <InputLabel>Import Type</InputLabel>
+            <Select
+              value={importType}
+              label="Import Type"
+              onChange={(e) => setImportType(e.target.value)}
+            >
+              <MenuItem value="Patients">Patients</MenuItem>
+              <MenuItem value="Staff">Staff</MenuItem>
+              <MenuItem value="Appointments">Appointments</MenuItem>
+            </Select>
+          </FormControl>
 
-                <Paper sx={{ p: 2, backgroundColor: '#e3f2fd', mb: 3 }}>
-                  <Link
-                    href="#"
-                    sx={{
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      gap: 1,
-                      fontSize: '0.8rem',
-                      textDecoration: 'none',
-                    }}
-                  >
-                    <Download sx={{ fontSize: 16 }} />
-                    Download CSV Template
-                  </Link>
-                </Paper>
-
-                <Box sx={{ display: 'flex', gap: 2 }}>
-                  <Button variant="outlined" disabled size="small">
-                    Back
-                  </Button>
-                  <Button
-                    variant="contained"
-                    size="small"
-                    sx={{
-                      background: 'linear-gradient(135deg, #5519E6 0%, #A046F0 100%)',
-                    }}
-                    onClick={handleNext}
-                  >
-                    Next
-                  </Button>
-                </Box>
+          {/* Upload Area */}
+          <Box
+            onClick={handleUploadClick}
+            sx={{
+              border: '2px dashed #D1D5DB',
+              borderRadius: '12px',
+              p: 4,
+              textAlign: 'center',
+              cursor: 'pointer',
+              transition: 'border-color 0.2s',
+              '&:hover': { borderColor: BRAND },
+            }}
+          >
+            <input
+              type="file"
+              accept=".csv"
+              ref={fileInputRef}
+              onChange={handleFileSelect}
+              style={{ display: 'none' }}
+            />
+            <Typography sx={{ fontSize: '2rem', mb: 1 }}>&#128228;</Typography>
+            <Typography sx={{ fontSize: '0.95rem', fontWeight: 500, color: '#374151' }}>
+              Drop CSV file here or click to browse
+            </Typography>
+            {file && (
+              <Box sx={{ mt: 2 }}>
+                <Chip
+                  label={`${file.name} (${formatFileSize(file.size)})`}
+                  color="primary"
+                  variant="outlined"
+                  sx={{ fontSize: '0.85rem' }}
+                />
               </Box>
             )}
+          </Box>
 
-            {/* Step 2: Upload Files */}
-            {activeStep === 1 && (
-              <Box>
-                {/* Data Upload Section */}
-                <Typography sx={{ fontSize: '0.85rem', fontWeight: 500, mb: 2 }}>
-                  Data Files (Excel/CSV)
-                </Typography>
-                <Paper
+          {/* Start Import Button + Progress */}
+          {file && (
+            <Box sx={{ mt: 3 }}>
+              {!importing && progress < 100 && (
+                <Button
+                  variant="contained"
+                  onClick={handleStartImport}
                   sx={{
-                    p: 3,
-                    border: '2px dashed #ccc',
-                    textAlign: 'center',
-                    cursor: 'pointer',
-                    mb: 3,
-                    '&:hover': { backgroundColor: '#f5f5f5' },
+                    backgroundColor: BRAND,
+                    '&:hover': { backgroundColor: '#4314B8' },
+                    textTransform: 'none',
+                    fontWeight: 600,
+                    mb: 2,
                   }}
-                  onClick={() => setUploadedFile('file.xlsx')}
                 >
-                  <Upload sx={{ fontSize: 28, mb: 1, color: '#5519E6' }} />
-                  <Typography sx={{ fontSize: '0.85rem' }}>
-                    Drag and drop your file here
-                  </Typography>
-                  <Typography sx={{ fontSize: '0.75rem', color: '#666' }}>
-                    Supports Excel (.xlsx), CSV (.csv)
-                  </Typography>
-                </Paper>
-
-                {uploadedFile && (
-                  <Paper sx={{ p: 1.5, mb: 3, backgroundColor: '#f5f5f5' }}>
-                    <Typography sx={{ fontSize: '0.8rem', color: '#666' }}>
-                      {uploadedFile} loaded · {fileRows} rows detected
+                  Start Import
+                </Button>
+              )}
+              {importing && (
+                <Box sx={{ width: '100%' }}>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+                    <Typography sx={{ fontSize: '0.85rem', color: SUB }}>
+                      Importing {importType}...
                     </Typography>
-                  </Paper>
-                )}
-
-                {/* Column Mapper */}
-                <Typography sx={{ fontSize: '0.85rem', fontWeight: 500, mb: 1.5 }}>
-                  Column Mapping
-                </Typography>
-                <TableContainer sx={{ mb: 3, border: '1px solid #e0e0e0' }}>
-                  <Table size="small">
-                    <TableHead>
-                      <TableRow sx={{ backgroundColor: '#f5f5f5' }}>
-                        <TableCell sx={{ fontSize: '0.75rem', fontWeight: 600, p: 1 }}>
-                          Source Column
-                        </TableCell>
-                        <TableCell sx={{ fontSize: '0.75rem', fontWeight: 600, p: 1 }}>
-                          Target Field
-                        </TableCell>
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      {['patient_name', 'dob', 'email', 'phone'].map((col) => (
-                        <TableRow key={col}>
-                          <TableCell sx={{ fontSize: '0.8rem', p: 1 }}>{col}</TableCell>
-                          <TableCell sx={{ fontSize: '0.8rem', p: 1 }}>
-                            <Select
-                              value="auto"
-                              size="small"
-                              sx={{ fontSize: '0.8rem', height: 28 }}
-                            >
-                              <MenuItem value="auto">Auto-mapped</MenuItem>
-                              <MenuItem value="manual">Manual mapping</MenuItem>
-                            </Select>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </TableContainer>
-
-                {/* Medical Files Section */}
-                <Typography sx={{ fontSize: '0.85rem', fontWeight: 500, mb: 2 }}>
-                  Medical Files (PDF, JPG, PNG, MP4, DICOM)
-                </Typography>
-                <Paper
-                  sx={{
-                    p: 2,
-                    border: '2px dashed #ccc',
-                    textAlign: 'center',
-                    backgroundColor: '#fafafa',
-                    mb: 3,
-                  }}
-                >
-                  <Upload sx={{ fontSize: 24, mb: 1, color: '#999' }} />
-                  <Typography sx={{ fontSize: '0.8rem', color: '#666' }}>
-                    Drag and drop medical files here
-                  </Typography>
-                </Paper>
-
-                <Box sx={{ display: 'flex', gap: 2 }}>
-                  <Button variant="outlined" size="small" onClick={handleBack}>
-                    Back
-                  </Button>
-                  <Button
-                    variant="contained"
-                    size="small"
+                    <Typography sx={{ fontSize: '0.85rem', color: SUB }}>
+                      {progress}%
+                    </Typography>
+                  </Box>
+                  <LinearProgress
+                    variant="determinate"
+                    value={progress}
                     sx={{
-                      background: 'linear-gradient(135deg, #5519E6 0%, #A046F0 100%)',
+                      height: 8,
+                      borderRadius: 4,
+                      '& .MuiLinearProgress-bar': { backgroundColor: BRAND },
                     }}
-                    onClick={handleNext}
-                  >
-                    Next
-                  </Button>
+                  />
                 </Box>
-              </Box>
-            )}
-
-            {/* Step 3: Validation */}
-            {activeStep === 2 && (
-              <Box>
-                <Typography sx={{ fontSize: '0.85rem', fontWeight: 500, mb: 1 }}>
-                  Validation Progress
-                </Typography>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
-                  <Typography sx={{ fontSize: '0.75rem', color: '#666' }}>
-                    {validationProgress}% Complete
-                  </Typography>
-                </Box>
-                <LinearProgress variant="determinate" value={validationProgress} sx={{ mb: 3 }} />
-
-                {/* Validation Log */}
-                <Typography sx={{ fontSize: '0.85rem', fontWeight: 500, mb: 1.5 }}>
-                  Validation Results
-                </Typography>
-                <Paper sx={{ maxHeight: 200, overflow: 'auto', p: 2, mb: 3, border: '1px solid #e0e0e0' }}>
-                  {[
-                    { status: 'pass', text: 'Row 1-142: All records loaded successfully' },
-                    { status: 'pass', text: 'Row 5: Email validated' },
-                    { status: 'pass', text: 'Row 10-25: Date formats normalized' },
-                    { status: 'error', text: 'Row 32: Invalid phone number format' },
-                    { status: 'error', text: 'Row 48: Missing required field (Name)' },
-                    { status: 'pass', text: 'Row 50-142: All remaining records valid' },
-                  ].map((item, idx) => (
-                    <Box
-                      key={idx}
-                      sx={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 1,
-                        mb: 1,
-                        fontSize: '0.8rem',
-                      }}
-                    >
-                      {item.status === 'pass' ? (
-                        <Check sx={{ fontSize: 16, color: '#4caf50' }} />
-                      ) : (
-                        <ErrorIcon sx={{ fontSize: 16, color: '#f44336' }} />
-                      )}
-                      <Typography sx={{ fontSize: '0.8rem', color: item.status === 'error' ? '#d32f2f' : '#333' }}>
-                        {item.text}
-                      </Typography>
-                    </Box>
-                  ))}
-                </Paper>
-
-                <Box sx={{ display: 'flex', gap: 2 }}>
-                  <Button variant="outlined" size="small" onClick={handleBack}>
-                    Back
-                  </Button>
-                  <Button
-                    variant="contained"
-                    size="small"
-                    sx={{
-                      background: 'linear-gradient(135deg, #5519E6 0%, #A046F0 100%)',
-                    }}
-                    onClick={handleNext}
-                  >
-                    View Summary
-                  </Button>
-                </Box>
-              </Box>
-            )}
-
-            {/* Step 4: Review Summary */}
-            {activeStep === 3 && (
-              <Box>
-                <Typography sx={{ fontSize: '0.85rem', fontWeight: 500, mb: 2 }}>
-                  Import Summary
-                </Typography>
-
-                {/* Summary Stats */}
-                <Table size="small" sx={{ mb: 3 }}>
-                  <TableBody>
-                    <TableRow>
-                      <TableCell sx={{ fontSize: '0.8rem', fontWeight: 500, p: 1 }}>
-                        Total Rows
-                      </TableCell>
-                      <TableCell sx={{ fontSize: '0.8rem', p: 1 }}>142</TableCell>
-                    </TableRow>
-                    <TableRow sx={{ backgroundColor: '#f5f5f5' }}>
-                      <TableCell sx={{ fontSize: '0.8rem', fontWeight: 500, p: 1 }}>
-                        Valid
-                      </TableCell>
-                      <TableCell sx={{ fontSize: '0.8rem', p: 1, color: '#4caf50', fontWeight: 500 }}>
-                        138
-                      </TableCell>
-                    </TableRow>
-                    <TableRow>
-                      <TableCell sx={{ fontSize: '0.8rem', fontWeight: 500, p: 1 }}>
-                        Warnings
-                      </TableCell>
-                      <TableCell sx={{ fontSize: '0.8rem', p: 1, color: '#ff9800' }}>
-                        2
-                      </TableCell>
-                    </TableRow>
-                    <TableRow sx={{ backgroundColor: '#f5f5f5' }}>
-                      <TableCell sx={{ fontSize: '0.8rem', fontWeight: 500, p: 1 }}>
-                        Errors
-                      </TableCell>
-                      <TableCell sx={{ fontSize: '0.8rem', p: 1, color: '#f44336' }}>
-                        2
-                      </TableCell>
-                    </TableRow>
-                  </TableBody>
-                </Table>
-
-                <Stack direction="row" spacing={1.5} sx={{ mb: 2 }}>
-                  <Button
-                    variant="contained"
-                    size="small"
-                    sx={{
-                      background: 'linear-gradient(135deg, #5519E6 0%, #A046F0 100%)',
-                      fontSize: '0.8rem',
-                    }}
-                    onClick={() => handleImport(false)}
-                  >
-                    Import All
-                  </Button>
-                  <Button
-                    variant="outlined"
-                    size="small"
-                    sx={{ fontSize: '0.8rem' }}
-                    onClick={() => handleImport(true)}
-                  >
-                    Import Valid Only
-                  </Button>
-                  <Button
-                    variant="outlined"
-                    size="small"
-                    color="error"
-                    sx={{ fontSize: '0.8rem' }}
-                    onClick={handleCancel}
-                  >
-                    Cancel
-                  </Button>
-                  <Button
-                    variant="text"
-                    size="small"
-                    sx={{ fontSize: '0.8rem' }}
-                    onClick={handleBack}
-                  >
-                    Back
-                  </Button>
-                </Stack>
-              </Box>
-            )}
-          </CardContent>
+              )}
+            </Box>
+          )}
         </Card>
-      </Container>
+
+        {/* Import History */}
+        <Card sx={{ p: 3 }}>
+          <Typography variant="h6" sx={{ fontWeight: 600, color: '#1F2937', mb: 2 }}>
+            Import History
+          </Typography>
+          <TableContainer>
+            <Table size="small">
+              <TableHead>
+                <TableRow sx={{ backgroundColor: '#F9FAFB' }}>
+                  <TableCell sx={{ fontWeight: 600, color: SUB, fontSize: '0.8rem' }}>Date</TableCell>
+                  <TableCell sx={{ fontWeight: 600, color: SUB, fontSize: '0.8rem' }}>Type</TableCell>
+                  <TableCell sx={{ fontWeight: 600, color: SUB, fontSize: '0.8rem' }}>File</TableCell>
+                  <TableCell sx={{ fontWeight: 600, color: SUB, fontSize: '0.8rem' }}>Records</TableCell>
+                  <TableCell sx={{ fontWeight: 600, color: SUB, fontSize: '0.8rem' }}>Status</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {mockHistory.map((row, idx) => (
+                  <TableRow key={idx} sx={{ '&:hover': { backgroundColor: '#F9FAFB' } }}>
+                    <TableCell sx={{ fontSize: '0.85rem' }}>{row.date}</TableCell>
+                    <TableCell sx={{ fontSize: '0.85rem' }}>{row.type}</TableCell>
+                    <TableCell sx={{ fontSize: '0.85rem', fontFamily: 'monospace' }}>{row.file}</TableCell>
+                    <TableCell sx={{ fontSize: '0.85rem' }}>{row.records}</TableCell>
+                    <TableCell>
+                      <Chip
+                        label={row.status}
+                        size="small"
+                        sx={{
+                          fontWeight: 600,
+                          fontSize: '0.75rem',
+                          backgroundColor: row.status === 'COMPLETED' ? '#D1FAE5' : '#FEE2E2',
+                          color: row.status === 'COMPLETED' ? '#065F46' : '#991B1B',
+                        }}
+                      />
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </Card>
+      </Box>
+
+      {/* Snackbar */}
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={4000}
+        onClose={handleSnackbarClose}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+      >
+        <Alert onClose={handleSnackbarClose} severity={snackbar.severity} variant="filled" sx={{ width: '100%' }}>
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </DashboardLayout>
   );
 };
