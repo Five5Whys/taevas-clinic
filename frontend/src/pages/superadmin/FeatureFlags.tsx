@@ -159,7 +159,7 @@ const FeatureFlags: React.FC = () => {
 
   if (isLoading) {
     return (
-      <DashboardLayout pageTitle="Feature Flags">
+      <DashboardLayout pageTitle="Features">
         <Container maxWidth="lg" sx={{ py: 3 }}>
           <Box sx={{ display: 'flex', justifyContent: 'center', py: 10 }}>
             <CircularProgress />
@@ -170,7 +170,7 @@ const FeatureFlags: React.FC = () => {
   }
 
   return (
-    <DashboardLayout pageTitle="Feature Flags">
+    <DashboardLayout pageTitle="Features">
       <Container maxWidth="lg" sx={{ py: 3 }}>
         <Typography variant="body2" color="textSecondary" sx={{ mb: 3 }}>
           Manage feature availability by country. Click lock icons to prevent

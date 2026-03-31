@@ -4,6 +4,7 @@ import {
   Drawer,
   Box,
   Typography,
+  Tooltip,
   useMediaQuery,
   useTheme,
 } from '@mui/material';
@@ -197,12 +198,12 @@ const Sidebar: React.FC<SidebarProps> = ({ open, onClose }) => {
             {/* Nav items */}
             {section.items.map((item: any) => {
               const active = isActive(item.path);
-              return (
+              const isUpcoming = item.upcoming;
+              const navItem = (
                 <Box
                   key={item.id}
-                  component={RouterLink}
-                  to={item.path}
-                  onClick={isMobile ? onClose : undefined}
+                  {...(!isUpcoming ? { component: RouterLink, to: item.path } : {})}
+                  onClick={!isUpcoming && isMobile ? onClose : undefined}
                   sx={{
                     display: 'flex',
                     alignItems: 'center',
@@ -212,10 +213,11 @@ const Sidebar: React.FC<SidebarProps> = ({ open, onClose }) => {
                     mb: 0.25,
                     borderRadius: '7px',
                     textDecoration: 'none',
-                    cursor: 'pointer',
+                    cursor: isUpcoming ? 'default' : 'pointer',
+                    opacity: isUpcoming ? 0.4 : 1,
                     transition: 'background 0.15s, color 0.15s',
                     backgroundColor: active ? activeBg : 'transparent',
-                    '&:hover': { backgroundColor: active ? activeBg : hoverBg },
+                    '&:hover': isUpcoming ? {} : { backgroundColor: active ? activeBg : hoverBg },
                   }}
                 >
                   {/* Emoji icon */}
@@ -246,8 +248,26 @@ const Sidebar: React.FC<SidebarProps> = ({ open, onClose }) => {
                     {item.label}
                   </Typography>
 
-                  {/* Badge */}
-                  {item.badge && (
+                  {/* Badge or Upcoming tag */}
+                  {isUpcoming ? (
+                    <Box
+                      sx={{
+                        px: 0.75,
+                        py: 0.1,
+                        borderRadius: '10px',
+                        fontSize: '0.55rem',
+                        fontWeight: 700,
+                        backgroundColor: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)',
+                        color: isDark ? 'rgba(255,255,255,0.35)' : '#9CA3AF',
+                        lineHeight: 1.6,
+                        flexShrink: 0,
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.05em',
+                      }}
+                    >
+                      Soon
+                    </Box>
+                  ) : item.badge ? (
                     <Box
                       sx={{
                         px: 0.75,
@@ -263,7 +283,7 @@ const Sidebar: React.FC<SidebarProps> = ({ open, onClose }) => {
                     >
                       {item.badge}
                     </Box>
-                  )}
+                  ) : null}
 
                   {/* Active left bar */}
                   {active && (
@@ -282,6 +302,11 @@ const Sidebar: React.FC<SidebarProps> = ({ open, onClose }) => {
                   )}
                 </Box>
               );
+              return isUpcoming ? (
+                <Tooltip key={item.id} title="Upcoming" arrow placement="right">
+                  {navItem}
+                </Tooltip>
+              ) : navItem;
             })}
           </Box>
         ))}

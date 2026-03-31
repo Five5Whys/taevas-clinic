@@ -167,7 +167,7 @@ const IDManagement: React.FC = () => {
   };
 
   return (
-    <DashboardLayout pageTitle="ID Management">
+    <DashboardLayout pageTitle="ID Config">
       <Container maxWidth="lg" sx={{ py: 3 }}>
 
         {/* Info notice */}

@@ -30,7 +30,8 @@ spring:
 
 app:
   cors:
-    allowed-origins: http://localhost:5173,https://returns-latest-attempts-ranger.trycloudflare.com
+    allowed-origins: http://localhost:5173
+    allowed-origin-patterns: https://*.trycloudflare.com,https://*.loca.lt
 
 logging:
   level:

@@ -265,7 +265,7 @@ const LoginPage: React.FC = () => {
 
           {/* Error Message */}
           {error && (
-            <Alert severity="error" onClose={() => setError('')} sx={{ mb: 2 }}>
+            <Alert severity="error" onClose={() => setError('')} sx={{ mb: 2, backgroundColor: '#DC2626', color: '#fff', fontWeight: 600, fontSize: '0.9rem', '& .MuiAlert-icon': { color: '#fff' }, '& .MuiAlert-action': { color: '#fff' } }}>
               {error}
             </Alert>
           )}

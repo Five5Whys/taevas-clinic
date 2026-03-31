@@ -91,11 +91,11 @@ const SuperAdminDashboard: React.FC = () => {
   const stats = isMockMode ? MOCK_STATS : (apiStats ?? MOCK_STATS);
   const STATS = buildStatCards(stats);
 
-  if (!isMockMode && isLoading) return <DashboardLayout pageTitle="Global Overview"><LoadingSkeleton /></DashboardLayout>;
-  if (!isMockMode && error) return <DashboardLayout pageTitle="Global Overview"><ErrorState onRetry={refetch} /></DashboardLayout>;
+  if (!isMockMode && isLoading) return <DashboardLayout pageTitle="Control Center"><LoadingSkeleton /></DashboardLayout>;
+  if (!isMockMode && error) return <DashboardLayout pageTitle="Control Center"><ErrorState onRetry={refetch} /></DashboardLayout>;
 
   return (
-  <DashboardLayout pageTitle="Global Overview">
+  <DashboardLayout pageTitle="Control Center">
     {/* Full-height container — no scroll */}
     <Box sx={{ px: 2.5, py: 2, height: 'calc(100vh - 64px)', display: 'flex', flexDirection: 'column', gap: 1.5, overflow: 'hidden' }}>
 

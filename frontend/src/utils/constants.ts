@@ -53,15 +53,15 @@ export const API_ENDPOINTS = {
 export const NAVIGATION_CONFIG = {
   [ROLES.SUPERADMIN]: [
     // Devices — TOP of panel
-    { id: 'equidor',        label: 'Equidor',            emoji: '🔬', icon: 'DeviceHub',    path: '/superadmin/equidor',        section: 'Devices', badge: '3' },
+    { id: 'equidor',        label: 'Equidor',            emoji: '🔬', icon: 'DeviceHub',    path: '/superadmin/equidor',        section: 'Devices', badge: '3', upcoming: true },
     // Overview
-    { id: 'dashboard',      label: 'Global Overview',    emoji: '📊', icon: 'Dashboard',    path: '/superadmin',                section: 'Overview' },
+    { id: 'dashboard',      label: 'Control Center',     emoji: '📊', icon: 'Dashboard',    path: '/superadmin',                section: 'Overview' },
     { id: 'countries',      label: 'Countries',          emoji: '🌍', icon: 'Public',       path: '/superadmin/countries',      section: 'Overview' },
     // Configuration
-    { id: 'feature-flags',  label: 'Feature Flags',      emoji: '🚩', icon: 'ToggleOn',     path: '/superadmin/feature-flags',  section: 'Configuration' },
+    { id: 'feature-flags',  label: 'Features',           emoji: '🚩', icon: 'ToggleOn',     path: '/superadmin/feature-flags',  section: 'Configuration' },
     { id: 'field-manager',  label: 'Field Manager',      emoji: '📋', icon: 'ViewList',     path: '/superadmin/field-manager',  section: 'Configuration' },
     { id: 'compliance',     label: 'Compliance',         emoji: '🛡️', icon: 'VerifiedUser', path: '/superadmin/compliance',     section: 'Configuration' },
-    { id: 'id-management',  label: 'ID Management',      emoji: '🔑', icon: 'Badge',        path: '/superadmin/id-management',  section: 'Configuration' },
+    { id: 'id-management',  label: 'ID Config',          emoji: '🔑', icon: 'Badge',        path: '/superadmin/id-management',  section: 'Configuration' },
     // Access
     { id: 'roster',         label: 'Global Roster',      emoji: '👥', icon: 'People',       path: '/superadmin/roster',         section: 'Access', badge: '47' },
     { id: 'clinics',        label: 'Clinics',            emoji: '🏥', icon: 'LocationCity', path: '/superadmin/clinics',        section: 'Access', badge: '12' },
