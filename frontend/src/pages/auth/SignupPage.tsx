@@ -131,7 +131,7 @@ const SignupPage: React.FC = () => {
         };
         login(mockUser, 'mock-jwt-token-signup');
         setSuccess('Account created successfully!');
-        setTimeout(() => navigate(ROLE_REDIRECT_MAP[role]), 800);
+        setTimeout(() => navigate(ROLE_REDIRECT_MAP[role] || '/'), 800);
       } else {
         const payload = {
           firstName,
