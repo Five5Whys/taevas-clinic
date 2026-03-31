@@ -22,22 +22,10 @@ import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { useAuthStore } from '@/stores/authStore';
 import { isMockAuthEnabled, MOCK_USERS } from '@/services/mockAuth';
 import { UserRole } from '@/types';
-import { ROLE_REDIRECT_MAP } from '@/utils/constants';
+import { ROLE_REDIRECT_MAP, COUNTRY_CODES } from '@/utils/constants';
 import authService from '@/services/authService';
 import { getErrorMessage } from '@/utils/helpers';
 
-const COUNTRY_CODES = [
-  { code: '+91', country: 'India', flag: '🇮🇳', maxLen: 10 },
-  { code: '+66', country: 'Thailand', flag: '🇹🇭', maxLen: 9 },
-  { code: '+960', country: 'Maldives', flag: '🇲🇻', maxLen: 7 },
-  { code: '+1', country: 'USA', flag: '🇺🇸', maxLen: 10 },
-  { code: '+44', country: 'UK', flag: '🇬🇧', maxLen: 10 },
-  { code: '+971', country: 'UAE', flag: '🇦🇪', maxLen: 9 },
-  { code: '+65', country: 'Singapore', flag: '🇸🇬', maxLen: 8 },
-  { code: '+60', country: 'Malaysia', flag: '🇲🇾', maxLen: 10 },
-  { code: '+94', country: 'Sri Lanka', flag: '🇱🇰', maxLen: 9 },
-  { code: '+977', country: 'Nepal', flag: '🇳🇵', maxLen: 10 },
-];
 
 const ROLE_META: Partial<Record<UserRole, { label: string; color: string; icon: string }>> = {
   SUPERADMIN: { label: 'Super Admin', color: '#A046F0', icon: '\u{1F30D}' },
@@ -114,7 +102,7 @@ const LoginPage: React.FC = () => {
         login(mockUser, 'mock-jwt-token-for-dev-only');
         navigate(ROLE_REDIRECT_MAP.SUPERADMIN);
       } else {
-        const identifier = loginMethod === 'phone' ? phone : email;
+        const identifier = loginMethod === 'phone' ? `${countryCode}${phone}` : email;
         const response = await authService.login(identifier, password);
         login(response.user, response.token);
         if (response.user.mustChangePassword) {
@@ -319,7 +307,7 @@ const LoginPage: React.FC = () => {
             {loginMethod === 'phone' ? (
               <>
                 <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1 }}>
-                  Phone Number
+                  Phone Number <span style={{ color: '#DC2626' }}>*</span>
                 </Typography>
                 <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
                   <Select
@@ -359,7 +347,7 @@ const LoginPage: React.FC = () => {
             ) : (
               <>
                 <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1 }}>
-                  Email ID
+                  Email ID <span style={{ color: '#DC2626' }}>*</span>
                 </Typography>
                 <TextField
                   fullWidth
@@ -378,7 +366,7 @@ const LoginPage: React.FC = () => {
             )}
 
             <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1 }}>
-              Password
+              Password <span style={{ color: '#DC2626' }}>*</span>
             </Typography>
             <TextField
               fullWidth
@@ -458,7 +446,7 @@ const LoginPage: React.FC = () => {
                     '&:hover': { textDecoration: 'underline' },
                   }}
                 >
-                  Signup
+                  Sign up
                 </Link>
               </Typography>
             </Box>

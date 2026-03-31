@@ -195,27 +195,20 @@ const Equidor: React.FC = () => {
     <DashboardLayout pageTitle="">
       <Box sx={{display:'flex',flexDirection:'column',height:'100%',bgcolor:'#F1F3F7'}}>
 
-        {/* ── Dark Equidor sub-topbar ── */}
+        {/* ── Equidor sub-topbar (light, matching right panel) ── */}
         <Box sx={{
-          bgcolor:'#0F0F14',borderBottom:'1px solid rgba(255,255,255,0.07)',
+          bgcolor:'#E8EAF0',borderBottom:'1px solid #D1D5DB',
           px:'24px',height:'56px',
           display:'flex',alignItems:'center',justifyContent:'space-between',
           position:'sticky',top:0,zIndex:20,flexShrink:0,
         }}>
           <Box sx={{display:'flex',alignItems:'center',gap:'12px'}}>
-            <Box sx={{
-              width:30,height:30,borderRadius:'8px',flexShrink:0,
-              background:'linear-gradient(135deg,#5519E6,#A046F0)',
-              display:'flex',alignItems:'center',justifyContent:'center',
-              fontFamily:'"Clash Display",sans-serif',fontSize:'12px',fontWeight:600,color:'#fff',
-              boxShadow:'0 3px 10px rgba(85,25,230,0.35)',
-            }}>EQ</Box>
-            <Box sx={{fontFamily:'"Clash Display",sans-serif',fontSize:'15px',fontWeight:600,color:'#fff',letterSpacing:'-0.01em'}}>
-              Equidor → Nexus
-              <Box component="span" sx={{color:'rgba(255,255,255,0.35)',fontWeight:400,ml:'4px',fontFamily:'"Archivo",sans-serif',fontSize:'12px'}}> / Monitor</Box>
+            <Box component="img" src="/equidor-logo.png" alt="Equidor" sx={{ height:30, borderRadius:'6px', flexShrink:0 }} />
+            <Box sx={{fontFamily:'"Clash Display",sans-serif',fontSize:'15px',fontWeight:600,color:'#1F2937',letterSpacing:'-0.01em'}}>
+              Monitor
             </Box>
           </Box>
-          <Box sx={{fontFamily:'"DM Mono",monospace',fontSize:'11px',color:'rgba(255,255,255,0.45)',bgcolor:'rgba(255,255,255,0.07)',border:'1px solid rgba(255,255,255,0.1)',px:'10px',py:'4px',borderRadius:'6px'}}>{todayStr()}</Box>
+          <Box sx={{fontFamily:'"DM Mono",monospace',fontSize:'11px',color:'#6B7280',bgcolor:'#fff',border:'1px solid #D1D5DB',px:'10px',py:'4px',borderRadius:'6px'}}>{todayStr()}</Box>
         </Box>
 
         {/* ── Stats strip ── */}

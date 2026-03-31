@@ -30,7 +30,23 @@ const BRAND = '#5519E6';
 const SUB = '#6B7280';
 const BORDER = '#E5E7EB';
 
+// TODO: replace with API call to fetch active tenants
+const ALL_TENANTS = [
+  { code: '+91', country: 'India', maxLen: 10, status: 'ACTIVE' as const },
+  { code: '+66', country: 'Thailand', maxLen: 9, status: 'ACTIVE' as const },
+  { code: '+960', country: 'Maldives', maxLen: 7, status: 'INACTIVE' as const },
+  { code: '+94', country: 'Sri Lanka', maxLen: 9, status: 'INACTIVE' as const },
+  { code: '+880', country: 'Bangladesh', maxLen: 10, status: 'INACTIVE' as const },
+  { code: '+971', country: 'UAE', maxLen: 9, status: 'INACTIVE' as const },
+  { code: '+20', country: 'Egypt', maxLen: 10, status: 'INACTIVE' as const },
+  { code: '+977', country: 'Nepal', maxLen: 10, status: 'INACTIVE' as const },
+  { code: '+65', country: 'Singapore', maxLen: 8, status: 'INACTIVE' as const },
+  { code: '+60', country: 'Malaysia', maxLen: 10, status: 'INACTIVE' as const },
+];
+const TENANTS = ALL_TENANTS.filter(t => t.status === 'ACTIVE');
+
 type RoleType = 'CLINIC_ADMIN' | 'DOCTOR' | 'PATIENT' | 'NURSE' | 'ASSISTANT';
+
 
 const ROLE_OPTIONS: { value: RoleType; label: string; icon: string; color: string }[] = [
   { value: 'CLINIC_ADMIN', label: 'Clinic Admin', icon: '\u{1F3E5}', color: '#FF8232' },
@@ -53,19 +69,19 @@ interface MockUser {
   lastName: string;
   phone: string;
   email: string;
-  role: RoleType | '';
   clinicId: string;
   clinicName: string;
+  roles: RoleType[];
   status: 'ACTIVE' | 'INVITED' | 'INACTIVE';
   createdAt: string;
 }
 
 const INITIAL_USERS: MockUser[] = [
-  { id: 'u-001', firstName: 'Sunita', lastName: 'Rao', phone: '+919876543211', email: 'sunita@entcare.in', role: 'CLINIC_ADMIN', clinicId: 'clinic-pune-001', clinicName: 'ENT Care Center, Pune', status: 'ACTIVE', createdAt: '2026-03-15' },
-  { id: 'u-002', firstName: 'Dr. Rajesh', lastName: 'Kumar', phone: '+919876543212', email: 'rajesh@entcare.in', role: 'DOCTOR', clinicId: 'clinic-pune-001', clinicName: 'ENT Care Center, Pune', status: 'ACTIVE', createdAt: '2026-03-16' },
-  { id: 'u-003', firstName: 'Anita', lastName: 'Sharma', phone: '+919876543213', email: 'anita@gmail.com', role: 'PATIENT', clinicId: 'clinic-pune-001', clinicName: 'ENT Care Center, Pune', status: 'ACTIVE', createdAt: '2026-03-18' },
-  { id: 'u-004', firstName: 'Meera', lastName: 'Nair', phone: '+919876543214', email: 'meera@entcare.in', role: 'NURSE', clinicId: 'clinic-pune-001', clinicName: 'ENT Care Center, Pune', status: 'ACTIVE', createdAt: '2026-03-20' },
-  { id: 'u-005', firstName: 'Priya', lastName: 'Das', phone: '+919876543215', email: '', role: '', clinicId: '', clinicName: '', status: 'INVITED', createdAt: '2026-03-28' },
+  { id: 'u-001', firstName: 'Sunita', lastName: 'Rao', phone: '+919876543211', email: 'sunita@entcare.in', clinicId: 'clinic-pune-001', clinicName: 'ENT Care Center, Pune', roles: ['CLINIC_ADMIN'], status: 'ACTIVE', createdAt: '2026-03-15' },
+  { id: 'u-002', firstName: 'Dr. Rajesh', lastName: 'Kumar', phone: '+919876543212', email: 'rajesh@entcare.in', clinicId: 'clinic-pune-001', clinicName: 'ENT Care Center, Pune', roles: ['DOCTOR'], status: 'ACTIVE', createdAt: '2026-03-16' },
+  { id: 'u-003', firstName: 'Anita', lastName: 'Sharma', phone: '+919876543213', email: 'anita@gmail.com', clinicId: 'clinic-pune-001', clinicName: 'ENT Care Center, Pune', roles: ['PATIENT'], status: 'ACTIVE', createdAt: '2026-03-18' },
+  { id: 'u-004', firstName: 'Meera', lastName: 'Nair', phone: '+919876543214', email: 'meera@entcare.in', clinicId: 'clinic-pune-001', clinicName: 'ENT Care Center, Pune', roles: ['NURSE', 'ASSISTANT'], status: 'ACTIVE', createdAt: '2026-03-20' },
+  { id: 'u-005', firstName: 'Priya', lastName: 'Das', phone: '+919876543215', email: '', clinicId: '', clinicName: '', roles: [], status: 'INVITED', createdAt: '2026-03-28' },
 ];
 
 const UserManagement: React.FC = () => {
@@ -79,55 +95,86 @@ const UserManagement: React.FC = () => {
   // Create user form
   const [newFirstName, setNewFirstName] = useState('');
   const [newLastName, setNewLastName] = useState('');
+  const [newTenant, setNewTenant] = useState('+91');
   const [newPhone, setNewPhone] = useState('');
   const [newEmail, setNewEmail] = useState('');
+  const [newClinic, setNewClinic] = useState('');
+  const [newRoles, setNewRoles] = useState<RoleType[]>([]);
+  const [phoneTouched, setPhoneTouched] = useState(false);
+  const [emailTouched, setEmailTouched] = useState(false);
 
   // Assign form
-  const [assignRole, setAssignRole] = useState<RoleType | ''>('');
-  const [assignClinic, setAssignClinic] = useState('');
+  const [editRoles, setEditRoles] = useState<RoleType[]>([]);
+  const [editClinic, setEditClinic] = useState('');
+
+  const selectedTenant = TENANTS.find(t => t.code === newTenant) || TENANTS[0]!;
+  const isValidEmail = (v: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+  const isPhoneValid = newPhone.length === 0 || newPhone.length === selectedTenant.maxLen;
+  const isEmailValid = newEmail.length === 0 || isValidEmail(newEmail);
+  const hasPhone = newPhone.length === selectedTenant.maxLen;
+  const hasEmail = isValidEmail(newEmail);
+  const isCreateValid = newFirstName.trim().length > 0 && (hasPhone || hasEmail) && isPhoneValid && isEmailValid;
 
   const filtered = users.filter(u =>
     `${u.firstName} ${u.lastName} ${u.phone} ${u.email}`.toLowerCase().includes(search.toLowerCase())
   );
 
+  const toggleNewRole = (role: RoleType) => {
+    setNewRoles(prev => prev.includes(role) ? prev.filter(r => r !== role) : [...prev, role]);
+  };
+
   const handleCreateUser = () => {
-    if (!newFirstName.trim() || (!newPhone.trim() && !newEmail.trim())) return;
+    if (!isCreateValid) return;
+    const clinic = CLINICS.find(c => c.id === newClinic);
     const newUser: MockUser = {
       id: `u-${Date.now()}`,
       firstName: newFirstName,
       lastName: newLastName,
-      phone: newPhone,
+      phone: hasPhone ? `${newTenant}${newPhone}` : '',
       email: newEmail,
-      role: '',
-      clinicId: '',
-      clinicName: '',
-      status: 'INVITED',
+      clinicId: newClinic,
+      clinicName: clinic?.name || '',
+      roles: newRoles,
+      status: newRoles.length > 0 && newClinic ? 'ACTIVE' : 'INVITED',
       createdAt: new Date().toISOString().split('T')[0]!,
     };
     setUsers(prev => [newUser, ...prev]);
+    resetCreateForm();
+    const roleLabels = newRoles.map(r => ROLE_OPTIONS.find(o => o.value === r)?.label || r).join(', ');
+    setAlertMsg(`Account created for ${newFirstName}.${roleLabels ? ` Assigned as ${roleLabels}${clinic ? ` @ ${clinic.name}` : ''}.` : ''} Invite sent.`);
+  };
+
+  const resetCreateForm = () => {
     setCreateOpen(false);
-    setNewFirstName(''); setNewLastName(''); setNewPhone(''); setNewEmail('');
-    setAlertMsg(`Account created for ${newFirstName}. Invite sent with default password.`);
+    setNewFirstName(''); setNewLastName(''); setNewPhone(''); setNewEmail(''); setNewTenant('+91');
+    setNewClinic(''); setNewRoles([]);
+    setPhoneTouched(false); setEmailTouched(false);
   };
 
-  const handleAssign = () => {
-    if (!selectedUser || !assignRole) return;
-    const clinic = CLINICS.find(c => c.id === assignClinic);
-    setUsers(prev => prev.map(u =>
-      u.id === selectedUser.id
-        ? { ...u, role: assignRole, clinicId: assignClinic, clinicName: clinic?.name || '', status: 'ACTIVE' as const }
-        : u
-    ));
+  const handleSaveRoles = () => {
+    if (!selectedUser) return;
+    const clinic = CLINICS.find(c => c.id === editClinic);
+    const updatedUser: MockUser = {
+      ...selectedUser,
+      roles: editRoles,
+      clinicId: editClinic,
+      clinicName: clinic?.name || '',
+      status: editRoles.length > 0 ? 'ACTIVE' : 'INVITED',
+    };
+    setUsers(prev => prev.map(u => u.id === selectedUser.id ? updatedUser : u));
+    setSelectedUser(updatedUser);
     setAssignOpen(false);
-    setSelectedUser(null);
-    setAssignRole('');
-    setAssignClinic('');
-    setAlertMsg(`${selectedUser.firstName} assigned as ${assignRole}${clinic ? ` at ${clinic.name}` : ''}`);
+    const roleLabels = editRoles.map(r => ROLE_OPTIONS.find(o => o.value === r)?.label || r).join(', ');
+    setAlertMsg(`${selectedUser.firstName} updated — ${roleLabels || 'No roles'}${clinic ? ` @ ${clinic.name}` : ''}`);
   };
 
-  const getRoleChip = (role: string) => {
+  const toggleRole = (role: RoleType) => {
+    setEditRoles(prev => prev.includes(role) ? prev.filter(r => r !== role) : [...prev, role]);
+  };
+
+  const getRoleChip = (role: RoleType) => {
     const r = ROLE_OPTIONS.find(o => o.value === role);
-    if (!r) return <Chip label="Unassigned" size="small" sx={{ background: '#F3F4F6', color: SUB, fontWeight: 600, fontSize: '10px', height: 22 }} />;
+    if (!r) return null;
     return <Chip label={`${r.icon} ${r.label}`} size="small" sx={{ background: `${r.color}15`, color: r.color, fontWeight: 700, fontSize: '10px', height: 22 }} />;
   };
 
@@ -172,7 +219,7 @@ const UserManagement: React.FC = () => {
             <Table size="small">
               <TableHead>
                 <TableRow sx={{ background: '#F8F9FA' }}>
-                  {['Name', 'Phone', 'Email', 'Role', 'Clinic', 'Status', 'Created', 'Actions'].map(h => (
+                  {['Name', 'Phone', 'Email', 'Roles', 'Clinic', 'Status', 'Created', 'Actions'].map(h => (
                     <TableCell key={h} sx={{ fontWeight: 700, fontSize: '11px', color: SUB, py: 1.25 }}>{h}</TableCell>
                   ))}
                 </TableRow>
@@ -183,18 +230,26 @@ const UserManagement: React.FC = () => {
                     <TableCell sx={{ fontWeight: 600, fontSize: '12px' }}>{u.firstName} {u.lastName}</TableCell>
                     <TableCell sx={{ fontSize: '12px', fontFamily: "'JetBrains Mono', monospace", color: SUB }}>{u.phone || '\u2014'}</TableCell>
                     <TableCell sx={{ fontSize: '12px', color: SUB }}>{u.email || '\u2014'}</TableCell>
-                    <TableCell>{getRoleChip(u.role)}</TableCell>
+                    <TableCell>
+                      {u.roles.length === 0 ? (
+                        <Chip label="Unassigned" size="small" sx={{ background: '#F3F4F6', color: SUB, fontWeight: 600, fontSize: '10px', height: 22 }} />
+                      ) : (
+                        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                          {u.roles.map(role => getRoleChip(role))}
+                        </Box>
+                      )}
+                    </TableCell>
                     <TableCell sx={{ fontSize: '11px', color: SUB }}>{u.clinicName || '\u2014'}</TableCell>
                     <TableCell>{getStatusChip(u.status)}</TableCell>
                     <TableCell sx={{ fontSize: '11px', color: SUB }}>{u.createdAt}</TableCell>
                     <TableCell>
-                      <Tooltip title="Assign Role & Clinic" arrow>
+                      <Tooltip title="Manage Roles" arrow>
                         <Button
                           size="small" variant="outlined"
-                          onClick={() => { setSelectedUser(u); setAssignRole(u.role as RoleType || ''); setAssignClinic(u.clinicId); setAssignOpen(true); }}
+                          onClick={() => { setSelectedUser(u); setEditRoles([...u.roles]); setEditClinic(u.clinicId); setAssignOpen(true); }}
                           sx={{ fontSize: '10px', textTransform: 'none', fontWeight: 600, borderColor: BORDER, color: BRAND, minWidth: 0, px: 1 }}
                         >
-                          Assign
+                          Roles
                         </Button>
                       </Tooltip>
                     </TableCell>
@@ -207,24 +262,113 @@ const UserManagement: React.FC = () => {
       </Box>
 
       {/* Create User Dialog */}
-      <Dialog open={createOpen} onClose={() => setCreateOpen(false)} maxWidth="xs" fullWidth>
+      <Dialog open={createOpen} onClose={resetCreateForm} maxWidth="xs" fullWidth>
         <DialogTitle sx={{ fontWeight: 700 }}>Create New User</DialogTitle>
         <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: '16px !important' }}>
           <Typography variant="body2" sx={{ color: SUB }}>
-            User will receive an invite via SMS/email with a default password. They must change it on first login.
+            User will receive an invite via SMS/Email ID with a default password. They must change it on first login.
           </Typography>
           <Box sx={{ display: 'flex', gap: 1.5 }}>
             <TextField fullWidth size="small" label="First Name *" value={newFirstName} onChange={e => setNewFirstName(e.target.value)} />
             <TextField fullWidth size="small" label="Last Name" value={newLastName} onChange={e => setNewLastName(e.target.value)} />
           </Box>
-          <TextField fullWidth size="small" label="Phone Number" value={newPhone} onChange={e => setNewPhone(e.target.value)} placeholder="+91XXXXXXXXXX" />
-          <TextField fullWidth size="small" label="Email" value={newEmail} onChange={e => setNewEmail(e.target.value)} placeholder="user@example.com" />
+
+          {/* Tenant (country) */}
+          <FormControl fullWidth size="small">
+            <InputLabel>Active Tenants *</InputLabel>
+            <Select
+              value={newTenant} label="Active Tenants *"
+              onChange={e => { setNewTenant(e.target.value); setNewPhone(''); setPhoneTouched(false); }}
+            >
+              {TENANTS.map(t => (
+                <MenuItem key={t.code} value={t.code}>{t.country} ({t.code})</MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+
+          {/* Phone with tenant-based validation */}
+          <Box sx={{ display: 'flex', gap: 1 }}>
+            <TextField
+              disabled size="small" value={selectedTenant.code}
+              sx={{ width: 72, '& .MuiOutlinedInput-root': { borderRadius: '8px' } }}
+            />
+            <TextField
+              fullWidth size="small"
+              label="Phone Number"
+              placeholder={`Enter ${selectedTenant.maxLen}-digit ${selectedTenant.country} number`}
+              value={newPhone}
+              onChange={e => { setNewPhone(e.target.value.replace(/\D/g, '').slice(0, selectedTenant.maxLen)); setPhoneTouched(true); }}
+              onBlur={() => setPhoneTouched(true)}
+              error={phoneTouched && newPhone.length > 0 && newPhone.length !== selectedTenant.maxLen}
+              helperText={phoneTouched && newPhone.length > 0 && newPhone.length !== selectedTenant.maxLen ? `Enter a valid ${selectedTenant.maxLen}-digit ${selectedTenant.country} number` : ''}
+            />
+          </Box>
+
+          {/* Email with validation */}
+          <TextField
+            fullWidth size="small" label="Email ID" type="email"
+            value={newEmail}
+            onChange={e => { setNewEmail(e.target.value); setEmailTouched(true); }}
+            onBlur={() => setEmailTouched(true)}
+            placeholder="user@example.com"
+            error={emailTouched && newEmail.length > 0 && !isValidEmail(newEmail)}
+            helperText={emailTouched && newEmail.length > 0 && !isValidEmail(newEmail) ? 'Enter a valid email address' : ''}
+          />
+
+          {/* Hint */}
+          <Typography sx={{ fontSize: '10px', color: '#E65100' }}>
+            Phone or Email ID is mandatory (at least one)
+          </Typography>
+
+          {/* Divider */}
+          <Box sx={{ borderTop: `1px solid ${BORDER}`, pt: 1 }}>
+            <Typography sx={{ fontSize: '11px', fontWeight: 700, color: SUB, textTransform: 'uppercase', letterSpacing: '0.05em', mb: 1.5 }}>
+              Assign Role (optional)
+            </Typography>
+
+            {/* Clinic */}
+            <FormControl fullWidth size="small" sx={{ mb: 2 }}>
+              <InputLabel>Clinic</InputLabel>
+              <Select value={newClinic} label="Clinic" onChange={e => { setNewClinic(e.target.value); if (!e.target.value) setNewRoles([]); }}>
+                <MenuItem value="">— Select clinic —</MenuItem>
+                {CLINICS.map(c => (
+                  <MenuItem key={c.id} value={c.id}>{c.name}</MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+
+            {/* Role chips — enabled only after clinic selected */}
+            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, opacity: newClinic ? 1 : 0.4, pointerEvents: newClinic ? 'auto' : 'none' }}>
+              {ROLE_OPTIONS.map(r => {
+                const selected = newRoles.includes(r.value);
+                return (
+                  <Chip
+                    key={r.value}
+                    label={`${r.icon} ${r.label}`}
+                    onClick={() => toggleNewRole(r.value)}
+                    sx={{
+                      fontWeight: 700, fontSize: '12px', height: 32, cursor: 'pointer',
+                      background: selected ? `${r.color}20` : '#F3F4F6',
+                      color: selected ? r.color : SUB,
+                      border: selected ? `2px solid ${r.color}` : '2px solid transparent',
+                      '&:hover': { background: `${r.color}15` },
+                    }}
+                  />
+                );
+              })}
+            </Box>
+            {!newClinic && (
+              <Typography sx={{ fontSize: '10px', color: '#9CA3AF', mt: 0.75 }}>
+                Select a clinic to enable role assignment
+              </Typography>
+            )}
+          </Box>
         </DialogContent>
         <DialogActions sx={{ px: 3, pb: 2 }}>
-          <Button onClick={() => setCreateOpen(false)} sx={{ color: SUB, textTransform: 'none' }}>Cancel</Button>
+          <Button onClick={resetCreateForm} sx={{ color: SUB, textTransform: 'none' }}>Cancel</Button>
           <Button
             variant="contained" onClick={handleCreateUser}
-            disabled={!newFirstName.trim() || (!newPhone.trim() && !newEmail.trim())}
+            disabled={!isCreateValid}
             sx={{ background: BRAND, '&:hover': { background: '#4410C0' }, fontWeight: 700, textTransform: 'none' }}
           >
             Create & Send Invite
@@ -232,41 +376,57 @@ const UserManagement: React.FC = () => {
         </DialogActions>
       </Dialog>
 
-      {/* Assign Role + Clinic Dialog */}
+      {/* Manage Roles Dialog — multi roles, single clinic */}
       <Dialog open={assignOpen} onClose={() => setAssignOpen(false)} maxWidth="xs" fullWidth>
         <DialogTitle sx={{ fontWeight: 700 }}>
-          Assign Role & Clinic
+          Manage Roles
           {selectedUser && <Typography variant="body2" sx={{ color: SUB }}>{selectedUser.firstName} {selectedUser.lastName}</Typography>}
         </DialogTitle>
-        <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: '16px !important' }}>
+        <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2.5, pt: '16px !important' }}>
+          {/* Clinic selector */}
           <FormControl fullWidth size="small">
-            <InputLabel>Role *</InputLabel>
-            <Select value={assignRole} label="Role *" onChange={e => setAssignRole(e.target.value as RoleType)}>
-              {ROLE_OPTIONS.map(r => (
-                <MenuItem key={r.value} value={r.value}>
-                  {r.icon} {r.label}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-          <FormControl fullWidth size="small">
-            <InputLabel>Clinic</InputLabel>
-            <Select value={assignClinic} label="Clinic" onChange={e => setAssignClinic(e.target.value)}>
-              <MenuItem value="">No clinic (global)</MenuItem>
+            <InputLabel>Clinic *</InputLabel>
+            <Select value={editClinic} label="Clinic *" onChange={e => setEditClinic(e.target.value)}>
               {CLINICS.map(c => (
                 <MenuItem key={c.id} value={c.id}>{c.name}</MenuItem>
               ))}
             </Select>
           </FormControl>
+
+          {/* Role toggles */}
+          <Box>
+            <Typography sx={{ fontSize: '11px', fontWeight: 700, color: SUB, textTransform: 'uppercase', letterSpacing: '0.05em', mb: 1 }}>
+              Roles (select one or more)
+            </Typography>
+            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+              {ROLE_OPTIONS.map(r => {
+                const selected = editRoles.includes(r.value);
+                return (
+                  <Chip
+                    key={r.value}
+                    label={`${r.icon} ${r.label}`}
+                    onClick={() => toggleRole(r.value)}
+                    sx={{
+                      fontWeight: 700, fontSize: '12px', height: 32, cursor: 'pointer',
+                      background: selected ? `${r.color}20` : '#F3F4F6',
+                      color: selected ? r.color : SUB,
+                      border: selected ? `2px solid ${r.color}` : '2px solid transparent',
+                      '&:hover': { background: `${r.color}15` },
+                    }}
+                  />
+                );
+              })}
+            </Box>
+          </Box>
         </DialogContent>
         <DialogActions sx={{ px: 3, pb: 2 }}>
           <Button onClick={() => setAssignOpen(false)} sx={{ color: SUB, textTransform: 'none' }}>Cancel</Button>
           <Button
-            variant="contained" onClick={handleAssign}
-            disabled={!assignRole}
+            variant="contained" onClick={handleSaveRoles}
+            disabled={editRoles.length === 0 || !editClinic}
             sx={{ background: BRAND, '&:hover': { background: '#4410C0' }, fontWeight: 700, textTransform: 'none' }}
           >
-            Assign
+            Save
           </Button>
         </DialogActions>
       </Dialog>

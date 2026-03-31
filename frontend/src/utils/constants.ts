@@ -1,5 +1,19 @@
 import { UserRole } from '@/types';
 
+// Country Codes — single source of truth
+export const COUNTRY_CODES = [
+  { code: '+91', country: 'India', flag: '\u{1F1EE}\u{1F1F3}', maxLen: 10 },
+  { code: '+66', country: 'Thailand', flag: '\u{1F1F9}\u{1F1ED}', maxLen: 9 },
+  { code: '+960', country: 'Maldives', flag: '\u{1F1F2}\u{1F1FB}', maxLen: 7 },
+  { code: '+94', country: 'Sri Lanka', flag: '\u{1F1F1}\u{1F1F0}', maxLen: 9 },
+  { code: '+880', country: 'Bangladesh', flag: '\u{1F1E7}\u{1F1E9}', maxLen: 10 },
+  { code: '+971', country: 'UAE', flag: '\u{1F1E6}\u{1F1EA}', maxLen: 9 },
+  { code: '+20', country: 'Egypt', flag: '\u{1F1EA}\u{1F1EC}', maxLen: 10 },
+  { code: '+977', country: 'Nepal', flag: '\u{1F1F3}\u{1F1F5}', maxLen: 10 },
+  { code: '+65', country: 'Singapore', flag: '\u{1F1F8}\u{1F1EC}', maxLen: 8 },
+  { code: '+60', country: 'Malaysia', flag: '\u{1F1F2}\u{1F1FE}', maxLen: 10 },
+];
+
 // User Roles
 export const ROLES = {
   SUPERADMIN: 'SUPERADMIN' as UserRole,
@@ -58,16 +72,16 @@ export const NAVIGATION_CONFIG = {
     { id: 'equidor',        label: 'Equidor',            emoji: '🔬', icon: 'DeviceHub',    path: '/superadmin/equidor',        section: 'Devices', badge: '3' },
     // Overview
     { id: 'dashboard',      label: 'Control Center',     emoji: '📊', icon: 'Dashboard',    path: '/superadmin',                section: 'Overview' },
+    { id: 'users',          label: 'User Management',    emoji: '👤', icon: 'PersonAdd',    path: '/superadmin/users',          section: 'Overview' },
     { id: 'countries',      label: 'Countries',          emoji: '🌍', icon: 'Public',       path: '/superadmin/countries',      section: 'Overview' },
+    { id: 'clinics',        label: 'Clinics',            emoji: '🏥', icon: 'LocationCity', path: '/superadmin/clinics',        section: 'Overview', badge: '12' },
+    { id: 'audit',          label: 'Audit Log',          emoji: '📜', icon: 'History',       path: '/superadmin/audit',          section: 'Overview' },
     // Configuration
     { id: 'feature-flags',  label: 'Features',           emoji: '🚩', icon: 'ToggleOn',     path: '/superadmin/feature-flags',  section: 'Configuration' },
     { id: 'field-manager',  label: 'Field Manager',      emoji: '📋', icon: 'ViewList',     path: '/superadmin/field-manager',  section: 'Configuration' },
     { id: 'compliance',     label: 'Compliance',         emoji: '🛡️', icon: 'VerifiedUser', path: '/superadmin/compliance',     section: 'Configuration' },
     { id: 'id-management',  label: 'ID Config',          emoji: '🔑', icon: 'Badge',        path: '/superadmin/id-management',  section: 'Configuration' },
-    // Access
-    { id: 'roster',         label: 'Global Roster',      emoji: '👥', icon: 'People',       path: '/superadmin/roster',         section: 'Access', badge: '47' },
-    { id: 'clinics',        label: 'Clinics',            emoji: '🏥', icon: 'LocationCity', path: '/superadmin/clinics',        section: 'Access', badge: '12' },
-    { id: 'users',          label: 'User Management',    emoji: '👤', icon: 'PersonAdd',    path: '/superadmin/users',          section: 'Access' },
+    { id: 'roster',         label: 'Global Roster',      emoji: '👥', icon: 'People',       path: '/superadmin/roster',         section: 'Configuration', badge: '47' },
   ],
   [ROLES.CLINIC_ADMIN]: [
     // Overview

@@ -34,7 +34,9 @@ api.interceptors.response.use(
       _retry?: boolean;
     };
 
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    // Skip token refresh for auth endpoints — let login/signup handle their own 401s
+    const isAuthEndpoint = originalRequest.url?.startsWith('/auth/') || originalRequest.url?.startsWith('/api/auth/');
+    if (error.response?.status === 401 && !originalRequest._retry && !isAuthEndpoint) {
       originalRequest._retry = true;
 
       try {

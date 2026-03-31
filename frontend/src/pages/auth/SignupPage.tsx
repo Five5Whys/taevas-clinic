@@ -18,25 +18,14 @@ import {
   FormControl,
   InputLabel,
 } from '@mui/material';
-import { Visibility, VisibilityOff, CheckCircle, Cancel } from '@mui/icons-material';
+import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { useAuthStore } from '@/stores/authStore';
 import { isMockAuthEnabled } from '@/services/mockAuth';
 import { UserRole } from '@/types';
-import { ROLE_REDIRECT_MAP } from '@/utils/constants';
+import { ROLE_REDIRECT_MAP, COUNTRY_CODES } from '@/utils/constants';
 import authService from '@/services/authService';
+import { getErrorMessage } from '@/utils/helpers';
 
-const COUNTRY_CODES = [
-  { code: '+91', country: 'India', flag: '\u{1F1EE}\u{1F1F3}', maxLen: 10 },
-  { code: '+66', country: 'Thailand', flag: '\u{1F1F9}\u{1F1ED}', maxLen: 9 },
-  { code: '+960', country: 'Maldives', flag: '\u{1F1F2}\u{1F1FB}', maxLen: 7 },
-  { code: '+1', country: 'USA', flag: '\u{1F1FA}\u{1F1F8}', maxLen: 10 },
-  { code: '+44', country: 'UK', flag: '\u{1F1EC}\u{1F1E7}', maxLen: 10 },
-  { code: '+971', country: 'UAE', flag: '\u{1F1E6}\u{1F1EA}', maxLen: 9 },
-  { code: '+65', country: 'Singapore', flag: '\u{1F1F8}\u{1F1EC}', maxLen: 8 },
-  { code: '+60', country: 'Malaysia', flag: '\u{1F1F2}\u{1F1FE}', maxLen: 10 },
-  { code: '+94', country: 'Sri Lanka', flag: '\u{1F1F1}\u{1F1F0}', maxLen: 9 },
-  { code: '+977', country: 'Nepal', flag: '\u{1F1F3}\u{1F1F5}', maxLen: 10 },
-];
 
 const SPECIALIZATIONS = [
   'General Physician', 'ENT', 'Cardiology', 'Dermatology', 'Orthopedics',
@@ -86,6 +75,8 @@ const SignupPage: React.FC = () => {
   const [licenseNumber, setLicenseNumber] = useState('');
   const [bloodGroup, setBloodGroup] = useState('');
 
+  const [phoneTouched, setPhoneTouched] = useState(false);
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -93,6 +84,8 @@ const SignupPage: React.FC = () => {
   const selectedCountry = COUNTRY_CODES.find(c => c.code === countryCode) || COUNTRY_CODES[0]!;
 
   const isValidEmail = (v: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+  const isPhoneValid = phone.length === selectedCountry.maxLen;
+  const phoneError = phoneTouched && phone.length > 0 && !isPhoneValid;
 
   const passwordChecks = useMemo(() => PASSWORD_RULES.map(r => ({ ...r, passed: r.test(password) })), [password]);
   const isPasswordStrong = passwordChecks.every(c => c.passed);
@@ -151,8 +144,7 @@ const SignupPage: React.FC = () => {
         navigate(ROLE_REDIRECT_MAP[response.user.role as UserRole] || '/');
       }
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Signup failed. Please try again.';
-      setError(msg);
+      setError(getErrorMessage(err) || 'Sign up failed. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -242,9 +234,12 @@ const SignupPage: React.FC = () => {
                     ))}
                   </Select>
                   <TextField
-                    fullWidth size="small" placeholder={`${'0'.repeat(selectedCountry.maxLen)}`}
+                    fullWidth size="small" placeholder={`Enter ${selectedCountry.maxLen}-digit ${selectedCountry.country} number`}
                     value={phone}
-                    onChange={e => setPhone(e.target.value.replace(/\D/g, '').slice(0, selectedCountry.maxLen))}
+                    onChange={e => { setPhone(e.target.value.replace(/\D/g, '').slice(0, selectedCountry.maxLen)); setPhoneTouched(true); }}
+                    onBlur={() => setPhoneTouched(true)}
+                    error={phoneError}
+                    helperText={phoneError ? `Enter a valid ${selectedCountry.maxLen}-digit ${selectedCountry.country} number` : ''}
                     sx={{ '& .MuiOutlinedInput-root': { borderRadius: '8px' } }}
                   />
                 </Box>
@@ -283,25 +278,10 @@ const SignupPage: React.FC = () => {
                 />
               </Box>
 
-              {/* Password strength indicator */}
-              {password.length > 0 && (
-                <Box sx={{ mb: 2, p: 1.25, borderRadius: '8px', background: '#F8F9FC', border: `1px solid ${BORDER}` }}>
-                  <Typography sx={{ fontSize: '10px', fontWeight: 700, color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.05em', mb: 0.5 }}>
-                    Password Requirements
-                  </Typography>
-                  {passwordChecks.map((rule, i) => (
-                    <Box key={i} sx={{ display: 'flex', alignItems: 'center', gap: 0.5, py: 0.15 }}>
-                      {rule.passed
-                        ? <CheckCircle sx={{ fontSize: 13, color: '#16A34A' }} />
-                        : <Cancel sx={{ fontSize: 13, color: '#DC2626' }} />
-                      }
-                      <Typography sx={{ fontSize: '11px', color: rule.passed ? '#16A34A' : '#6B7280', fontWeight: rule.passed ? 600 : 400 }}>
-                        {rule.label}
-                      </Typography>
-                    </Box>
-                  ))}
-                </Box>
-              )}
+              {/* Password policy — short note */}
+              <Typography sx={{ fontSize: '10px', color: '#E65100', mb: 2, mt: -0.5, textAlign: 'center' }}>
+                Min 8 chars, 1 uppercase, 1 lowercase, 1 number, 1 special character
+              </Typography>
 
               {/* Next button → go to step 2 for role selection */}
               <Button
@@ -450,7 +430,5 @@ const SignupPage: React.FC = () => {
     </Box>
   );
 };
-
-const BORDER = '#E5E7EB';
 
 export default SignupPage;

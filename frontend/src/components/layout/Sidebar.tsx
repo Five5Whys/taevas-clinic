@@ -24,7 +24,7 @@ const ROLE_BRANDING = {
     logoTitle: 'CommandControl',
     logoSub: 'Taevas Super Admin',
     userInitials: 'SA',
-    userName: 'Sanjay Krishnan',
+    userName: 'AAA',
     userRole: 'Super Admin · Taevas HQ',
     avatarColor: 'linear-gradient(135deg, #5519E6 0%, #A046F0 100%)',
   },

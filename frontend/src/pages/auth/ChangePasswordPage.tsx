@@ -30,11 +30,12 @@ const ChangePasswordPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const isValid = newPassword.length >= 6 && newPassword === confirmPassword;
+  const isPasswordStrong = newPassword.length >= 8 && /[A-Z]/.test(newPassword) && /[a-z]/.test(newPassword) && /\d/.test(newPassword) && /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(newPassword);
+  const isValid = isPasswordStrong && newPassword === confirmPassword;
 
   const handleSubmit = async () => {
     if (!isValid) {
-      setError('Password must be at least 6 characters and match confirmation');
+      setError('Password does not meet the requirements');
       return;
     }
 
@@ -98,8 +99,12 @@ const ChangePasswordPage: React.FC = () => {
                 </InputAdornment>
               ),
             }}
-            sx={{ mb: 2, '& .MuiOutlinedInput-root': { borderRadius: '8px' } }}
+            sx={{ mb: 1, '& .MuiOutlinedInput-root': { borderRadius: '8px' } }}
           />
+
+          <Typography sx={{ fontSize: '10px', color: '#E65100', mb: 1.5, textAlign: 'center' }}>
+            Min 8 chars, 1 uppercase, 1 lowercase, 1 number, 1 special character
+          </Typography>
 
           <TextField
             fullWidth size="small" label="Confirm Password"

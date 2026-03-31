@@ -22,6 +22,7 @@ const SAClinics = lazy(() => import('@/pages/superadmin/Clinics'));
 const SAEquidor = lazy(() => import('@/pages/superadmin/Equidor'));
 const SACountries = lazy(() => import('@/pages/superadmin/Countries'));
 const SAUserManagement = lazy(() => import('@/pages/superadmin/UserManagement'));
+const SAAuditLog = lazy(() => import('@/pages/superadmin/AuditLog'));
 
 // Clinic Admin Pages
 const CADashboard = lazy(() => import('@/pages/clinicadmin/Dashboard'));
@@ -122,6 +123,7 @@ const App: React.FC = () => {
                   <Route path="equidor" element={<SAEquidor />} />
                   <Route path="countries" element={<SACountries />} />
                   <Route path="users" element={<SAUserManagement />} />
+                  <Route path="audit" element={<SAAuditLog />} />
                 </Routes>
               </ProtectedRoute>
             }
