@@ -11,6 +11,7 @@ import {
   TextField,
   InputAdornment,
   CircularProgress,
+  Tooltip,
 } from '@mui/material';
 import { Search } from '@mui/icons-material';
 import DashboardLayout from '@/components/layout/DashboardLayout';
@@ -81,13 +82,16 @@ const Clinics: React.FC = () => {
               ),
             }}
           />
-          <Button
-            variant="contained" size="small"
-            sx={{ background: '#5519E6', '&:hover': { background: '#4410C0' }, fontWeight: 700, whiteSpace: 'nowrap' }}
-            onClick={() => alert('Add clinic — coming soon')}
-          >
-            + Add Clinic
-          </Button>
+          <Tooltip title="Upcoming" arrow>
+            <span>
+              <Button
+                variant="contained" size="small" disabled
+                sx={{ fontWeight: 700, whiteSpace: 'nowrap' }}
+              >
+                + Add Clinic
+              </Button>
+            </span>
+          </Tooltip>
         </Box>
 
         {/* Loading state */}
@@ -199,27 +203,26 @@ const Clinics: React.FC = () => {
 
                       {/* Action buttons */}
                       <Box sx={{ display: 'flex', gap: 0.75 }}>
-                        <Button
-                          size="small" fullWidth
-                          sx={{
-                            fontSize: '11px', height: 26, fontWeight: 600,
-                            color: '#374151', border: '1px solid #E5E7EB',
-                            background: '#fff', '&:hover': { background: '#F3F4F6' },
-                          }}
-                          onClick={() => alert(`View as Admin: ${c.name}`)}
-                        >
-                          View as Admin
-                        </Button>
-                        <Button
-                          size="small" fullWidth variant="contained"
-                          sx={{
-                            fontSize: '11px', height: 26, fontWeight: 700,
-                            background: '#5519E6', '&:hover': { background: '#4410C0' },
-                          }}
-                          onClick={() => alert(`Config: ${c.name}`)}
-                        >
-                          Config
-                        </Button>
+                        <Tooltip title="Upcoming" arrow>
+                          <span style={{ flex: 1 }}>
+                            <Button
+                              size="small" fullWidth disabled
+                              sx={{ fontSize: '11px', height: 26, fontWeight: 600 }}
+                            >
+                              View as Admin
+                            </Button>
+                          </span>
+                        </Tooltip>
+                        <Tooltip title="Upcoming" arrow>
+                          <span style={{ flex: 1 }}>
+                            <Button
+                              size="small" fullWidth variant="contained" disabled
+                              sx={{ fontSize: '11px', height: 26, fontWeight: 700 }}
+                            >
+                              Config
+                            </Button>
+                          </span>
+                        </Tooltip>
                       </Box>
 
                     </CardContent>

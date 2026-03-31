@@ -53,7 +53,7 @@ export const API_ENDPOINTS = {
 export const NAVIGATION_CONFIG = {
   [ROLES.SUPERADMIN]: [
     // Devices — TOP of panel
-    { id: 'equidor',        label: 'Equidor',            emoji: '🔬', icon: 'DeviceHub',    path: '/superadmin/equidor',        section: 'Devices', badge: '3', upcoming: true },
+    { id: 'equidor',        label: 'Equidor',            emoji: '🔬', icon: 'DeviceHub',    path: '/superadmin/equidor',        section: 'Devices', badge: '3' },
     // Overview
     { id: 'dashboard',      label: 'Control Center',     emoji: '📊', icon: 'Dashboard',    path: '/superadmin',                section: 'Overview' },
     { id: 'countries',      label: 'Countries',          emoji: '🌍', icon: 'Public',       path: '/superadmin/countries',      section: 'Overview' },

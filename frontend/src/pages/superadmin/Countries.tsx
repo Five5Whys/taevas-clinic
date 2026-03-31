@@ -98,16 +98,16 @@ const CURRENCIES = ['INR', 'THB', 'MVR', 'SGD', 'USD', 'AED', 'PHP', 'JPY'];
 
 // ─── Helper: Section Card ──────────────────────────────────────────────────────
 const SectionCard: React.FC<{ title: string; children: React.ReactNode; disabled?: boolean }> = ({ title, children, disabled }) => (
-  <Box sx={{ background: '#fff', borderRadius: '13px', border: `1.5px solid ${BORDER}`, mb: 1.75, overflow: 'hidden', opacity: disabled ? 0.55 : 1, pointerEvents: disabled ? 'none' : 'auto' }}>
-    <Box sx={{ px: 2.75, py: 1.75, borderBottom: `1px solid #F3F4F6` }}>
-      <Typography sx={{ fontWeight: 800, fontSize: '14px', color: DARK }}>{title}</Typography>
+  <Box sx={{ background: '#fff', borderRadius: '10px', border: `1.5px solid ${BORDER}`, mb: 1.25, overflow: 'hidden', opacity: disabled ? 0.55 : 1, pointerEvents: disabled ? 'none' : 'auto' }}>
+    <Box sx={{ px: 2, py: 1.25, borderBottom: `1px solid #F3F4F6` }}>
+      <Typography sx={{ fontWeight: 800, fontSize: '13px', color: DARK }}>{title}</Typography>
     </Box>
-    <Box sx={{ px: 2.75, py: 2 }}>{children}</Box>
+    <Box sx={{ px: 2, py: 1.5 }}>{children}</Box>
   </Box>
 );
 
 const FieldGrid: React.FC<{ children: React.ReactNode; cols?: number }> = ({ children, cols = 3 }) => (
-  <Box sx={{ display: 'grid', gridTemplateColumns: `repeat(${cols}, 1fr)`, gap: 1.75 }}>{children}</Box>
+  <Box sx={{ display: 'grid', gridTemplateColumns: `repeat(${cols}, 1fr)`, gap: 1.25 }}>{children}</Box>
 );
 
 const FieldLabel: React.FC<{ label: string }> = ({ label }) => (
@@ -229,17 +229,23 @@ const Countries: React.FC = () => {
 
   // ─── Render: Sidebar ─────────────────────────────────────────────────────────
   const renderSidebar = () => (
-    <Box sx={{ width: 258, flexShrink: 0, background: '#fff', borderRight: `1px solid ${BORDER}`, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-      <Box sx={{ px: 1.75, pt: 1.75, pb: 1.25, borderBottom: `1px solid ${BORDER}` }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
-          <Typography sx={{ fontSize: '11px', fontWeight: 700, color: SUB, textTransform: 'uppercase', letterSpacing: '0.08em' }}>TENANTS</Typography>
-          <Typography sx={{ fontSize: '11px', fontFamily: MONO, color: BRAND, fontWeight: 700 }}>{activeCount} active &middot; {inactiveCount} inactive</Typography>
+    <Box sx={{ width: 220, flexShrink: 0, background: '#fff', borderRight: `1px solid ${BORDER}`, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+      <Box sx={{ px: 1.25, pt: 1.25, pb: 1, borderBottom: `1px solid ${BORDER}` }}>
+        <Box sx={{ mb: 0.75 }}>
+          <Typography sx={{ fontSize: '10px', fontWeight: 700, color: SUB, textTransform: 'uppercase', letterSpacing: '0.08em' }}>TENANTS</Typography>
         </Box>
         <TextField
           fullWidth size="small" placeholder="Search tenants..."
           value={search} onChange={e => setSearch(e.target.value)}
-          sx={{ '& .MuiInputBase-input': { fontSize: '12px', py: '6px' }, '& .MuiOutlinedInput-root': { borderRadius: '8px' } }}
+          sx={{ '& .MuiInputBase-input': { fontSize: '11px', py: '4px' }, '& .MuiOutlinedInput-root': { borderRadius: '6px' }, mb: 0.75 }}
         />
+        <Button
+          fullWidth variant="contained"
+          onClick={() => { setShowWizard(true); setWizardStep(1); setWizardData(JSON.parse(JSON.stringify(DEFAULT_WIZARD))); }}
+          sx={{ background: BRAND, '&:hover': { background: '#4410C0' }, fontWeight: 700, fontSize: '11px', borderRadius: '6px', textTransform: 'none', py: 0.5 }}
+        >
+          + Add New Tenant
+        </Button>
       </Box>
       <Box sx={{ flex: 1, overflowY: 'auto' }}>
         {filtered.map(t => (
@@ -247,22 +253,22 @@ const Countries: React.FC = () => {
             key={t.id}
             onClick={() => { setSelectedId(t.id); setShowWizard(false); }}
             sx={{
-              display: 'flex', alignItems: 'center', gap: 1, px: 1.5, py: 1.25,
+              display: 'flex', alignItems: 'center', gap: 0.75, px: 1.25, py: 0.875,
               cursor: 'pointer', borderBottom: `1px solid ${BORDER}`, borderLeft: '3px solid transparent',
               transition: 'all 0.15s', position: 'relative',
               ...(selectedId === t.id && !showWizard && { background: `${BRAND}08`, borderLeftColor: BRAND }),
               '&:hover': { background: selectedId === t.id && !showWizard ? `${BRAND}08` : '#F8F9FC' },
             }}
           >
-            <Box sx={{ width: 36, height: 36, borderRadius: '10px', background: BG, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '19px', flexShrink: 0 }}>
+            <Box sx={{ width: 30, height: 30, borderRadius: '8px', background: BG, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px', flexShrink: 0 }}>
               {t.flagEmoji}
             </Box>
             <Box sx={{ flex: 1, minWidth: 0 }}>
-              <Typography sx={{ fontWeight: 700, fontSize: '13px' }}>{t.name}</Typography>
-              <Typography sx={{ fontSize: '10px', color: CAP, fontFamily: MONO }}>{t.tenantId} &middot; {t.clinicCount} clinics</Typography>
-              <Box sx={{ mt: 0.25 }}>{statusChip(t.status)}</Box>
+              <Typography sx={{ fontWeight: 700, fontSize: '12px', lineHeight: 1.3 }}>{t.name}</Typography>
+              <Typography sx={{ fontSize: '9px', color: CAP, fontFamily: MONO }}>{t.tenantId} &middot; {t.clinicCount} clinics</Typography>
+              <Box sx={{ mt: 0.15 }}>{statusChip(t.status)}</Box>
             </Box>
-            <Box sx={{ position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)' }} onClick={e => e.stopPropagation()}>
+            <Box sx={{ position: 'absolute', right: 6, top: '50%', transform: 'translateY(-50%)' }} onClick={e => e.stopPropagation()}>
               <Switch
                 checked={t.status === 'ACTIVE'}
                 onChange={() => handleToggle(t.id)}
@@ -272,15 +278,6 @@ const Countries: React.FC = () => {
             </Box>
           </Box>
         ))}
-      </Box>
-      <Box sx={{ p: 1.25, borderTop: `1px solid ${BORDER}` }}>
-        <Button
-          fullWidth variant="contained"
-          onClick={() => { setShowWizard(true); setWizardStep(1); setWizardData(JSON.parse(JSON.stringify(DEFAULT_WIZARD))); }}
-          sx={{ background: BRAND, '&:hover': { background: '#4410C0' }, fontWeight: 700, fontSize: '13px', borderRadius: '10px', textTransform: 'none', py: 1 }}
-        >
-          + Add New Tenant
-        </Button>
       </Box>
     </Box>
   );
@@ -295,11 +292,11 @@ const Countries: React.FC = () => {
       { label: 'Uptime', value: s.uptime },
     ];
     return (
-      <Box sx={{ display: 'flex', gap: 1.5, mb: 2 }}>
+      <Box sx={{ display: 'flex', gap: 1, mb: 1.5 }}>
         {items.map(i => (
-          <Box key={i.label} sx={{ flex: 1, background: '#F8F9FC', border: `1px solid ${BORDER}`, borderRadius: '10px', p: 1.5, textAlign: 'center' }}>
-            <Typography sx={{ fontSize: '22px', fontWeight: 800, color: BRAND, fontFamily: MONO }}>{i.value}</Typography>
-            <Typography sx={{ fontSize: '10px', color: SUB, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.07em', mt: 0.25 }}>{i.label}</Typography>
+          <Box key={i.label} sx={{ flex: 1, background: '#F8F9FC', border: `1px solid ${BORDER}`, borderRadius: '8px', p: 1, textAlign: 'center' }}>
+            <Typography sx={{ fontSize: '18px', fontWeight: 800, color: BRAND, fontFamily: MONO }}>{i.value}</Typography>
+            <Typography sx={{ fontSize: '9px', color: SUB, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.07em', mt: 0.15 }}>{i.label}</Typography>
           </Box>
         ))}
       </Box>
@@ -332,10 +329,10 @@ const Countries: React.FC = () => {
     return (
       <>
         {/* Header */}
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 2 }}>
-          <Typography sx={{ fontSize: '28px' }}>{selected.flagEmoji}</Typography>
-          <Typography sx={{ fontSize: '20px', fontWeight: 800, color: DARK }}>{selected.name}</Typography>
-          <Typography sx={{ fontSize: '12px', fontFamily: MONO, color: CAP }}>{selected.tenantId}</Typography>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.25 }}>
+          <Typography sx={{ fontSize: '22px' }}>{selected.flagEmoji}</Typography>
+          <Typography sx={{ fontSize: '17px', fontWeight: 800, color: DARK }}>{selected.name}</Typography>
+          <Typography sx={{ fontSize: '11px', fontFamily: MONO, color: CAP }}>{selected.tenantId}</Typography>
           {statusChip(selected.status)}
         </Box>
 
@@ -343,22 +340,35 @@ const Countries: React.FC = () => {
 
         {/* Login & Auth */}
         <SectionCard title="Login & Authentication">
-          <Typography sx={{ fontSize: '12px', color: SUB, mb: 1.5 }}>How users log in for this tenant</Typography>
-          {/* Email + Password toggle */}
-          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', p: '11px 13px', borderRadius: '10px', border: `1.5px solid ${lc.emailEnabled ? '#CDDC5050' : BORDER}`, background: lc.emailEnabled ? '#F9FFDC' : '#F8F9FA', mb: 0.875 }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.125 }}>
-              <Box sx={{ width: 28, height: 28, borderRadius: '7px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px', background: '#6366F115' }}>{'\u2709\uFE0F'}</Box>
-              <Box>
-                <Typography sx={{ fontSize: '13px', fontWeight: 600 }}>Email + Password</Typography>
-                <Typography sx={{ fontSize: '11px', color: SUB }}>{lc.emailEnabled ? 'Enabled — OTP verification' : 'Not enabled'}</Typography>
+          {/* Login method toggles — 50:50 side by side */}
+          <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1, mb: 0.875 }}>
+            {/* Email + Password toggle */}
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', p: '9px 11px', borderRadius: '10px', border: `1.5px solid ${lc.emailEnabled ? '#CDDC5050' : BORDER}`, background: lc.emailEnabled ? '#F9FFDC' : '#F8F9FA' }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.875 }}>
+                <Box sx={{ width: 24, height: 24, borderRadius: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', background: '#6366F115' }}>{'\u2709\uFE0F'}</Box>
+                <Box>
+                  <Typography sx={{ fontSize: '12px', fontWeight: 600 }}>Email + Password</Typography>
+                  <Typography sx={{ fontSize: '10px', color: SUB }}>{lc.emailEnabled ? 'OTP verification' : 'Not enabled'}</Typography>
+                </Box>
               </Box>
+              <Switch checked={lc.emailEnabled} onChange={e => updateLogin('emailEnabled', e.target.checked)} size="small" sx={{ '& .MuiSwitch-switchBase.Mui-checked': { color: BRAND }, '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': { backgroundColor: BRAND } }} />
             </Box>
-            <Switch checked={lc.emailEnabled} onChange={e => updateLogin('emailEnabled', e.target.checked)} size="small" sx={{ '& .MuiSwitch-switchBase.Mui-checked': { color: BRAND }, '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': { backgroundColor: BRAND } }} />
+            {/* Phone OTP toggle */}
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', p: '9px 11px', borderRadius: '10px', border: `1.5px solid ${lc.phoneEnabled ? '#CDDC5050' : BORDER}`, background: lc.phoneEnabled ? '#F9FFDC' : '#F8F9FA' }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.875 }}>
+                <Box sx={{ width: 24, height: 24, borderRadius: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', background: '#5519E615' }}>{'\uD83D\uDCF1'}</Box>
+                <Box>
+                  <Typography sx={{ fontSize: '12px', fontWeight: 600 }}>Phone OTP (SMS)</Typography>
+                  <Typography sx={{ fontSize: '10px', color: SUB }}>{lc.phoneEnabled ? `${configForm?.dialCode} \u00B7 SMS` : 'Not enabled'}</Typography>
+                </Box>
+              </Box>
+              <Switch checked={lc.phoneEnabled} onChange={e => updateLogin('phoneEnabled', e.target.checked)} size="small" sx={{ '& .MuiSwitch-switchBase.Mui-checked': { color: BRAND }, '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': { backgroundColor: BRAND } }} />
+            </Box>
           </Box>
           {/* Email OTP Settings (when enabled) */}
           {lc.emailEnabled && (
-            <Box sx={{ background: '#FAFBFF', border: `1.5px solid ${BRAND}15`, borderRadius: '10px', p: 2.5, mb: 1.5 }}>
-              <Typography sx={{ fontSize: '12px', fontWeight: 700, color: BRAND, mb: 0.5, display: 'flex', alignItems: 'center', gap: 0.75 }}>{'\u2709\uFE0F'} EMAIL OTP & VERIFICATION SETTINGS</Typography>
+            <Box sx={{ background: '#FAFBFF', border: `1.5px solid ${BRAND}15`, borderRadius: '10px', p: 2, mb: 1 }}>
+              <Typography sx={{ fontSize: '11px', fontWeight: 700, color: BRAND, mb: 0.5, display: 'flex', alignItems: 'center', gap: 0.75 }}>{'\u2709\uFE0F'} EMAIL OTP SETTINGS</Typography>
               <FieldGrid>
                 <Box><FieldLabel label="OTP Length *" /><FormControl fullWidth size="small"><Select defaultValue="6" sx={{ fontSize: '13px' }}><MenuItem value="4">4 digits</MenuItem><MenuItem value="6">6 digits (recommended)</MenuItem><MenuItem value="8">8 digits</MenuItem></Select></FormControl><Typography sx={{ fontSize: '10px', color: CAP, mt: 0.5 }}>Digits in the email verification code</Typography></Box>
                 <Box><FieldLabel label="OTP Expiry *" /><FormControl fullWidth size="small"><Select defaultValue="15" sx={{ fontSize: '13px' }}><MenuItem value="5">5 minutes</MenuItem><MenuItem value="10">10 minutes</MenuItem><MenuItem value="15">15 minutes (recommended)</MenuItem><MenuItem value="30">30 minutes</MenuItem></Select></FormControl><Typography sx={{ fontSize: '10px', color: CAP, mt: 0.5 }}>Email OTPs expire slower than SMS</Typography></Box>
@@ -407,21 +417,10 @@ const Countries: React.FC = () => {
             </Box>
           )}
 
-          {/* Phone OTP toggle */}
-          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', p: '11px 13px', borderRadius: '10px', border: `1.5px solid ${lc.phoneEnabled ? '#CDDC5050' : BORDER}`, background: lc.phoneEnabled ? '#F9FFDC' : '#F8F9FA', mb: 0.875 }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.125 }}>
-              <Box sx={{ width: 28, height: 28, borderRadius: '7px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px', background: '#5519E615' }}>{'\uD83D\uDCF1'}</Box>
-              <Box>
-                <Typography sx={{ fontSize: '13px', fontWeight: 600 }}>Phone OTP (SMS)</Typography>
-                <Typography sx={{ fontSize: '11px', color: SUB }}>{lc.phoneEnabled ? `${configForm?.dialCode} \u00B7 SMS-based login` : 'Not enabled'}</Typography>
-              </Box>
-            </Box>
-            <Switch checked={lc.phoneEnabled} onChange={e => updateLogin('phoneEnabled', e.target.checked)} size="small" sx={{ '& .MuiSwitch-switchBase.Mui-checked': { color: BRAND }, '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': { backgroundColor: BRAND } }} />
-          </Box>
           {/* Phone OTP Settings (when enabled) */}
           {lc.phoneEnabled && (
-            <Box sx={{ background: '#FAFBFF', border: `1.5px solid ${BRAND}15`, borderRadius: '10px', p: 2.5, mb: 1.5 }}>
-              <Typography sx={{ fontSize: '12px', fontWeight: 700, color: BRAND, mb: 0.5, display: 'flex', alignItems: 'center', gap: 0.75 }}>{'\uD83D\uDCF1'} PHONE OTP SETTINGS</Typography>
+            <Box sx={{ background: '#FAFBFF', border: `1.5px solid ${BRAND}15`, borderRadius: '10px', p: 2, mb: 1 }}>
+              <Typography sx={{ fontSize: '11px', fontWeight: 700, color: BRAND, mb: 0.5, display: 'flex', alignItems: 'center', gap: 0.75 }}>{'\uD83D\uDCF1'} PHONE OTP SETTINGS</Typography>
               <FieldGrid>
                 <Box><FieldLabel label="OTP Length *" /><FormControl fullWidth size="small"><Select defaultValue="6" sx={{ fontSize: '13px' }}><MenuItem value="4">4 digits</MenuItem><MenuItem value="6">6 digits (recommended)</MenuItem></Select></FormControl><Typography sx={{ fontSize: '10px', color: CAP, mt: 0.5 }}>How many digits in the OTP code</Typography></Box>
                 <Box><FieldLabel label="OTP Expiry *" /><FormControl fullWidth size="small"><Select defaultValue="5" sx={{ fontSize: '13px' }}><MenuItem value="3">3 minutes</MenuItem><MenuItem value="5">5 minutes (recommended)</MenuItem><MenuItem value="10">10 minutes</MenuItem></Select></FormControl><Typography sx={{ fontSize: '10px', color: CAP, mt: 0.5 }}>Time before OTP expires</Typography></Box>
@@ -899,9 +898,36 @@ const Countries: React.FC = () => {
       <Box sx={{ display: 'flex', height: 'calc(100vh - 64px)' }}>
         {renderSidebar()}
 
-        <Box sx={{ flex: 1, overflowY: 'auto', px: 3, py: 2.5, background: BG }}>
-          {showWizard && renderWizard()}
-          {!showWizard && selected && renderActiveConfig()}
+        <Box sx={{ flex: 1, position: 'relative', overflow: 'hidden', background: BG }}>
+          <Box
+            id="countries-scroll"
+            onScroll={(e: any) => {
+              const el = e.target;
+              const atBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 40;
+              const arrow = document.getElementById('scroll-arrow');
+              if (arrow) arrow.style.opacity = atBottom ? '0' : '1';
+            }}
+            sx={{ height: '100%', overflowY: 'auto', px: 3, py: 2 }}
+          >
+            {showWizard && renderWizard()}
+            {!showWizard && selected && renderActiveConfig()}
+          </Box>
+          <Box
+            id="scroll-arrow"
+            onClick={() => { const el = document.getElementById('countries-scroll'); if (el) el.scrollBy({ top: 300, behavior: 'smooth' }); }}
+            sx={{
+              position: 'absolute', bottom: 8, right: 18,
+              px: 1.25, py: 0.5, borderRadius: '12px',
+              background: 'rgba(85,25,230,0.9)', color: '#fff',
+              cursor: 'pointer', transition: 'opacity 0.3s', zIndex: 2,
+              boxShadow: '0 2px 8px rgba(85,25,230,0.3)',
+            }}
+          >
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, fontSize: '10px', fontWeight: 600 }}>
+              <span>{'\u25BC'}</span>
+              <span>More</span>
+            </Box>
+          </Box>
         </Box>
       </Box>
 
