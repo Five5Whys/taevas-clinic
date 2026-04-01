@@ -14,6 +14,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.UUID;
+
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -45,5 +47,12 @@ public class DashboardService {
 
     public Page<AuditLog> getRecentActivity(Pageable pageable) {
         return auditLogRepository.findAllByOrderByCreatedAtDesc(pageable);
+    }
+
+    public Page<AuditLog> getRecentActivity(UUID tenantId, Pageable pageable) {
+        if (tenantId == null) {
+            return auditLogRepository.findAllByOrderByCreatedAtDesc(pageable);
+        }
+        return auditLogRepository.findByTenantIdOrderByCreatedAtDesc(tenantId, pageable);
     }
 }

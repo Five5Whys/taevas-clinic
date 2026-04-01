@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/superadmin")
@@ -39,9 +40,10 @@ public class DashboardController {
     @Operation(summary = "Get recent activity logs")
     public ResponseEntity<ApiResponse<Page<AuditLog>>> getRecentActivity(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size) {
+            @RequestParam(defaultValue = "20") int size,
+            @RequestParam(required = false) UUID tenantId) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<AuditLog> activity = dashboardService.getRecentActivity(pageable);
+        Page<AuditLog> activity = dashboardService.getRecentActivity(tenantId, pageable);
         return ResponseEntity.ok(ApiResponse.success(activity));
     }
 

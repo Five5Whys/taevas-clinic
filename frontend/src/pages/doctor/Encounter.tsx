@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Box,
   Card,
@@ -32,6 +32,7 @@ import {
 import { useSearchParams } from 'react-router-dom';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import { useEncounterByAppointment } from '@/hooks/doctor';
+import VoiceNote from '@/components/doctor/VoiceNote';
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -78,6 +79,14 @@ const Encounter: React.FC = () => {
   const [pharynx, setPharynx] = useState('Mild erythema');
   const [vocalCords, setVocalCords] = useState('Normal');
   const [throatNotes, setThroatNotes] = useState('');
+  const [voiceNoteOpen, setVoiceNoteOpen] = useState(false);
+
+  const handleApplySOAP = useCallback((soap: { subjective: string; objective: string; assessment: string; plan: string }) => {
+    if (soap.subjective) setChiefComplaint((prev) => prev ? `${prev}\n${soap.subjective}` : soap.subjective);
+    if (soap.objective) setExamination((prev) => prev ? `${prev}\n${soap.objective}` : soap.objective);
+    if (soap.assessment) setAssessment((prev) => prev ? `${prev}\n${soap.assessment}` : soap.assessment);
+    if (soap.plan) setPlan((prev) => prev ? `${prev}\n${soap.plan}` : soap.plan);
+  }, []);
 
   useEffect(() => {
     if (encounterData) {
@@ -214,6 +223,7 @@ const Encounter: React.FC = () => {
                     py: 0.75,
                   }}
                   startIcon={<Mic sx={{ fontSize: '1rem' }} />}
+                  onClick={() => setVoiceNoteOpen(true)}
                 >
                   Voice Note
                 </Button>
@@ -845,6 +855,13 @@ const Encounter: React.FC = () => {
           </CardContent>
         </Card>
       </Container>
+
+      {/* Voice Note Drawer */}
+      <VoiceNote
+        open={voiceNoteOpen}
+        onClose={() => setVoiceNoteOpen(false)}
+        onApplySOAP={handleApplySOAP}
+      />
     </DashboardLayout>
   );
 };

@@ -46,6 +46,9 @@ public class AuditLog {
     @Column(name = "new_value", columnDefinition = "text")
     private String newValue;
 
+    @Column(name = "tenant_id")
+    private UUID tenantId;
+
     @Column(name = "ip_address")
     private String ipAddress;
 
