@@ -68,8 +68,12 @@ const PatientRegistry: React.FC = () => {
   ];
 
   const isMock = localStorage.getItem('authToken') === 'mock-jwt-token-for-dev-only';
+  const [localPatients, setLocalPatients] = useState<Patient[]>([]);
   const raw = patientData?.content ?? patientData;
-  const patients: Patient[] = (Array.isArray(raw) && raw.length > 0 ? raw : (isError || isMock) ? FALLBACK_PATIENTS : raw ?? []) as Patient[];
+  const patients: Patient[] = [
+    ...((Array.isArray(raw) && raw.length > 0 ? raw : (isError || isMock) ? FALLBACK_PATIENTS : raw ?? []) as Patient[]),
+    ...localPatients,
+  ];
 
   const [form, setForm] = useState({
     firstName: '',
@@ -116,6 +120,25 @@ const PatientRegistry: React.FC = () => {
       return;
     }
     setContactError(false);
+
+    if (isMock) {
+      const newPatient: Patient = {
+        id: `P-LOCAL-${Date.now()}`,
+        firstName: form.firstName,
+        lastName: form.lastName,
+        phone: form.phone,
+        email: form.email,
+        gender: form.gender,
+        bloodGroup: form.bloodGroup,
+        lastVisit: new Date().toISOString().split('T')[0],
+        status: 'ACTIVE',
+      };
+      setLocalPatients(prev => [...prev, newPatient]);
+      setDialogOpen(false);
+      setSnackbar({ open: true, message: 'Patient registered successfully', severity: 'success' });
+      return;
+    }
+
     createPatient.mutate(
       {
         firstName: form.firstName,
