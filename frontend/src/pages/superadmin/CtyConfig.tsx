@@ -12,6 +12,8 @@ import {
   InputLabel,
   CircularProgress,
   Autocomplete,
+  Snackbar,
+  Alert,
 } from '@mui/material';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import { useCountries, useUpdateCountry } from '@/hooks/superadmin/useCountries';
@@ -113,6 +115,8 @@ const CtyConfig: React.FC = () => {
   const updateBilling = useUpdateBilling();
   const updateLocale = useUpdateLocale();
 
+  const [toast, setToast] = useState<{ open: boolean; message: string; severity: 'success' | 'error' }>({ open: false, message: '', severity: 'success' });
+
   const countries = countriesData ?? MOCK_COUNTRIES;
   const [selectedId, setSelectedId] = useState('');
   const [activeTab, setActiveTab] = useState<'localization' | 'billing'>('localization');
@@ -180,23 +184,30 @@ const CtyConfig: React.FC = () => {
 
   const handleSaveLocalization = () => {
     if (!selected) return;
-    updateCountry.mutate({
-      id: selected.id,
-      data: { currencyCode: currency, regulatoryBodies },
-    });
-    updateLocale.mutate({
-      countryId: selected.id,
-      data: { primaryLanguage: primaryLang, secondaryLanguage: secondaryLang, dateFormat, weightUnit, heightUnit, timezone },
-    });
+    let completed = 0;
+    const total = 2;
+    const onDone = () => { completed++; if (completed === total) setToast({ open: true, message: 'Localization saved', severity: 'success' }); };
+    const onFail = (err: unknown) => { setToast({ open: true, message: `Save failed: ${err instanceof Error ? err.message : 'Unknown error'}`, severity: 'error' }); };
+    updateCountry.mutate(
+      { id: selected.id, data: { currencyCode: currency, regulatoryBodies } },
+      { onSuccess: onDone, onError: onFail },
+    );
+    updateLocale.mutate(
+      { countryId: selected.id, data: { primaryLanguage: primaryLang, secondaryLanguage: secondaryLang, dateFormat, weightUnit, heightUnit, timezone } },
+      { onSuccess: onDone, onError: onFail },
+    );
   };
 
   const handleSaveBilling = () => {
     if (!selected) return;
     const rateNum = parseFloat(taxRate.replace(/[^0-9.]/g, '')) || 0;
-    updateBilling.mutate({
-      countryId: selected.id,
-      data: { taxRate: rateNum, taxSplit, invoicePrefix, invoiceFormat, claimCode, toggles },
-    });
+    updateBilling.mutate(
+      { countryId: selected.id, data: { taxRate: rateNum, taxSplit, invoicePrefix, invoiceFormat, claimCode, toggles } },
+      {
+        onSuccess: () => setToast({ open: true, message: 'Billing saved', severity: 'success' }),
+        onError: (err) => setToast({ open: true, message: `Save failed: ${err instanceof Error ? err.message : 'Unknown error'}`, severity: 'error' }),
+      },
+    );
   };
 
   const isSaving = updateCountry.isPending || updateLocale.isPending || updateBilling.isPending;
@@ -468,6 +479,9 @@ const CtyConfig: React.FC = () => {
           )}
         </Box>
       </Box>
+      <Snackbar open={toast.open} autoHideDuration={4000} onClose={() => setToast((t) => ({ ...t, open: false }))} anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}>
+        <Alert severity={toast.severity} onClose={() => setToast((t) => ({ ...t, open: false }))} sx={{ width: '100%' }}>{toast.message}</Alert>
+      </Snackbar>
     </DashboardLayout>
   );
 };

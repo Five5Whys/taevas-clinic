@@ -14,40 +14,18 @@ import {
 } from '@mui/material';
 import * as Icons from '@mui/icons-material';
 import DashboardLayout from '@/components/layout/DashboardLayout';
+import { usePatientDashboard, usePatientAppointments, usePatientPrescriptions, usePatientFamily } from '@/hooks/patient/usePortal';
 
 const PatientDashboard: React.FC = () => {
   const theme = useTheme();
+  usePatientDashboard();
+  const { data: appointmentsRaw } = usePatientAppointments({ page: 0, size: 5 });
+  const { data: prescriptionsRaw } = usePatientPrescriptions({ page: 0, size: 5 });
+  const { data: familyData } = usePatientFamily();
 
-  const upcomingAppointments = [
-    {
-      id: '1',
-      doctorName: 'Dr. Rajesh Kumar',
-      specialty: 'Cardiologist',
-      date: 'Tomorrow',
-      time: '10:00 AM',
-      status: 'confirmed',
-    },
-    {
-      id: '2',
-      doctorName: 'Dr. Priya Sharma',
-      specialty: 'Pediatrician',
-      date: '28 Mar',
-      time: '2:00 PM',
-      status: 'confirmed',
-    },
-  ];
-
-  const recentPrescriptions = [
-    { id: '1', medicineCount: 5, date: '15 Mar', doctor: 'Dr. Rajesh Kumar', status: 'active' },
-    { id: '2', medicineCount: 3, date: '8 Mar', doctor: 'Dr. Priya Sharma', status: 'active' },
-    { id: '3', medicineCount: 2, date: '1 Mar', doctor: 'Dr. Amit Patel', status: 'expired' },
-  ];
-
-  const familyMembers = [
-    { id: '1', name: 'Rajesh Singh', relation: 'Father', age: 65 },
-    { id: '2', name: 'Geeta Singh', relation: 'Mother', age: 60 },
-    { id: '3', name: 'Neha Singh', relation: 'Sister', age: 28 },
-  ];
+  const upcomingAppointments = (appointmentsRaw?.content ?? appointmentsRaw ?? []) as Array<{ id: string; doctorName: string; type?: string; appointmentDate: string; startTime: string; status: string }>;
+  const recentPrescriptions = (prescriptionsRaw?.content ?? prescriptionsRaw ?? []) as Array<{ id: string; doctorName: string; diagnosis?: string; status: string; items?: Array<unknown>; createdAt?: string }>;
+  const familyGroups = (familyData ?? []) as Array<{ id: string; name: string; members: Array<{ id: string; patientId: string; relationship: string }> }>;
 
   return (
     <DashboardLayout pageTitle="My Health Dashboard">
@@ -234,6 +212,11 @@ const PatientDashboard: React.FC = () => {
               </Box>
 
               <List disablePadding>
+                {upcomingAppointments.length === 0 && (
+                  <ListItem sx={{ py: 3, justifyContent: 'center' }}>
+                    <Typography variant="body2" color="textSecondary">No upcoming appointments</Typography>
+                  </ListItem>
+                )}
                 {upcomingAppointments.map((appointment, index) => (
                   <ListItem
                     key={appointment.id}
@@ -251,13 +234,13 @@ const PatientDashboard: React.FC = () => {
                         {appointment.doctorName}
                       </Typography>
                       <Typography variant="caption" color="textSecondary">
-                        {appointment.specialty}
+                        {appointment.type ?? 'Consultation'}
                       </Typography>
                       <Typography variant="caption" color="textSecondary" sx={{ display: 'block', mt: 0.5 }}>
-                        {appointment.date} • {appointment.time}
+                        {appointment.appointmentDate} • {appointment.startTime}
                       </Typography>
                     </Box>
-                    <Chip label="Confirmed" size="small" color="success" />
+                    <Chip label={appointment.status} size="small" color="success" />
                   </ListItem>
                 ))}
               </List>
@@ -285,6 +268,11 @@ const PatientDashboard: React.FC = () => {
               </Box>
 
               <List disablePadding>
+                {recentPrescriptions.length === 0 && (
+                  <ListItem sx={{ py: 3, justifyContent: 'center' }}>
+                    <Typography variant="body2" color="textSecondary">No prescriptions</Typography>
+                  </ListItem>
+                )}
                 {recentPrescriptions.map((prescription, index) => (
                   <ListItem
                     key={prescription.id}
@@ -299,19 +287,19 @@ const PatientDashboard: React.FC = () => {
                   >
                     <Box sx={{ flex: 1 }}>
                       <Typography variant="body2" sx={{ fontWeight: 600, mb: 0.5 }}>
-                        {prescription.medicineCount} Medicines
+                        {prescription.items?.length ?? 0} Medicines
                       </Typography>
                       <Typography variant="caption" color="textSecondary">
-                        {prescription.doctor}
+                        {prescription.doctorName}
                       </Typography>
                       <Typography variant="caption" color="textSecondary" sx={{ display: 'block', mt: 0.5 }}>
-                        {prescription.date}
+                        {prescription.createdAt ?? ''}
                       </Typography>
                     </Box>
                     <Chip
                       label={prescription.status}
                       size="small"
-                      color={prescription.status === 'active' ? 'success' : 'default'}
+                      color={prescription.status === 'ACTIVE' ? 'success' : 'default'}
                       variant="outlined"
                     />
                   </ListItem>
@@ -321,7 +309,7 @@ const PatientDashboard: React.FC = () => {
           </Grid>
         </Grid>
 
-        {/* Family Members */}
+        {/* Family Groups */}
         <Card>
           <Box
             sx={{
@@ -335,55 +323,55 @@ const PatientDashboard: React.FC = () => {
             <Typography variant="h6" sx={{ fontWeight: 700 }}>
               Family Members
             </Typography>
-            <Button size="small" variant="outlined" startIcon={<Icons.Add />}>
-              Add Member
-            </Button>
           </Box>
 
           <Box sx={{ p: 2.5 }}>
-            <Grid container spacing={2}>
-              {familyMembers.map(member => (
-                <Grid item xs={12} sm={6} md={4} key={member.id}>
-                  <Box
-                    sx={{
-                      p: 2,
-                      borderRadius: '12px',
-                      backgroundColor: theme.palette.background.default,
-                      display: 'flex',
-                      flexDirection: 'column',
-                      alignItems: 'center',
-                      textAlign: 'center',
-                      cursor: 'pointer',
-                      transition: 'all 0.2s',
-                      '&:hover': {
-                        backgroundColor: theme.palette.action.hover,
-                      },
-                    }}
-                  >
-                    <Avatar
+            {familyGroups.length === 0 ? (
+              <Typography variant="body2" color="textSecondary" sx={{ textAlign: 'center', py: 2 }}>
+                No family members linked
+              </Typography>
+            ) : (
+              <Grid container spacing={2}>
+                {familyGroups.flatMap((g) => g.members).map((member) => (
+                  <Grid item xs={12} sm={6} md={4} key={member.id}>
+                    <Box
                       sx={{
-                        width: 50,
-                        height: 50,
-                        backgroundColor: 'primary.main',
-                        mb: 1,
-                        fontSize: '1.2rem',
+                        p: 2,
+                        borderRadius: '12px',
+                        backgroundColor: theme.palette.background.default,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        textAlign: 'center',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s',
+                        '&:hover': {
+                          backgroundColor: theme.palette.action.hover,
+                        },
                       }}
                     >
-                      {member.name.charAt(0)}
-                    </Avatar>
-                    <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                      {member.name}
-                    </Typography>
-                    <Typography variant="caption" color="textSecondary">
-                      {member.relation}
-                    </Typography>
-                    <Typography variant="caption" color="textSecondary" sx={{ mt: 0.5 }}>
-                      {member.age} years old
-                    </Typography>
-                  </Box>
-                </Grid>
-              ))}
-            </Grid>
+                      <Avatar
+                        sx={{
+                          width: 50,
+                          height: 50,
+                          backgroundColor: 'primary.main',
+                          mb: 1,
+                          fontSize: '1.2rem',
+                        }}
+                      >
+                        {member.relationship.charAt(0)}
+                      </Avatar>
+                      <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                        {member.relationship}
+                      </Typography>
+                      <Typography variant="caption" color="textSecondary">
+                        ID: {member.patientId.slice(0, 8)}...
+                      </Typography>
+                    </Box>
+                  </Grid>
+                ))}
+              </Grid>
+            )}
           </Box>
         </Card>
       </Container>
