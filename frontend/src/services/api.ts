@@ -34,9 +34,10 @@ api.interceptors.response.use(
       _retry?: boolean;
     };
 
-    // Skip token refresh for auth endpoints — let login/signup handle their own 401s
+    // Skip token refresh for auth endpoints and mock auth mode
     const isAuthEndpoint = originalRequest.url?.startsWith('/auth/') || originalRequest.url?.startsWith('/api/auth/');
-    if (error.response?.status === 401 && !originalRequest._retry && !isAuthEndpoint) {
+    const isMockAuth = localStorage.getItem('authToken') === 'mock-jwt-token-for-dev-only';
+    if (error.response?.status === 401 && !originalRequest._retry && !isAuthEndpoint && !isMockAuth) {
       originalRequest._retry = true;
 
       try {
