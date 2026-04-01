@@ -86,9 +86,8 @@ export const NAVIGATION_CONFIG = {
     { id: 'equidor',        label: 'Equidor',            emoji: '🔬', icon: 'DeviceHub',    path: '/superadmin/equidor',        section: 'Devices', badge: '3' },
     // Overview
     { id: 'dashboard',      label: 'Control Center',     emoji: '📊', icon: 'Dashboard',    path: '/superadmin',                section: 'Overview' },
-    { id: 'users',          label: 'User Management',    emoji: '👤', icon: 'PersonAdd',    path: '/superadmin/users',          section: 'Overview' },
+    { id: 'manage',         label: 'Manage',             emoji: '👥', icon: 'People',       path: '/superadmin/manage',         section: 'Overview' },
     { id: 'countries',      label: 'Countries',          emoji: '🌍', icon: 'Public',       path: '/superadmin/countries',      section: 'Overview' },
-    { id: 'clinics',        label: 'Clinics',            emoji: '🏥', icon: 'LocationCity', path: '/superadmin/clinics',        section: 'Overview', badge: '12' },
     { id: 'audit',          label: 'Audit Log',          emoji: '📜', icon: 'History',       path: '/superadmin/audit',          section: 'Data' },
     // Configuration
     { id: 'feature-flags',  label: 'Features',           emoji: '🚩', icon: 'ToggleOn',     path: '/superadmin/feature-flags',  section: 'Configuration' },

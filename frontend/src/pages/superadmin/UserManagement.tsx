@@ -24,7 +24,7 @@ import {
   Alert,
   Tooltip,
 } from '@mui/material';
-import DashboardLayout from '@/components/layout/DashboardLayout';
+// DashboardLayout provided by parent Manage page
 import { useCountries } from '@/hooks/superadmin/useCountries';
 
 const BRAND = '#5519E6';
@@ -191,7 +191,7 @@ const UserManagement: React.FC = () => {
   };
 
   return (
-    <DashboardLayout pageTitle="User Management">
+    <>
       <Box sx={{ px: 3, py: 2.5 }}>
         {/* Header */}
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2.5 }}>
@@ -437,7 +437,7 @@ const UserManagement: React.FC = () => {
       <Snackbar open={!!alertMsg} autoHideDuration={4000} onClose={() => setAlertMsg('')} anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}>
         <Alert severity="success" onClose={() => setAlertMsg('')} sx={{ fontWeight: 600 }}>{alertMsg}</Alert>
       </Snackbar>
-    </DashboardLayout>
+    </>
   );
 };
 

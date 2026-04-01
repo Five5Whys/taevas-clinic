@@ -21,7 +21,7 @@ import {
   Alert,
 } from '@mui/material';
 import * as Icons from '@mui/icons-material';
-import DashboardLayout from '@/components/layout/DashboardLayout';
+// DashboardLayout provided by parent Manage page
 import { useClinics, useCreateClinic } from '@/hooks/superadmin/useClinics';
 import { ClinicSummary } from '@/types/superadmin';
 
@@ -84,7 +84,7 @@ const Clinics: React.FC = () => {
   const clinics: ClinicSummary[] = (data && data.length > 0) ? data : FALLBACK_CLINICS;
 
   return (
-    <DashboardLayout pageTitle="Clinics">
+    <>
       <Container maxWidth="lg" sx={{ py: 2.5 }}>
 
         {/* Toolbar */}
@@ -353,7 +353,7 @@ const Clinics: React.FC = () => {
         </Snackbar>
 
       </Container>
-    </DashboardLayout>
+    </>
   );
 };
 
