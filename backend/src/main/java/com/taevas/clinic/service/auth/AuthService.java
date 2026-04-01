@@ -159,6 +159,15 @@ public class AuthService {
         log.info("User logged out: {}", userId);
     }
 
+    @Transactional
+    public void changePassword(String userId, String newPassword) {
+        User user = userRepository.findById(UUID.fromString(userId))
+                .orElseThrow(() -> new BadRequestException("User not found"));
+        user.setPasswordHash(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+        log.info("Password changed for user: {}", userId);
+    }
+
     private User createNewUser(String phone) {
         User user = User.builder()
                 .phone(phone)

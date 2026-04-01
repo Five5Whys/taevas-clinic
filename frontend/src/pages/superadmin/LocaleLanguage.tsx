@@ -170,7 +170,6 @@ const LocaleLanguage: React.FC = () => {
         },
         onError: () => {
           setSavingCountry(null);
-          console.error(`Failed to save locale settings for ${countryId}`);
         },
       }
     );

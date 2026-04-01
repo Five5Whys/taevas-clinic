@@ -71,19 +71,19 @@ const Templates: React.FC = () => {
   };
 
   const handleLogoSave = () => {
-    console.log('Global logo settings saved:', logoSettings);
+    void logoSettings;
   };
 
   const handleSignatureSave = () => {
-    console.log('Global signature settings saved:', signatureSettings);
+    void signatureSettings;
   };
 
   const handleQRSave = () => {
-    console.log('Global QR config saved:', qrConfig);
+    void qrConfig;
   };
 
   const handleStickerSave = () => {
-    console.log('Global sticker config saved:', stickerConfig);
+    void stickerConfig;
   };
 
   return (

@@ -16,6 +16,7 @@ import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { useAuthStore } from '@/stores/authStore';
 import { ROLE_REDIRECT_MAP } from '@/utils/constants';
 import { UserRole } from '@/types';
+import api from '@/services/api';
 
 const BRAND = '#5519E6';
 const BRAND2 = '#A046F0';
@@ -42,8 +43,7 @@ const ChangePasswordPage: React.FC = () => {
     setLoading(true);
     setError('');
     try {
-      // TODO: call backend POST /api/auth/change-password
-      // For now, just redirect to dashboard
+      await api.post('/auth/change-password', { newPassword });
       const role = user?.role as UserRole;
       if (role) {
         navigate(ROLE_REDIRECT_MAP[role] || '/');

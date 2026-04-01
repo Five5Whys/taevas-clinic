@@ -38,7 +38,7 @@ async function responseErrorInterceptor(
       }
 
       const response = await axios.post('/api/auth/refresh-token', { refreshToken });
-      const { token, refreshToken: newRefreshToken } = response.data;
+      const { token, refreshToken: newRefreshToken } = response.data.data;
 
       localStorage.setItem('authToken', token);
       if (newRefreshToken) {
@@ -122,7 +122,7 @@ describe('api response error interceptor', () => {
     localStorage.setItem('refreshToken', 'valid-refresh');
 
     mockAxiosPost.mockResolvedValueOnce({
-      data: { token: 'new-jwt', refreshToken: 'new-refresh' },
+      data: { data: { token: 'new-jwt', refreshToken: 'new-refresh' } },
     });
     retryFn.mockResolvedValueOnce({ data: 'success' });
 

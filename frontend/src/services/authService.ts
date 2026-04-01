@@ -97,7 +97,8 @@ const authService = {
     }
     try {
       return JSON.parse(userStr);
-    } catch {
+    } catch (e) {
+      if (import.meta.env.DEV) console.warn('Failed to parse stored user:', e);
       return null;
     }
   },

@@ -1,5 +1,6 @@
 package com.taevas.clinic.controller.superadmin;
 
+import com.taevas.clinic.controller.BaseController;
 import com.taevas.clinic.dto.ApiResponse;
 import com.taevas.clinic.dto.superadmin.InvitationDto;
 import com.taevas.clinic.dto.superadmin.InviteRequest;
@@ -10,7 +11,6 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -27,7 +27,7 @@ import java.util.UUID;
 @PreAuthorize("hasRole('SUPERADMIN')")
 @Tag(name = "Super Admin - Invitations")
 @RequiredArgsConstructor
-public class InvitationController {
+public class InvitationController extends BaseController {
 
     private final InvitationService invitationService;
 
@@ -35,8 +35,7 @@ public class InvitationController {
     @Operation(summary = "Send a Super Admin invitation")
     public ResponseEntity<ApiResponse<InvitationDto>> invite(
             @Valid @RequestBody InviteRequest request) {
-        UUID currentUserId = UUID.fromString(
-                SecurityContextHolder.getContext().getAuthentication().getName());
+        UUID currentUserId = getUserId();
         InvitationDto dto = invitationService.invite(request, currentUserId);
         return ResponseEntity.ok(ApiResponse.success(dto, "Invitation sent"));
     }

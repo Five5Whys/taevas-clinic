@@ -325,7 +325,6 @@ const Clinics: React.FC = () => {
                       setAddOpen(false);
                     },
                     onError: () => {
-                      console.log('Create clinic payload:', form);
                       setSnack({ open: true, message: 'Clinic created (offline mode)', severity: 'success' });
                       setForm(EMPTY_FORM);
                       setAddOpen(false);

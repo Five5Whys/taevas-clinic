@@ -1,6 +1,7 @@
 package com.taevas.clinic.config;
 
 import com.taevas.clinic.security.JwtAuthenticationFilter;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -26,6 +27,9 @@ public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final CorsConfigurationSource corsConfigurationSource;
 
+    @Value("${spring.profiles.active:default}")
+    private String activeProfile;
+
     public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter,
                           CorsConfigurationSource corsConfigurationSource) {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
@@ -42,8 +46,11 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/swagger-ui/**").permitAll()
                         .requestMatchers("/v3/api-docs/**").permitAll()
-                        .requestMatchers("/actuator/**").permitAll()
-                        .requestMatchers("/h2-console/**").permitAll()
+                        .requestMatchers("/actuator/health").permitAll()
+                        .requestMatchers("/actuator/**").hasRole("SUPERADMIN")
+                        .requestMatchers("/h2-console/**").access((a, ctx) ->
+                            new org.springframework.security.authorization.AuthorizationDecision(
+                                "local".equals(activeProfile) || "dev".equals(activeProfile)))
                         .requestMatchers("/api/superadmin/**").hasRole("SUPERADMIN")
                         .requestMatchers("/api/clinicadmin/**").hasRole("CLINIC_ADMIN")
                         .requestMatchers("/api/doctor/**").hasAnyRole("DOCTOR", "CLINIC_ADMIN")

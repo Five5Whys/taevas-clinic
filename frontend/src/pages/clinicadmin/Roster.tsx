@@ -84,13 +84,11 @@ const Roster: React.FC = () => {
     alert('Add Doctor dialog would open here');
   };
 
-  const handleEditRoles = (doctorId: string) => {
-    console.log('Edit roles for doctor:', doctorId);
+  const handleEditRoles = (_doctorId: string) => {
     handleMenuClose();
   };
 
-  const handleEditSchedule = (doctorId: string) => {
-    console.log('Edit schedule for doctor:', doctorId);
+  const handleEditSchedule = (_doctorId: string) => {
     handleMenuClose();
   };
 
