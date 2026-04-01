@@ -29,4 +29,7 @@ public class DoctorAppointmentController {
     @PutMapping("/{id}/status") public ResponseEntity<ApiResponse<AppointmentDto>> updateStatus(@PathVariable UUID id, @RequestParam String status) {
         return ResponseEntity.ok(ApiResponse.success(service.updateStatus(id, status)));
     }
+    @PostMapping public ResponseEntity<ApiResponse<AppointmentDto>> create(@RequestBody com.taevas.clinic.dto.clinicadmin.AppointmentRequest request) {
+        return ResponseEntity.ok(ApiResponse.success(service.create(getClinicId(), getStaffId(), request)));
+    }
 }

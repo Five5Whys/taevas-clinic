@@ -123,6 +123,15 @@ public class FieldDefinitionService {
         }
     }
 
+    @Transactional
+    public FieldDefinitionDto toggleLock(UUID id) {
+        FieldDefinition field = fieldDefinitionRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("FieldDefinition", "id", id));
+        field.setLocked(!field.isLocked());
+        FieldDefinition saved = fieldDefinitionRepository.save(field);
+        return toDto(saved);
+    }
+
     private FieldDefinitionDto toDto(FieldDefinition field) {
         return FieldDefinitionDto.builder()
                 .id(field.getId().toString())

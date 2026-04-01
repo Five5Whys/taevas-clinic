@@ -11,6 +11,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.*;
 
 @Service @RequiredArgsConstructor @Transactional(readOnly = true)
@@ -33,6 +34,21 @@ public class DoctorAppointmentService {
 
     public AppointmentDto getById(UUID id) {
         return toDto(repo.findById(id).orElseThrow(() -> new ResourceNotFoundException("Appointment", "id", id)));
+    }
+
+    @Transactional public AppointmentDto create(UUID clinicId, UUID doctorId, com.taevas.clinic.dto.clinicadmin.AppointmentRequest req) {
+        Appointment a = Appointment.builder()
+            .clinicId(clinicId)
+            .patientId(UUID.fromString(req.getPatientId()))
+            .doctorId(req.getDoctorId() != null ? UUID.fromString(req.getDoctorId()) : doctorId)
+            .appointmentDate(LocalDate.parse(req.getAppointmentDate()))
+            .startTime(LocalTime.parse(req.getStartTime()))
+            .endTime(req.getEndTime() != null ? LocalTime.parse(req.getEndTime()) : null)
+            .type(req.getType() != null ? req.getType() : "WALK_IN")
+            .status("SCHEDULED")
+            .notes(req.getNotes())
+            .build();
+        return toDto(repo.save(a));
     }
 
     @Transactional public AppointmentDto updateStatus(UUID id, String status) {

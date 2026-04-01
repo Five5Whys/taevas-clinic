@@ -73,4 +73,11 @@ public class FieldDefinitionController {
         fieldDefinitionService.reorderFields(request);
         return ResponseEntity.ok(ApiResponse.success("Fields reordered"));
     }
+
+    @PutMapping("/{id}/lock")
+    @Operation(summary = "Toggle lock on a field definition")
+    public ResponseEntity<ApiResponse<FieldDefinitionDto>> toggleLock(@PathVariable UUID id) {
+        FieldDefinitionDto dto = fieldDefinitionService.toggleLock(id);
+        return ResponseEntity.ok(ApiResponse.success(dto, "Field lock toggled"));
+    }
 }

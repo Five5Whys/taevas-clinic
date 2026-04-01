@@ -40,4 +40,7 @@ public class ClinicAdminConfigController {
     @GetMapping("/id-config") public ResponseEntity<ApiResponse<List<IdConfigDto>>> getIdConfig() {
         return ResponseEntity.ok(ApiResponse.success(service.getIdConfig(getClinicId())));
     }
+    @PutMapping("/id-config") public ResponseEntity<ApiResponse<List<IdConfigDto>>> updateIdConfig(@RequestBody List<IdConfigDto> dtos) {
+        return ResponseEntity.ok(ApiResponse.success(service.updateIdConfig(getClinicId(), dtos)));
+    }
 }

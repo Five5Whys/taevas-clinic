@@ -44,7 +44,7 @@ app:
   sms:
     provider: mock
   cors:
-    allowed-origins: http://localhost:5173
+    allowed-origins: http://localhost:5173,https://*.trycloudflare.com
 
 logging:
   level:

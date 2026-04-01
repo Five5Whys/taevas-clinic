@@ -84,6 +84,20 @@ public class ClinicAdminConfigService {
         return dto;
     }
 
+    @Transactional public List<IdConfigDto> updateIdConfig(UUID clinicId, List<IdConfigDto> dtos) {
+        for (IdConfigDto dto : dtos) {
+            idFormatRepo.findById(UUID.fromString(dto.getId())).ifPresent(t -> {
+                t.setPrefix(dto.getPrefix());
+                t.setEntityCode(dto.getEntityCode());
+                t.setSeparator(dto.getSeparator());
+                t.setPadding(dto.getPadding());
+                t.setStartsAt(dto.getStartsAt());
+                idFormatRepo.save(t);
+            });
+        }
+        return getIdConfig(clinicId);
+    }
+
     public List<IdConfigDto> getIdConfig(UUID clinicId) {
         Clinic clinic = clinicRepo.findById(clinicId).orElse(null);
         if (clinic == null || clinic.getCountryId() == null) return List.of();

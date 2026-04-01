@@ -24,4 +24,7 @@ public class DoctorPatientController {
     @GetMapping("/{id}") public ResponseEntity<ApiResponse<PatientDto>> getById(@PathVariable UUID id) {
         return ResponseEntity.ok(ApiResponse.success(service.getById(getClinicId(), id)));
     }
+    @PostMapping public ResponseEntity<ApiResponse<PatientDto>> create(@RequestBody com.taevas.clinic.dto.clinicadmin.PatientRequest request) {
+        return ResponseEntity.ok(ApiResponse.success(service.create(getClinicId(), request)));
+    }
 }
