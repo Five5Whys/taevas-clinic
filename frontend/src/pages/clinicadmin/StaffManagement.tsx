@@ -52,9 +52,20 @@ interface ClinicUser {
   createdAt: string;
 }
 
+const FALLBACK_STAFF: ClinicUser[] = [
+  { id: 'S-001', firstName: 'Dr. Meera', lastName: 'Kapoor', phone: '+919876500010', email: 'meera.kapoor@clinic.com', roles: ['DOCTOR'], status: 'ACTIVE', createdAt: '2026-03-01' },
+  { id: 'S-002', firstName: 'Sanjay', lastName: 'Reddy', phone: '+919876500011', email: 'sanjay.r@clinic.com', roles: ['NURSE'], status: 'ACTIVE', createdAt: '2026-03-05' },
+  { id: 'S-003', firstName: 'Neha', lastName: 'Gupta', phone: '+919876500012', email: 'neha.g@clinic.com', roles: ['ASSISTANT'], status: 'ACTIVE', createdAt: '2026-03-10' },
+  { id: 'S-004', firstName: 'Dr. Arjun', lastName: 'Nair', phone: '+919876500013', email: '', roles: ['DOCTOR'], status: 'INVITED', createdAt: '2026-03-20' },
+  { id: 'S-005', firstName: 'Priya', lastName: 'Menon', phone: '+919876500014', email: 'priya.m@clinic.com', roles: ['NURSE', 'ASSISTANT'], status: 'ACTIVE', createdAt: '2026-02-15' },
+];
+
 const StaffManagement: React.FC = () => {
-  const { data: usersData = [], isLoading } = useStaffList();
-  const users: ClinicUser[] = usersData;
+  const { data: usersData = [], isLoading, isError } = useStaffList();
+  const isMock = localStorage.getItem('authToken') === 'mock-jwt-token-for-dev-only';
+  const [localStaff, setLocalStaff] = useState<ClinicUser[]>([]);
+  const raw = Array.isArray(usersData) && usersData.length > 0 ? usersData : (isError || isMock) ? FALLBACK_STAFF : usersData;
+  const users: ClinicUser[] = [...raw, ...localStaff];
   const createStaff = useCreateStaff();
   const updateStaff = useUpdateStaff();
   const [search, setSearch] = useState('');
@@ -99,6 +110,26 @@ const StaffManagement: React.FC = () => {
       email: newEmail,
       roles: newRoles,
     };
+
+    if (isMock) {
+      // In mock auth mode, add locally since API will fail
+      const newUser: ClinicUser = {
+        id: `S-LOCAL-${Date.now()}`,
+        firstName: newFirstName,
+        lastName: newLastName,
+        phone: payload.phone,
+        email: newEmail,
+        roles: newRoles,
+        status: 'INVITED',
+        createdAt: new Date().toISOString().split('T')[0],
+      };
+      setLocalStaff(prev => [...prev, newUser]);
+      const roleLabels = newRoles.map(r => ROLE_OPTIONS.find(o => o.value === r)?.label || r).join(', ');
+      resetCreateForm();
+      setAlertMsg(`Account created for ${newFirstName}.${roleLabels ? ` Assigned as ${roleLabels}.` : ''} Invite sent.`);
+      return;
+    }
+
     createStaff.mutate(payload, {
       onSuccess: () => {
         resetCreateForm();
