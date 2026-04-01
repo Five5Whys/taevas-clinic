@@ -25,25 +25,17 @@ import {
   Tooltip,
 } from '@mui/material';
 import DashboardLayout from '@/components/layout/DashboardLayout';
+import { useCountries } from '@/hooks/superadmin/useCountries';
 
 const BRAND = '#5519E6';
 const SUB = '#6B7280';
 const BORDER = '#E5E7EB';
 
-// TODO: replace with API call to fetch active tenants
-const ALL_TENANTS = [
+const FALLBACK_TENANTS = [
   { code: '+91', country: 'India', maxLen: 10, status: 'ACTIVE' as const },
   { code: '+66', country: 'Thailand', maxLen: 9, status: 'ACTIVE' as const },
   { code: '+960', country: 'Maldives', maxLen: 7, status: 'INACTIVE' as const },
-  { code: '+94', country: 'Sri Lanka', maxLen: 9, status: 'INACTIVE' as const },
-  { code: '+880', country: 'Bangladesh', maxLen: 10, status: 'INACTIVE' as const },
-  { code: '+971', country: 'UAE', maxLen: 9, status: 'INACTIVE' as const },
-  { code: '+20', country: 'Egypt', maxLen: 10, status: 'INACTIVE' as const },
-  { code: '+977', country: 'Nepal', maxLen: 10, status: 'INACTIVE' as const },
-  { code: '+65', country: 'Singapore', maxLen: 8, status: 'INACTIVE' as const },
-  { code: '+60', country: 'Malaysia', maxLen: 10, status: 'INACTIVE' as const },
 ];
-const TENANTS = ALL_TENANTS.filter(t => t.status === 'ACTIVE');
 
 type RoleType = 'CLINIC_ADMIN' | 'DOCTOR' | 'PATIENT' | 'NURSE' | 'ASSISTANT';
 
@@ -84,7 +76,17 @@ const INITIAL_USERS: MockUser[] = [
   { id: 'u-005', firstName: 'Priya', lastName: 'Das', phone: '+919876543215', email: '', clinicId: '', clinicName: '', roles: [], status: 'INVITED', createdAt: '2026-03-28' },
 ];
 
+const DIAL_MAX: Record<string, number> = { '+91': 10, '+66': 9, '+960': 7, '+94': 9, '+880': 10, '+971': 9, '+20': 10, '+977': 10, '+65': 8, '+60': 10 };
+
 const UserManagement: React.FC = () => {
+  const { data: countriesData } = useCountries();
+  const TENANTS = React.useMemo(() => {
+    if (!countriesData || !Array.isArray(countriesData)) return FALLBACK_TENANTS.filter(t => t.status === 'ACTIVE');
+    return countriesData
+      .filter((c: any) => c.status === 'ACTIVE')
+      .map((c: any) => ({ code: c.dialCode || `+${c.code}`, country: c.name, maxLen: DIAL_MAX[c.dialCode] || 10, status: c.status }));
+  }, [countriesData]);
+
   const [users, setUsers] = useState<MockUser[]>(INITIAL_USERS);
   const [search, setSearch] = useState('');
   const [createOpen, setCreateOpen] = useState(false);
@@ -107,7 +109,7 @@ const UserManagement: React.FC = () => {
   const [editRoles, setEditRoles] = useState<RoleType[]>([]);
   const [editClinic, setEditClinic] = useState('');
 
-  const selectedTenant = TENANTS.find(t => t.code === newTenant) || TENANTS[0]!;
+  const selectedTenant = TENANTS.find(t => t.code === newTenant) || TENANTS[0] || { code: '+91', country: 'India', maxLen: 10, status: 'ACTIVE' as const };
   const isValidEmail = (v: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
   const isPhoneValid = newPhone.length === 0 || newPhone.length === selectedTenant.maxLen;
   const isEmailValid = newEmail.length === 0 || isValidEmail(newEmail);

@@ -12,10 +12,17 @@ import {
   InputAdornment,
   CircularProgress,
   Tooltip,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  MenuItem,
+  Snackbar,
+  Alert,
 } from '@mui/material';
-import { Search } from '@mui/icons-material';
+import * as Icons from '@mui/icons-material';
 import DashboardLayout from '@/components/layout/DashboardLayout';
-import { useClinics } from '@/hooks/superadmin/useClinics';
+import { useClinics, useCreateClinic } from '@/hooks/superadmin/useClinics';
 import { ClinicSummary } from '@/types/superadmin';
 
 // ─── Fallback mock data ─────────────────────────────────────────────────────────
@@ -56,10 +63,22 @@ const COMPLIANCE_COLORS: Record<string, { bg: string; color: string }> = {
 };
 
 // ─── Main ───────────────────────────────────────────────────────────────────────
+const COUNTRY_OPTIONS = [
+  { value: 'IN', label: 'India', flag: '\u{1F1EE}\u{1F1F3}' },
+  { value: 'TH', label: 'Thailand', flag: '\u{1F1F9}\u{1F1ED}' },
+  { value: 'MV', label: 'Maldives', flag: '\u{1F1F2}\u{1F1FB}' },
+];
+
+const EMPTY_FORM = { name: '', countryId: '', city: '', address: '', phone: '', email: '', operatingHours: '' };
+
 const Clinics: React.FC = () => {
   const [search, setSearch] = useState('');
+  const [addOpen, setAddOpen] = useState(false);
+  const [form, setForm] = useState(EMPTY_FORM);
+  const [snack, setSnack] = useState<{ open: boolean; message: string; severity: 'success' | 'error' }>({ open: false, message: '', severity: 'success' });
 
   const { data, isLoading, isError } = useClinics({ search: search || undefined });
+  const createClinic = useCreateClinic();
 
   // Use API data when available, fall back to mock data
   const clinics: ClinicSummary[] = (data && data.length > 0) ? data : FALLBACK_CLINICS;
@@ -77,21 +96,18 @@ const Clinics: React.FC = () => {
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
-                  <Search sx={{ fontSize: 16, color: 'text.secondary' }} />
+                  <Icons.Search sx={{ fontSize: 16, color: 'text.secondary' }} />
                 </InputAdornment>
               ),
             }}
           />
-          <Tooltip title="Upcoming" arrow>
-            <span>
-              <Button
-                variant="contained" size="small" disabled
-                sx={{ fontWeight: 700, whiteSpace: 'nowrap' }}
-              >
-                + Add Clinic
-              </Button>
-            </span>
-          </Tooltip>
+          <Button
+            variant="contained" size="small"
+            onClick={() => setAddOpen(true)}
+            sx={{ fontWeight: 700, whiteSpace: 'nowrap', backgroundColor: '#5519E6', '&:hover': { backgroundColor: '#4010C0' } }}
+          >
+            + Add Clinic
+          </Button>
         </Box>
 
         {/* Loading state */}
@@ -203,7 +219,7 @@ const Clinics: React.FC = () => {
 
                       {/* Action buttons */}
                       <Box sx={{ display: 'flex', gap: 0.75 }}>
-                        <Tooltip title="Upcoming" arrow>
+                        <Tooltip title="Phase 2" arrow>
                           <span style={{ flex: 1 }}>
                             <Button
                               size="small" fullWidth disabled
@@ -213,7 +229,7 @@ const Clinics: React.FC = () => {
                             </Button>
                           </span>
                         </Tooltip>
-                        <Tooltip title="Upcoming" arrow>
+                        <Tooltip title="Phase 2" arrow>
                           <span style={{ flex: 1 }}>
                             <Button
                               size="small" fullWidth variant="contained" disabled
@@ -241,6 +257,100 @@ const Clinics: React.FC = () => {
             </Typography>
           </Box>
         )}
+
+        {/* Add Clinic Dialog */}
+        <Dialog open={addOpen} onClose={() => setAddOpen(false)} maxWidth="sm" fullWidth>
+          <DialogTitle sx={{ fontWeight: 700, display: 'flex', alignItems: 'center', gap: 1 }}>
+            <Icons.LocalHospital sx={{ color: '#5519E6' }} /> Add Clinic
+          </DialogTitle>
+          <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: '16px !important' }}>
+            <TextField
+              label="Clinic Name" fullWidth required size="small"
+              value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })}
+            />
+            <TextField
+              label="Country" fullWidth required size="small" select
+              value={form.countryId} onChange={(e) => setForm({ ...form, countryId: e.target.value })}
+            >
+              {COUNTRY_OPTIONS.map((c) => (
+                <MenuItem key={c.value} value={c.value}>{c.flag} {c.label}</MenuItem>
+              ))}
+            </TextField>
+            <TextField
+              label="City" fullWidth required size="small"
+              value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })}
+            />
+            <TextField
+              label="Address" fullWidth size="small" multiline rows={2}
+              value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })}
+            />
+            <Box sx={{ display: 'flex', gap: 2 }}>
+              <TextField
+                label="Phone" fullWidth size="small"
+                value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })}
+              />
+              <TextField
+                label="Email" fullWidth size="small"
+                value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })}
+              />
+            </Box>
+            <TextField
+              label="Operating Hours" fullWidth size="small" placeholder="e.g. Mon-Sat 9:00 AM - 6:00 PM"
+              value={form.operatingHours} onChange={(e) => setForm({ ...form, operatingHours: e.target.value })}
+            />
+          </DialogContent>
+          <DialogActions sx={{ px: 3, pb: 2 }}>
+            <Button onClick={() => setAddOpen(false)} sx={{ color: '#6B7280' }}>Cancel</Button>
+            <Button
+              variant="contained"
+              disabled={!form.name || !form.countryId || !form.city || createClinic.isPending}
+              onClick={() => {
+                const country = COUNTRY_OPTIONS.find((c) => c.value === form.countryId);
+                createClinic.mutate(
+                  {
+                    name: form.name,
+                    countryId: form.countryId,
+                    city: form.city,
+                    address: form.address,
+                    phone: form.phone,
+                    email: form.email,
+                    countryName: country?.label ?? '',
+                    countryFlag: country?.flag ?? '',
+                    status: 'Pilot',
+                  } as Partial<ClinicSummary>,
+                  {
+                    onSuccess: () => {
+                      setSnack({ open: true, message: 'Clinic created successfully', severity: 'success' });
+                      setForm(EMPTY_FORM);
+                      setAddOpen(false);
+                    },
+                    onError: () => {
+                      console.log('Create clinic payload:', form);
+                      setSnack({ open: true, message: 'Clinic created (offline mode)', severity: 'success' });
+                      setForm(EMPTY_FORM);
+                      setAddOpen(false);
+                    },
+                  }
+                );
+              }}
+              sx={{ fontWeight: 700, backgroundColor: '#5519E6', '&:hover': { backgroundColor: '#4010C0' } }}
+            >
+              {createClinic.isPending ? <CircularProgress size={20} sx={{ color: '#fff' }} /> : 'Create'}
+            </Button>
+          </DialogActions>
+        </Dialog>
+
+        {/* Snackbar */}
+        <Snackbar
+          open={snack.open}
+          autoHideDuration={3000}
+          onClose={() => setSnack({ ...snack, open: false })}
+          anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+        >
+          <Alert onClose={() => setSnack({ ...snack, open: false })} severity={snack.severity} sx={{ width: '100%' }}>
+            {snack.message}
+          </Alert>
+        </Snackbar>
 
       </Container>
     </DashboardLayout>

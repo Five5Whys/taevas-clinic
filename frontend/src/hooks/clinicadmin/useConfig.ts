@@ -8,3 +8,4 @@ export const useUpdateDoctorSchedule = () => { const qc = useQueryClient(); retu
 export const useBillingConfig = () => useQuery({ queryKey: ['clinicadmin', 'billing'], queryFn: () => configService.getBillingConfig() });
 export const useUpdateBillingConfig = () => { const qc = useQueryClient(); return useMutation({ mutationFn: (data: any) => configService.updateBillingConfig(data), onSuccess: () => qc.invalidateQueries({ queryKey: ['clinicadmin', 'billing'] }) }); };
 export const useIdConfig = () => useQuery({ queryKey: ['clinicadmin', 'idConfig'], queryFn: () => configService.getIdConfig() });
+export const useUpdateIdConfig = () => { const qc = useQueryClient(); return useMutation({ mutationFn: (data: any) => configService.updateIdConfig(data), onSuccess: () => qc.invalidateQueries({ queryKey: ['clinicadmin', 'idConfig'] }) }); };

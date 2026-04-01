@@ -17,6 +17,7 @@ import {
   Snackbar,
 } from '@mui/material';
 import DashboardLayout from '@/components/layout/DashboardLayout';
+import { useCountries, useUpdateCountry } from '@/hooks/superadmin/useCountries';
 import type {
   TenantFullConfig,
   TenantLoginConfig,
@@ -114,10 +115,29 @@ const FieldLabel: React.FC<{ label: string }> = ({ label }) => (
   <Typography sx={{ fontSize: '10px', fontWeight: 700, color: SUB, textTransform: 'uppercase', letterSpacing: '0.07em', mb: 0.5 }}>{label}</Typography>
 );
 
+// Helper: map API country to TenantFullConfig
+const apiToTenant = (c: any): TenantFullConfig => {
+  const cfg = c.config ? (typeof c.config === 'string' ? JSON.parse(c.config) : c.config) : {};
+  return {
+    id: c.id, tenantId: c.code ? `TN-${c.code}` : c.id, code: c.code, name: c.name,
+    flagEmoji: c.flagEmoji || '', status: c.status as any, currencyCode: c.currencyCode || '',
+    currencySymbol: c.currencySymbol || '', dialCode: c.dialCode || '',
+    loginConfig: cfg.loginConfig || { emailEnabled: false, phoneEnabled: true, nationalIdEnabled: false, phoneOtp: { length: 6, expiryMin: 5, retries: 3, smsMessage: '{{otp}} is your code' } },
+    locale: cfg.locale || { timezone: '', primaryLanguage: c.primaryLanguage || '', secondaryLanguage: c.secondaryLanguage || '' },
+    compliance: cfg.compliance || { modules: [], regulatoryBody: c.regulatoryBody || '', dataResidency: '' },
+    clinical: cfg.clinical || { countryPrefix: c.code || '', userIdFormat: `${c.code}-UR-#####`, clinicIdFormat: `${c.code}-CL-###`, billingModel: 'Per Clinic / Month', taxType: c.taxType || '', taxRate: c.taxRate || 0 },
+    stats: { clinics: c.clinicCount || 0, doctors: c.doctorCount || 0, patients: 0, uniqueLogins: 0, uptime: '—' },
+    dateFormat: c.dateFormat || 'DD/MM/YYYY', primaryLanguage: c.primaryLanguage || '', secondaryLanguage: c.secondaryLanguage || '',
+    regulatoryBodies: c.regulatoryBody ? [c.regulatoryBody] : [], taxType: c.taxType || '', taxRate: c.taxRate || 0,
+    clinicCount: c.clinicCount || 0, doctorCount: c.doctorCount || 0,
+  };
+};
+
 // ─── Main Component ────────────────────────────────────────────────────────────
 const Countries: React.FC = () => {
+  const { data: apiCountries } = useCountries();
   const [tenants, setTenants] = useState<TenantFullConfig[]>(INITIAL_TENANTS);
-  const [selectedId, setSelectedId] = useState('india');
+  const [selectedId, setSelectedId] = useState(INITIAL_TENANTS[0]?.id || '');
   const [search, setSearch] = useState('');
   const [showWizard, setShowWizard] = useState(false);
   const [wizardStep, setWizardStep] = useState(1);
@@ -129,6 +149,18 @@ const Countries: React.FC = () => {
   const [wizEmailApiOpen, setWizEmailApiOpen] = useState(false);
   const [wizSmsApiOpen, setWizSmsApiOpen] = useState(false);
   const [confirmDialog, setConfirmDialog] = useState<{ open: boolean; tenantId: string }>({ open: false, tenantId: '' });
+  const updateCountry = useUpdateCountry();
+
+  // Load from API when data arrives
+  useEffect(() => {
+    if (apiCountries && Array.isArray(apiCountries) && apiCountries.length > 0) {
+      const mapped = apiCountries.map(apiToTenant);
+      setTenants(mapped);
+      if (!selectedId || !mapped.find(t => t.id === selectedId)) {
+        setSelectedId(mapped[0].id);
+      }
+    }
+  }, [apiCountries]);
 
   // Sync configForm when selectedId changes
   useEffect(() => {
@@ -149,23 +181,42 @@ const Countries: React.FC = () => {
       setConfirmDialog({ open: true, tenantId });
       return;
     }
-    if (t.status === 'INACTIVE') {
-      setTenants(prev => prev.map(x => x.id === tenantId ? { ...x, status: 'ACTIVE' } : x));
-      setAlertMsg(`${t.name} activated.`);
-    }
+    // Any non-ACTIVE status (INACTIVE, PILOT, ONBOARDING) → activate
+    const updated = { ...t, status: 'ACTIVE' as TenantStatusType };
+    setTenants(prev => prev.map(x => x.id === tenantId ? updated : x));
+    updateCountry.mutate({ id: tenantId, data: { status: 'ACTIVE', code: t.code, name: t.name } as any }, {
+      onSuccess: () => setAlertMsg(`${t.name} activated.`),
+      onError: () => setAlertMsg(`Activation failed — please try again.`),
+    });
   };
 
   const confirmDeactivate = () => {
     const tid = confirmDialog.tenantId;
+    const t = tenants.find(x => x.id === tid);
     setTenants(prev => prev.map(x => x.id === tid ? { ...x, status: 'INACTIVE' } : x));
     setConfirmDialog({ open: false, tenantId: '' });
-    setAlertMsg('Tenant deactivated.');
+    updateCountry.mutate({ id: tid, data: { status: 'INACTIVE', code: t?.code, name: t?.name } as any }, {
+      onSuccess: () => setAlertMsg('Tenant deactivated.'),
+      onError: () => setAlertMsg('Deactivation failed — please try again.'),
+    });
   };
 
   const handleSaveConfig = () => {
     if (!configForm) return;
     setTenants(prev => prev.map(t => t.id === configForm.id ? { ...configForm } : t));
-    setAlertMsg('Configuration saved.');
+    const payload = {
+      code: configForm.code, name: configForm.name, flagEmoji: configForm.flagEmoji,
+      status: configForm.status, currencyCode: configForm.currencyCode, currencySymbol: configForm.currencySymbol,
+      taxType: configForm.taxType || configForm.clinical?.taxType, taxRate: configForm.taxRate || configForm.clinical?.taxRate,
+      dateFormat: configForm.dateFormat, primaryLanguage: configForm.primaryLanguage || configForm.locale?.primaryLanguage,
+      secondaryLanguage: configForm.secondaryLanguage || configForm.locale?.secondaryLanguage,
+      regulatoryBody: configForm.compliance?.regulatoryBody, dialCode: configForm.dialCode,
+      config: JSON.stringify({ loginConfig: configForm.loginConfig, locale: configForm.locale, compliance: configForm.compliance, clinical: configForm.clinical }),
+    };
+    updateCountry.mutate({ id: configForm.id, data: payload as any }, {
+      onSuccess: () => setAlertMsg('Configuration saved.'),
+      onError: () => setAlertMsg('Save failed — please try again.'),
+    });
   };
 
   const handleResetConfig = () => {
@@ -328,12 +379,17 @@ const Countries: React.FC = () => {
 
     return (
       <>
-        {/* Header */}
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.25 }}>
-          <Typography sx={{ fontSize: '22px' }}>{selected.flagEmoji}</Typography>
-          <Typography sx={{ fontSize: '17px', fontWeight: 800, color: DARK }}>{selected.name}</Typography>
-          <Typography sx={{ fontSize: '11px', fontFamily: MONO, color: CAP }}>{selected.tenantId}</Typography>
-          {statusChip(selected.status)}
+        {/* Header + Save */}
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1.25 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <Typography sx={{ fontSize: '11px', fontFamily: MONO, color: CAP }}>{selected.code}</Typography>
+            <Typography sx={{ fontSize: '11px', fontFamily: MONO, color: CAP }}>{selected.tenantId}</Typography>
+            {statusChip(selected.status)}
+          </Box>
+          <Box sx={{ display: 'flex', gap: 1 }}>
+            <Button variant="outlined" size="small" onClick={handleResetConfig} sx={{ borderColor: BORDER, color: SUB, fontWeight: 600, textTransform: 'none', fontSize: '12px' }}>Reset</Button>
+            <Button variant="contained" size="small" onClick={handleSaveConfig} disabled={updateCountry.isPending} sx={{ background: BRAND, '&:hover': { background: '#4410C0' }, fontWeight: 700, textTransform: 'none', fontSize: '12px' }}>{updateCountry.isPending ? 'Saving...' : 'Save Changes'}</Button>
+          </Box>
         </Box>
 
         {renderStats(selected.stats)}
@@ -527,11 +583,8 @@ const Countries: React.FC = () => {
           </FieldGrid>
         </SectionCard>
 
-        {/* Save / Reset */}
-        <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1.25, mt: 1, mb: 3 }}>
-          <Button variant="outlined" size="small" onClick={handleResetConfig} sx={{ borderColor: BORDER, color: SUB, fontWeight: 600, textTransform: 'none' }}>Reset</Button>
-          <Button variant="contained" size="small" onClick={handleSaveConfig} sx={{ background: BRAND, '&:hover': { background: '#4410C0' }, fontWeight: 700, textTransform: 'none' }}>Save Changes</Button>
-        </Box>
+        {/* Bottom spacer */}
+        <Box sx={{ mb: 3 }} />
       </>
     );
   };

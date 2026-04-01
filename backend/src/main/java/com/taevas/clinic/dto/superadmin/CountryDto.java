@@ -26,6 +26,8 @@ public class CountryDto {
     private String primaryLanguage;
     private String secondaryLanguage;
     private String regulatoryBody;
+    private String dialCode;
+    private String config;
     private String createdAt;
     private String updatedAt;
 

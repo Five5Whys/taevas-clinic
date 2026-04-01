@@ -59,4 +59,10 @@ public class Country extends BaseEntity {
 
     @Column(name = "regulatory_body")
     private String regulatoryBody;
+
+    @Column(name = "dial_code", length = 10)
+    private String dialCode;
+
+    @Column(name = "config", columnDefinition = "text")
+    private String config;
 }

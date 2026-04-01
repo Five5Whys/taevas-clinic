@@ -17,10 +17,11 @@ import {
   Box,
   Stack,
   CircularProgress,
+  Snackbar,
 } from '@mui/material';
 import { Warning as AlertTriangle } from '@mui/icons-material';
 import DashboardLayout from '@/components/layout/DashboardLayout';
-import { useIdConfig } from '@/hooks/clinicadmin/useConfig';
+import { useIdConfig, useUpdateIdConfig } from '@/hooks/clinicadmin/useConfig';
 
 const DEFAULT_ENTITIES = [
   { name: 'Patient', inherited: 'PAT-YYYYMMDD-{seq:5}', key: 'patient', preview: '', nextSeq: '' },
@@ -31,6 +32,7 @@ const DEFAULT_ENTITIES = [
 
 const IDConfig: React.FC = () => {
   const { data: idConfigData, isLoading } = useIdConfig();
+  const updateIdConfig = useUpdateIdConfig();
 
   const [overrides, setOverrides] = useState({
     patient: '',
@@ -40,6 +42,7 @@ const IDConfig: React.FC = () => {
   });
 
   const [entities, setEntities] = useState(DEFAULT_ENTITIES);
+  const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity: 'success' | 'error' }>({ open: false, message: '', severity: 'success' });
 
   useEffect(() => {
     if (idConfigData) {
@@ -53,18 +56,19 @@ const IDConfig: React.FC = () => {
   };
 
   const handleSave = () => {
-    console.log('ID config saved:', overrides);
-    alert('ID configuration saved successfully!');
+    updateIdConfig.mutate({ overrides }, {
+      onSuccess: () => setSnackbar({ open: true, message: 'ID configuration saved successfully!', severity: 'success' }),
+      onError: () => setSnackbar({ open: true, message: 'Failed to save — please try again', severity: 'error' }),
+    });
   };
 
   const handleReset = () => {
-    setOverrides({
-      patient: 'CLIN-',
-      doctor: 'DOC-',
-      encounter: 'ENC-',
-      clinic: 'CLI-',
+    const defaults = { patient: 'CLIN-', doctor: 'DOC-', encounter: 'ENC-', clinic: 'CLI-' };
+    setOverrides(defaults);
+    updateIdConfig.mutate({ overrides: defaults }, {
+      onSuccess: () => setSnackbar({ open: true, message: 'Configuration reset to defaults', severity: 'success' }),
+      onError: () => setSnackbar({ open: true, message: 'Failed to reset — please try again', severity: 'error' }),
     });
-    alert('Configuration reset to defaults');
   };
 
   return (
@@ -153,6 +157,9 @@ const IDConfig: React.FC = () => {
         </Stack>
       </Container>
       )}
+      <Snackbar open={snackbar.open} autoHideDuration={3000} onClose={() => setSnackbar(s => ({ ...s, open: false }))} anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}>
+        <Alert severity={snackbar.severity} onClose={() => setSnackbar(s => ({ ...s, open: false }))}>{snackbar.message}</Alert>
+      </Snackbar>
     </DashboardLayout>
   );
 };

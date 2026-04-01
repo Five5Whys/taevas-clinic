@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Box,
   Grid,
@@ -13,7 +13,10 @@ import {
   TableHead,
   TableRow,
   CircularProgress,
+  Snackbar,
+  Alert,
 } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import { useClinicDashboard } from '@/hooks/clinicadmin';
 
@@ -46,9 +49,11 @@ const StatCard: React.FC<StatCardProps> = ({ icon, value, label }) => (
 interface QuickActionProps {
   icon: string;
   label: string;
+  onClick?: () => void;
 }
-const QuickAction: React.FC<QuickActionProps> = ({ icon, label }) => (
+const QuickAction: React.FC<QuickActionProps> = ({ icon, label, onClick }) => (
   <Card
+    onClick={onClick}
     sx={{
       borderRadius: '12px',
       cursor: 'pointer',
@@ -88,6 +93,8 @@ const QUICK_ACTIONS = [
 
 // ─── Main ─────────────────────────────────────────────────────────────────────
 const Dashboard: React.FC = () => {
+  const navigate = useNavigate();
+  const [snackOpen, setSnackOpen] = useState(false);
   const { data: dashboard, isLoading, isError } = useClinicDashboard();
 
   const stats = dashboard
@@ -138,11 +145,18 @@ const Dashboard: React.FC = () => {
           Quick Actions
         </Typography>
         <Grid container spacing={2} sx={{ mb: 2.5 }}>
-          {QUICK_ACTIONS.map((action) => (
-            <Grid item xs={12} sm={4} key={action.label}>
-              <QuickAction icon={action.icon} label={action.label} />
-            </Grid>
-          ))}
+          {QUICK_ACTIONS.map((action) => {
+            const handleClick = () => {
+              if (action.label === 'Register Patient') navigate('/admin/patients');
+              else if (action.label === 'View Reports') navigate('/admin/reports');
+              else if (action.label === 'Book Appointment') setSnackOpen(true);
+            };
+            return (
+              <Grid item xs={12} sm={4} key={action.label}>
+                <QuickAction icon={action.icon} label={action.label} onClick={handleClick} />
+              </Grid>
+            );
+          })}
         </Grid>
 
         {/* Stats Row */}
@@ -198,6 +212,18 @@ const Dashboard: React.FC = () => {
             </Table>
           </TableContainer>
         </Card>
+
+        {/* Coming Soon Snackbar */}
+        <Snackbar
+          open={snackOpen}
+          autoHideDuration={3000}
+          onClose={() => setSnackOpen(false)}
+          anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+        >
+          <Alert onClose={() => setSnackOpen(false)} severity="info" sx={{ width: '100%' }}>
+            Coming soon
+          </Alert>
+        </Snackbar>
 
       </Box>
     </DashboardLayout>

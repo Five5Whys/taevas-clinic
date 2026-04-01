@@ -53,6 +53,8 @@ public class CountryService {
                 .primaryLanguage(request.getPrimaryLanguage())
                 .secondaryLanguage(request.getSecondaryLanguage())
                 .regulatoryBody(request.getRegulatoryBody())
+                .dialCode(request.getDialCode())
+                .config(request.getConfig())
                 .build();
 
         Country saved = countryRepository.save(country);
@@ -64,18 +66,20 @@ public class CountryService {
         Country country = countryRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Country", "id", id));
 
-        country.setCode(request.getCode());
-        country.setName(request.getName());
-        country.setFlagEmoji(request.getFlagEmoji());
-        country.setStatus(CountryStatus.valueOf(request.getStatus()));
-        country.setCurrencyCode(request.getCurrencyCode());
-        country.setCurrencySymbol(request.getCurrencySymbol());
-        country.setTaxType(request.getTaxType());
-        country.setTaxRate(request.getTaxRate());
-        country.setDateFormat(request.getDateFormat());
-        country.setPrimaryLanguage(request.getPrimaryLanguage());
-        country.setSecondaryLanguage(request.getSecondaryLanguage());
-        country.setRegulatoryBody(request.getRegulatoryBody());
+        if (request.getCode() != null) country.setCode(request.getCode());
+        if (request.getName() != null) country.setName(request.getName());
+        if (request.getFlagEmoji() != null) country.setFlagEmoji(request.getFlagEmoji());
+        if (request.getStatus() != null) country.setStatus(CountryStatus.valueOf(request.getStatus()));
+        if (request.getCurrencyCode() != null) country.setCurrencyCode(request.getCurrencyCode());
+        if (request.getCurrencySymbol() != null) country.setCurrencySymbol(request.getCurrencySymbol());
+        if (request.getTaxType() != null) country.setTaxType(request.getTaxType());
+        if (request.getTaxRate() != null) country.setTaxRate(request.getTaxRate());
+        if (request.getDateFormat() != null) country.setDateFormat(request.getDateFormat());
+        if (request.getPrimaryLanguage() != null) country.setPrimaryLanguage(request.getPrimaryLanguage());
+        if (request.getSecondaryLanguage() != null) country.setSecondaryLanguage(request.getSecondaryLanguage());
+        if (request.getRegulatoryBody() != null) country.setRegulatoryBody(request.getRegulatoryBody());
+        if (request.getDialCode() != null) country.setDialCode(request.getDialCode());
+        if (request.getConfig() != null) country.setConfig(request.getConfig());
 
         Country saved = countryRepository.save(country);
         return toDto(saved);
@@ -101,6 +105,8 @@ public class CountryService {
                 .primaryLanguage(country.getPrimaryLanguage())
                 .secondaryLanguage(country.getSecondaryLanguage())
                 .regulatoryBody(country.getRegulatoryBody())
+                .dialCode(country.getDialCode())
+                .config(country.getConfig())
                 .createdAt(country.getCreatedAt() != null ? country.getCreatedAt().toString() : null)
                 .updatedAt(country.getUpdatedAt() != null ? country.getUpdatedAt().toString() : null)
                 .clinicCount(clinicCount)
