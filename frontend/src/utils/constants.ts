@@ -103,8 +103,7 @@ export const NAVIGATION_CONFIG = {
   [ROLES.CLINIC_ADMIN]: [
     // Overview
     { id: 'dashboard',    label: 'Clinic Overview',   emoji: '📊', icon: 'Dashboard',    path: '/admin',               section: 'Overview' },
-    { id: 'staff',        label: 'Staff Management',  emoji: '👥', icon: 'People',       path: '/admin/staff',         section: 'Overview' },
-    { id: 'patients',     label: 'Patient Registry',  emoji: '🏥', icon: 'PersonSearch', path: '/admin/patients',      section: 'Overview' },
+    { id: 'users',        label: 'User Management',   emoji: '👥', icon: 'People',       path: '/admin/users',         section: 'Overview' },
     { id: 'reports',      label: 'Reports',           emoji: '📈', icon: 'Assessment',   path: '/admin/reports',       section: 'Overview' },
     // Configuration
     { id: 'config',       label: 'Clinic Config',     emoji: '⚙️', icon: 'Settings',     path: '/admin/config',        section: 'Configuration' },

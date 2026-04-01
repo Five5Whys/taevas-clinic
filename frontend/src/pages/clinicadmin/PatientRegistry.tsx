@@ -26,7 +26,6 @@ import {
   CircularProgress,
 } from '@mui/material';
 import { Add as Plus } from '@mui/icons-material';
-import DashboardLayout from '@/components/layout/DashboardLayout';
 import { usePatientList, useCreatePatient } from '@/hooks/clinicadmin';
 
 const BRAND = '#5519E6';
@@ -163,16 +162,14 @@ const PatientRegistry: React.FC = () => {
 
   if (isLoading) {
     return (
-      <DashboardLayout pageTitle="Patient Registry">
-        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 300 }}>
-          <CircularProgress />
-        </Box>
-      </DashboardLayout>
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 300 }}>
+        <CircularProgress />
+      </Box>
     );
   }
 
   return (
-    <DashboardLayout pageTitle="Patient Registry">
+    <>
       <Box sx={{ p: 3 }}>
         {/* Header */}
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
@@ -376,7 +373,7 @@ const PatientRegistry: React.FC = () => {
           </Alert>
         </Snackbar>
       </Box>
-    </DashboardLayout>
+    </>
   );
 };
 

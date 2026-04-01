@@ -21,7 +21,6 @@ import {
   Tooltip,
   CircularProgress,
 } from '@mui/material';
-import DashboardLayout from '@/components/layout/DashboardLayout';
 import { useStaffList, useCreateStaff, useUpdateStaff } from '@/hooks/clinicadmin/useStaff';
 
 const BRAND = '#5519E6';
@@ -180,7 +179,7 @@ const StaffManagement: React.FC = () => {
   };
 
   return (
-    <DashboardLayout pageTitle="User Management">
+    <>
       <Box sx={{ px: 3, py: 2.5 }}>
         {/* Header */}
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2.5 }}>
@@ -393,7 +392,7 @@ const StaffManagement: React.FC = () => {
       <Snackbar open={!!alertMsg} autoHideDuration={4000} onClose={() => setAlertMsg('')} anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}>
         <Alert severity="success" onClose={() => setAlertMsg('')} sx={{ fontWeight: 600 }}>{alertMsg}</Alert>
       </Snackbar>
-    </DashboardLayout>
+    </>
   );
 };
 
