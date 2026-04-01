@@ -610,7 +610,7 @@ const FieldManager: React.FC = () => {
   // Auto-select first country
   React.useEffect(() => {
     if (countries.length > 0 && !countries.find((c) => c.id === intakeCountry)) {
-      setIntakeCountry(countries[0].id);
+      setIntakeCountry(countries[0]!.id);
     }
   }, [countries, intakeCountry]);
 

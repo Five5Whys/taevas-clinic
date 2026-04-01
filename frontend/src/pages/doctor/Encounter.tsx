@@ -27,7 +27,6 @@ import {
   CheckCircle,
   Warning,
   Description,
-  CloudUpload,
 } from '@mui/icons-material';
 import { useSearchParams } from 'react-router-dom';
 import DashboardLayout from '@/components/layout/DashboardLayout';
@@ -114,7 +113,7 @@ const Encounter: React.FC = () => {
     }
   }, [encounterData]);
 
-  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
+  const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
   };
 

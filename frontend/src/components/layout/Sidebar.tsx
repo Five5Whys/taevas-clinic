@@ -11,7 +11,7 @@ import {
 } from '@mui/material';
 import * as Icons from '@mui/icons-material';
 import { useAuth } from '@/hooks/useAuth';
-import { NAVIGATION_CONFIG, ROLES } from '@/utils/constants';
+import { NAVIGATION_CONFIG } from '@/utils/constants';
 
 interface SidebarProps {
   open: boolean;

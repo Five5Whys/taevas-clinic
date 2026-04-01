@@ -36,7 +36,7 @@ const DevRoleSwitcher: React.FC = () => {
   const handleSwitch = (role: UserRole) => {
     const mockUser = MOCK_USERS[role];
     login(mockUser, 'mock-jwt-token-for-dev-only');
-    navigate(ROLE_REDIRECT_MAP[role]);
+    navigate(ROLE_REDIRECT_MAP[role] || '/login');
     setExpanded(false);
   };
 

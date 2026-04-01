@@ -207,6 +207,9 @@ const lightThemeOptions: ThemeOptions = {
       },
     },
     MuiTextField: {
+      defaultProps: {
+        size: 'small',
+      },
       styleOverrides: {
         root: {
           '& .MuiOutlinedInput-root': {
@@ -273,11 +276,6 @@ const lightThemeOptions: ThemeOptions = {
           fontSize: '0.7rem',
           padding: '8px 12px',
         },
-      },
-    },
-    MuiTextField: {
-      defaultProps: {
-        size: 'small',
       },
     },
     MuiSelect: {

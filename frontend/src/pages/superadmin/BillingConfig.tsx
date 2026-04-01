@@ -177,7 +177,7 @@ const BillingCardWrapper: React.FC<{
   const country = countries.find((c) => c.id === countryId);
 
   const [form, setForm] = useState<BillingForm>(() =>
-    apiData ? dtoToForm(apiData) : dtoToForm(MOCK_BILLING[countryId] ?? MOCK_BILLING.india)
+    apiData ? dtoToForm(apiData) : dtoToForm((MOCK_BILLING[countryId] ?? MOCK_BILLING.india)!)
   );
 
   // Sync local form when API data loads or country changes
@@ -322,9 +322,9 @@ const BillingConfig: React.FC = () => {
   // Auto-select first two countries when data loads
   useEffect(() => {
     if (activePair[0] === '' && countries.length >= 2) {
-      setActivePair([countries[0].id, countries[1].id]);
+      setActivePair([countries[0]!.id, countries[1]!.id]);
     } else if (activePair[0] === '' && countries.length === 1) {
-      setActivePair([countries[0].id, countries[0].id]);
+      setActivePair([countries[0]!.id, countries[0]!.id]);
     }
   }, [countries, activePair]);
 

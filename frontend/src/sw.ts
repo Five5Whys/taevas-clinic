@@ -31,6 +31,7 @@ self.addEventListener('activate', (event: ExtendableEvent) => {
           if (cacheName !== CACHE_NAME) {
             return caches.delete(cacheName);
           }
+          return undefined;
         })
       );
     })

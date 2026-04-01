@@ -7,12 +7,10 @@ import {
   Typography,
   List,
   ListItem,
-  ListItemText,
   Button,
   Chip,
   useTheme,
   Avatar,
-  AvatarGroup,
 } from '@mui/material';
 import * as Icons from '@mui/icons-material';
 import DashboardLayout from '@/components/layout/DashboardLayout';

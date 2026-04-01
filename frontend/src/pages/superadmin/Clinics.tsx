@@ -46,11 +46,11 @@ const AVATAR_PALETTE = ['#5519E6', '#A046F0', '#FF8232', '#25D366', '#CDDC50'];
 
 const getInitials = (name: string): string => {
   const words = name.trim().split(/\s+/);
-  if (words.length >= 2) return (words[0][0] + words[1][0]).toUpperCase();
+  if (words.length >= 2) return (words[0]![0]! + words[1]![0]!).toUpperCase();
   return name.slice(0, 2).toUpperCase();
 };
 
-const getAvatarColor = (index: number): string => AVATAR_PALETTE[index % AVATAR_PALETTE.length];
+const getAvatarColor = (index: number): string => AVATAR_PALETTE[index % AVATAR_PALETTE.length]!;
 
 const COMPLIANCE_COLORS: Record<string, { bg: string; color: string }> = {
   'ABDM':   { bg: '#5519E615', color: '#5519E6' },
@@ -81,7 +81,7 @@ const Clinics: React.FC = () => {
   const createClinic = useCreateClinic();
 
   // Use API data when available, fall back to mock data
-  const clinics: ClinicSummary[] = (data && data.length > 0) ? data : FALLBACK_CLINICS;
+  const clinics: ClinicSummary[] = (Array.isArray(data) && data.length > 0) ? data : FALLBACK_CLINICS;
 
   return (
     <>

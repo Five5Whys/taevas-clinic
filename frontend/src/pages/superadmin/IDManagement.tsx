@@ -96,7 +96,7 @@ const IDManagement: React.FC = () => {
   // Auto-select first country when countries load
   useEffect(() => {
     if (countries.length > 0 && !activeTab) {
-      setActiveTab(countries[0].id);
+      setActiveTab(countries[0]!.id);
     }
   }, [countries, activeTab]);
 

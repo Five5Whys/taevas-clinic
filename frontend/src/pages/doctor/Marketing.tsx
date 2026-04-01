@@ -13,7 +13,6 @@ import {
   Select,
   MenuItem,
   FormControl,
-  TextField,
   IconButton,
   Rating,
   CircularProgress,
@@ -22,7 +21,6 @@ import {
   PublishedWithChanges,
   AutoAwesome as Sparkles,
   ContentCopy,
-  Star,
   Share,
 } from '@mui/icons-material';
 import DashboardLayout from '@/components/layout/DashboardLayout';
@@ -32,7 +30,7 @@ const Marketing: React.FC = () => {
   const { data: marketingData, isLoading } = useMarketingReviews();
 
   const [topic, setTopic] = useState('ENT Health Tips');
-  const [generatedContent, setGeneratedContent] = useState(
+  const [generatedContent] = useState(
     'Regular ear hygiene is essential for maintaining optimal hearing health. Avoid inserting cotton buds deep into the ear canal as it can damage the delicate eardrum. Instead, clean only the outer ear with a damp cloth. If you experience ear pain or hearing loss, consult an ENT specialist immediately.'
   );
 
@@ -45,7 +43,6 @@ const Marketing: React.FC = () => {
   ];
 
   const reviews = (Array.isArray(marketingData) ? marketingData : marketingData?.reviews ?? marketingData?.content ?? []) as any[];
-  const practiceInfo = marketingData?.practiceInfo ?? {};
   const totalReviews = marketingData?.totalReviews ?? reviews.length;
   const avgRating = marketingData?.avgRating ?? (reviews.length > 0 ? reviews.reduce((s: number, r: any) => s + (r.rating ?? 0), 0) / reviews.length : 0);
 

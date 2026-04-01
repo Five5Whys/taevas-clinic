@@ -183,7 +183,7 @@ const Dashboard: React.FC = () => {
                       </TableRow>
                     </TableHead>
                     <TableBody>
-                      {todaysAppointments.map((apt) => (
+                      {todaysAppointments.map((apt: { token: string; time: string; patient: string; reason: string; status: string }) => (
                         <TableRow
                           key={apt.token}
                           sx={{
@@ -228,7 +228,7 @@ const Dashboard: React.FC = () => {
                     <Button variant="text" size="small" sx={{ color: 'text.secondary', fontSize: '11px', minWidth: 0, p: 0.5 }}>All →</Button>
                   </Box>
                   <Stack spacing={0.75} sx={{ flex: 1 }}>
-                    {pendingReports.map((r, i) => (
+                    {pendingReports.map((r: { icon: string; type: string; patient: string; source: string; badgeLabel: string; badgeColor: string }, i: number) => (
                       <Box
                         key={i}
                         sx={{
@@ -263,7 +263,7 @@ const Dashboard: React.FC = () => {
                     ✨ AI Insights
                   </Typography>
                   <Stack spacing={0.75} sx={{ flex: 1 }}>
-                    {aiInsights.map((ins, i) => (
+                    {aiInsights.map((ins: { bg: string; accent: string; title: string; body: string }, i: number) => (
                       <Box
                         key={i}
                         sx={{ p: 1.25, background: ins.bg, borderRadius: 1.5, borderLeft: `3px solid ${ins.accent}`, flex: 1 }}

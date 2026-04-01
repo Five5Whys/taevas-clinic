@@ -22,7 +22,6 @@ import {
   MenuItem,
   Snackbar,
   Alert,
-  FormHelperText,
   CircularProgress,
 } from '@mui/material';
 import { Add as Plus } from '@mui/icons-material';
@@ -129,7 +128,7 @@ const PatientRegistry: React.FC = () => {
         email: form.email,
         gender: form.gender,
         bloodGroup: form.bloodGroup,
-        lastVisit: new Date().toISOString().split('T')[0],
+        lastVisit: new Date().toISOString().split('T')[0] ?? '',
         status: 'ACTIVE',
       };
       setLocalPatients(prev => [...prev, newPatient]);

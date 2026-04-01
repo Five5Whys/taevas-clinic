@@ -16,7 +16,7 @@ const BottomNav: React.FC = () => {
   const navigate = useNavigate();
   const { userRole } = useAuth();
 
-  const navigationItems = userRole ? NAVIGATION_CONFIG[userRole] : [];
+  const navigationItems = (userRole ? NAVIGATION_CONFIG[userRole] : undefined) ?? [];
 
   // Get the current path index
   const currentPathIndex = navigationItems.findIndex(

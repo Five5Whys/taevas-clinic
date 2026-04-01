@@ -147,7 +147,7 @@ const CtyConfig: React.FC = () => {
     if (countries.length === 0) return;
     const match = countries.find((c) => c.id === selectedId);
     if (!match) {
-      setSelectedId(countries[0].id);
+      setSelectedId(countries[0]!.id);
     }
   }, [countries, selectedId]);
 
@@ -226,7 +226,7 @@ const CtyConfig: React.FC = () => {
             Countries ({countries.length})
           </Typography>
           {countries.map((c) => {
-            const ss = STATUS_STYLES[c.status] ?? STATUS_STYLES.ACTIVE;
+            const ss = (STATUS_STYLES[c.status] ?? STATUS_STYLES.ACTIVE)!;
             return (
               <Box
                 key={c.id}

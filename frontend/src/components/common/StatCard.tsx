@@ -43,15 +43,15 @@ const StatCard: React.FC<StatCardProps> = ({
   const colorValue = colorMap[color] || colorMap.primary;
 
   const getTrendColor = (): string => {
-    if (trend === 'up') return colorMap.success;
-    if (trend === 'down') return colorMap.warning;
-    return theme.palette.grey[500];
+    if (trend === 'up') return colorMap.success ?? '#CDDC50';
+    if (trend === 'down') return colorMap.warning ?? '#FF8232';
+    return theme.palette.grey[500] ?? '#9e9e9e';
   };
 
   const getTrendIcon = () => {
     if (trend === 'up') return <TrendingUpIcon sx={{ fontSize: 16 }} />;
     if (trend === 'down') return <TrendingDownIcon sx={{ fontSize: 16 }} />;
-    return null;
+    return undefined;
   };
 
   return (

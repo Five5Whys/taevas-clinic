@@ -10,13 +10,9 @@ import {
   Chip,
   Stack,
   Paper,
-  List,
-  ListItem,
-  ListItemText,
   CircularProgress,
 } from '@mui/material';
 import {
-  Cloud,
   CloudUpload,
   CheckCircle,
   AccessTime as Clock,
@@ -156,7 +152,7 @@ const DeviceReports: React.FC = () => {
                   Recently Ingested
                 </Typography>
                 <Stack spacing={1}>
-                  {recentlyIngested.map((item) => (
+                  {recentlyIngested.map((item: { id: string; name: string; time: string; device: string; status: string }) => (
                     <Box
                       key={item.id}
                       sx={{

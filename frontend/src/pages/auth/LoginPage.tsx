@@ -49,7 +49,7 @@ const LoginPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const selectedCountry = COUNTRY_CODES.find(c => c.code === countryCode) ?? COUNTRY_CODES[0];
+  const selectedCountry = COUNTRY_CODES.find(c => c.code === countryCode) ?? COUNTRY_CODES[0]!;
 
   const handlePhoneChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value.replace(/\D/g, '').slice(0, selectedCountry.maxLen);
@@ -100,7 +100,7 @@ const LoginPage: React.FC = () => {
         // In mock mode, accept any password and log in as SUPERADMIN by default
         const mockUser = MOCK_USERS.SUPERADMIN;
         login(mockUser, 'mock-jwt-token-for-dev-only');
-        navigate(ROLE_REDIRECT_MAP.SUPERADMIN);
+        navigate(ROLE_REDIRECT_MAP.SUPERADMIN ?? '/superadmin');
       } else {
         const identifier = loginMethod === 'phone' ? `${countryCode}${phone}` : email;
         const response = await authService.login(identifier, password);
@@ -109,7 +109,7 @@ const LoginPage: React.FC = () => {
           navigate('/change-password');
         } else {
           const role = response.user.role as UserRole;
-          navigate(ROLE_REDIRECT_MAP[role] || '/superadmin');
+          navigate(ROLE_REDIRECT_MAP[role] ?? '/superadmin');
         }
       }
     } catch (err) {
@@ -122,7 +122,7 @@ const LoginPage: React.FC = () => {
   const handleQuickLogin = (role: UserRole) => {
     const user = MOCK_USERS[role];
     login(user, 'mock-jwt-token-for-dev-only');
-    navigate(ROLE_REDIRECT_MAP[role]);
+    navigate(ROLE_REDIRECT_MAP[role] ?? '/login');
   };
 
   const handleKeyPress = (event: React.KeyboardEvent<HTMLDivElement>) => {

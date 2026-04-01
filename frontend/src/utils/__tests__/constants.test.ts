@@ -46,22 +46,22 @@ describe('API_ENDPOINTS', () => {
 describe('NAVIGATION_CONFIG', () => {
   it('has config for SUPERADMIN', () => {
     expect(NAVIGATION_CONFIG[ROLES.SUPERADMIN]).toBeDefined();
-    expect(NAVIGATION_CONFIG[ROLES.SUPERADMIN].length).toBeGreaterThan(0);
+    expect(NAVIGATION_CONFIG[ROLES.SUPERADMIN]!.length).toBeGreaterThan(0);
   });
 
   it('has config for CLINIC_ADMIN', () => {
     expect(NAVIGATION_CONFIG[ROLES.CLINIC_ADMIN]).toBeDefined();
-    expect(NAVIGATION_CONFIG[ROLES.CLINIC_ADMIN].length).toBeGreaterThan(0);
+    expect(NAVIGATION_CONFIG[ROLES.CLINIC_ADMIN]!.length).toBeGreaterThan(0);
   });
 
   it('has config for DOCTOR', () => {
     expect(NAVIGATION_CONFIG[ROLES.DOCTOR]).toBeDefined();
-    expect(NAVIGATION_CONFIG[ROLES.DOCTOR].length).toBeGreaterThan(0);
+    expect(NAVIGATION_CONFIG[ROLES.DOCTOR]!.length).toBeGreaterThan(0);
   });
 
   it('has config for PATIENT', () => {
     expect(NAVIGATION_CONFIG[ROLES.PATIENT]).toBeDefined();
-    expect(NAVIGATION_CONFIG[ROLES.PATIENT].length).toBeGreaterThan(0);
+    expect(NAVIGATION_CONFIG[ROLES.PATIENT]!.length).toBeGreaterThan(0);
   });
 });
 

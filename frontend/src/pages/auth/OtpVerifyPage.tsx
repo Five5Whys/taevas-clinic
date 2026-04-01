@@ -9,7 +9,6 @@ import {
   CircularProgress,
   Alert,
   useTheme,
-  useMediaQuery,
   Chip,
   Divider,
 } from '@mui/material';
@@ -32,7 +31,6 @@ const OtpVerifyPage: React.FC = () => {
   const theme = useTheme();
   const location = useLocation();
   const navigate = useNavigate();
-  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const { login } = useAuthStore();
   const mockMode = isMockAuthEnabled();
 
@@ -56,9 +54,11 @@ const OtpVerifyPage: React.FC = () => {
     if (timeLeft > 0) {
       const timer = setTimeout(() => setTimeLeft(timeLeft - 1), 1000);
       return () => clearTimeout(timer);
-    } else if (timeLeft === 0) {
+    }
+    if (timeLeft === 0) {
       setCanResend(true);
     }
+    return undefined;
   }, [timeLeft]);
 
   const handleOtpChange = (index: number, value: string) => {
@@ -110,7 +110,7 @@ const OtpVerifyPage: React.FC = () => {
       }
 
       login(response.user, response.token);
-      const redirectUrl = ROLE_REDIRECT_MAP[response.user.role];
+      const redirectUrl = ROLE_REDIRECT_MAP[response.user.role] ?? '/login';
       navigate(redirectUrl);
     } catch (err) {
       setError(getErrorMessage(err) || 'Failed to verify OTP. Please try again.');

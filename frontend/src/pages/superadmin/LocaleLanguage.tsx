@@ -151,9 +151,9 @@ const LocaleLanguage: React.FC = () => {
     setLocaleSettings((prev) => ({
       ...prev,
       [countryId]: {
-        ...prev[countryId],
+        ...prev[countryId]!,
         [field]: value,
-      },
+      } as LocaleSettings,
     }));
   };
 
@@ -192,7 +192,7 @@ const LocaleLanguage: React.FC = () => {
         )}
 
         <Grid container spacing={3}>
-          {countries.map((country, idx) => {
+          {countries.map((country) => {
             const settings = localeSettings[country.id];
             if (!settings) return null;
             const isSaving = savingCountry === country.id;

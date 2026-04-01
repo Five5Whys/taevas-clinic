@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import {
   Container,
   Card,
@@ -34,7 +34,6 @@ import DashboardLayout from '@/components/layout/DashboardLayout';
 const Templates: React.FC = () => {
   const [activeTab, setActiveTab] = useState(0);
   const [openQRDialog, setOpenQRDialog] = useState(false);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
 
   const [logoSettings, setLogoSettings] = useState({
     watermarkOpacity: 15,

@@ -3,7 +3,6 @@ import {
   AppBar,
   Toolbar,
   Box,
-  InputBase,
   IconButton,
   Badge,
   Menu,
@@ -11,7 +10,6 @@ import {
   Avatar,
   useMediaQuery,
   useTheme,
-  Breadcrumbs,
   Typography,
   Select,
   type SelectChangeEvent,
@@ -38,7 +36,7 @@ const ROLE_LABELS: Record<string, string> = {
   ASSISTANT: 'Assistant',
 };
 
-const TopBar: React.FC<TopBarProps> = ({ onMenuClick, pageTitle, breadcrumbs }) => {
+const TopBar: React.FC<TopBarProps> = ({ onMenuClick }) => {
   const theme = useTheme();
   const navigate = useNavigate();
   const { user, logout, setUser } = useAuth();

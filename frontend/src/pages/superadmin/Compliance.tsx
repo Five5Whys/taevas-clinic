@@ -42,7 +42,7 @@ const Compliance: React.FC = () => {
   // Auto-select first country when countries load
   useEffect(() => {
     if (!selectedId && countries.length > 0) {
-      setSelectedId(countries[0].id);
+      setSelectedId(countries[0]!.id);
     }
   }, [countries, selectedId]);
 

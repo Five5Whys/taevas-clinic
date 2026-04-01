@@ -10,7 +10,6 @@ import {
   Chip,
   Stack,
   TextField,
-  InputAdornment,
   IconButton,
   Paper,
   Table,
@@ -102,7 +101,7 @@ const Prescriptions: React.FC = () => {
                   ENT Prescription Templates
                 </Typography>
                 <Grid container spacing={2}>
-                  {templates.map((template, idx) => (
+                  {templates.map((template: { name: string; description: string; icd?: string; drugCount?: number }, idx: number) => (
                     <Grid item xs={12} sm={6} key={idx}>
                       <Paper
                         sx={{

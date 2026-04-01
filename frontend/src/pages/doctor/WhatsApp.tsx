@@ -31,7 +31,7 @@ const WhatsApp: React.FC = () => {
 
   const chatMessages = (waConfig?.recentMessages ?? waConfig?.chatMessages ?? []) as any[];
   const botPerformance = waConfig?.botPerformance ?? waConfig?.performance ?? {};
-  const botSettings = waConfig?.settings ?? waConfig?.botSettings ?? {};
+  void (waConfig?.settings ?? waConfig?.botSettings);
 
   if (isLoading) {
     return (

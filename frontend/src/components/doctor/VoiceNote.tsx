@@ -166,12 +166,13 @@ const VoiceNote: React.FC<VoiceNoteProps> = ({ open, onClose, onApplySOAP }) => 
       let interim = '';
       for (let i = event.resultIndex; i < event.results.length; i++) {
         const result = event.results[i];
+        if (!result) continue;
         if (result.isFinal) {
-          finalTranscript += (finalTranscript ? ' ' : '') + result[0].transcript;
+          finalTranscript += (finalTranscript ? ' ' : '') + result[0]!.transcript;
           setTranscript(finalTranscript);
           setSoap(classifyTranscript(finalTranscript));
         } else {
-          interim += result[0].transcript;
+          interim += result[0]!.transcript;
         }
       }
       setInterimText(interim);

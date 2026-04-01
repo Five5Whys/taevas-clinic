@@ -157,7 +157,7 @@ const Countries: React.FC = () => {
       const mapped = apiCountries.map(apiToTenant);
       setTenants(mapped);
       if (!selectedId || !mapped.find(t => t.id === selectedId)) {
-        setSelectedId(mapped[0].id);
+        setSelectedId(mapped[0]!.id);
       }
     }
   }, [apiCountries]);
@@ -171,8 +171,9 @@ const Countries: React.FC = () => {
   // Derived
   const selected = tenants.find(t => t.id === selectedId);
   const filtered = tenants.filter(t => t.name.toLowerCase().includes(search.toLowerCase()));
-  const activeCount = tenants.filter(t => t.status === 'ACTIVE').length;
-  const inactiveCount = tenants.filter(t => t.status === 'INACTIVE').length;
+  // Counts used in future dashboard widgets
+  void tenants.filter(t => t.status === 'ACTIVE').length;
+  void tenants.filter(t => t.status === 'INACTIVE').length;
 
   const handleToggle = (tenantId: string) => {
     const t = tenants.find(x => x.id === tenantId);

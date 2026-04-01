@@ -1,5 +1,5 @@
 import React from 'react';
-import { Chip, useTheme } from '@mui/material';
+import { Chip } from '@mui/material';
 
 type StatusType = 'active' | 'pilot' | 'operational' | 'warning' | 'error' | 'pending' | 'paid' | 'success' | 'failed' | 'processing';
 
@@ -40,7 +40,6 @@ const StatusBadge: React.FC<StatusBadgeProps> = ({
   label,
   size = 'medium',
 }) => {
-  const theme = useTheme();
   const colors = statusColorMap[status] || statusColorMap.operational;
   const displayLabel = label || statusLabelMap[status];
 

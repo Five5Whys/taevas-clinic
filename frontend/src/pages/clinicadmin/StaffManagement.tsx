@@ -120,7 +120,7 @@ const StaffManagement: React.FC = () => {
         email: newEmail,
         roles: newRoles,
         status: 'INVITED',
-        createdAt: new Date().toISOString().split('T')[0],
+        createdAt: new Date().toISOString().split('T')[0] ?? '',
       };
       setLocalStaff(prev => [...prev, newUser]);
       const roleLabels = newRoles.map(r => ROLE_OPTIONS.find(o => o.value === r)?.label || r).join(', ');

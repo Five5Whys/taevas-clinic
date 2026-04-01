@@ -7,6 +7,7 @@ interface ImportMetaEnv {
   readonly VITE_APP_VERSION: string;
   readonly VITE_ENABLE_ANALYTICS: string;
   readonly VITE_ENABLE_PWA: string;
+  readonly VITE_MOCK_AUTH: string;
 }
 
 interface ImportMeta {
