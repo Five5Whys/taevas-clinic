@@ -111,15 +111,15 @@ const EditRolesDialog: React.FC<{
 // ─── Main ──────────────────────────────────────────────────────────────────────
 const GlobalRoster: React.FC = () => {
   const [search,  setSearch]  = useState('');
-  const [country, setCountry] = useState('all');
+  const [tenant, setTenant] = useState('all');
   const [editDoctor, setEditDoctor] = useState<DoctorRosterDto | null>(null);
 
   // API hooks
   const { data: rosterData, isLoading } = useRoster({
     search: search || undefined,
-    country: country !== 'all' ? country : undefined,
+    country: tenant !== 'all' ? tenant : undefined,
   });
-  const { data: countriesData } = useCountries();
+  const { data: tenantsData } = useCountries();
   const deactivateDoctor = useDeactivateDoctor();
 
   // Unwrap paginated response — API returns { content: [...] }, fallback is flat array
@@ -149,7 +149,7 @@ const GlobalRoster: React.FC = () => {
         {/* Toolbar */}
         <Box sx={{ display: 'flex', gap: 1.5, mb: 2, alignItems: 'center' }}>
           <TextField
-            size="small" placeholder="Search doctor, clinic, country, ID…"
+            size="small" placeholder="Search doctor, clinic, tenant, ID…"
             value={search} onChange={(e) => setSearch(e.target.value)}
             sx={{ flex: 1 }}
             InputProps={{
@@ -161,11 +161,11 @@ const GlobalRoster: React.FC = () => {
             }}
           />
           <Select
-            size="small" value={country} onChange={(e) => setCountry(e.target.value)}
+            size="small" value={tenant} onChange={(e) => setTenant(e.target.value)}
             sx={{ minWidth: 160, fontSize: '13px' }}
           >
-            <MenuItem value="all">All Countries</MenuItem>
-            {countriesData?.map((c) => (
+            <MenuItem value="all">All Tenants</MenuItem>
+            {tenantsData?.map((c) => (
               <MenuItem key={c.id} value={c.name}>
                 {c.flagEmoji} {c.name}
               </MenuItem>

@@ -63,7 +63,7 @@ const COMPLIANCE_COLORS: Record<string, { bg: string; color: string }> = {
 };
 
 // ─── Main ───────────────────────────────────────────────────────────────────────
-const COUNTRY_OPTIONS = [
+const TENANT_OPTIONS = [
   { value: 'IN', label: 'India', flag: '\u{1F1EE}\u{1F1F3}' },
   { value: 'TH', label: 'Thailand', flag: '\u{1F1F9}\u{1F1ED}' },
   { value: 'MV', label: 'Maldives', flag: '\u{1F1F2}\u{1F1FB}' },
@@ -269,10 +269,10 @@ const Clinics: React.FC = () => {
               value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })}
             />
             <TextField
-              label="Country" fullWidth required size="small" select
+              label="Tenant" fullWidth required size="small" select
               value={form.countryId} onChange={(e) => setForm({ ...form, countryId: e.target.value })}
             >
-              {COUNTRY_OPTIONS.map((c) => (
+              {TENANT_OPTIONS.map((c) => (
                 <MenuItem key={c.value} value={c.value}>{c.flag} {c.label}</MenuItem>
               ))}
             </TextField>
@@ -305,7 +305,7 @@ const Clinics: React.FC = () => {
               variant="contained"
               disabled={!form.name || !form.countryId || !form.city || createClinic.isPending}
               onClick={() => {
-                const country = COUNTRY_OPTIONS.find((c) => c.value === form.countryId);
+                const tenant = TENANT_OPTIONS.find((c) => c.value === form.countryId);
                 createClinic.mutate(
                   {
                     name: form.name,
@@ -314,8 +314,8 @@ const Clinics: React.FC = () => {
                     address: form.address,
                     phone: form.phone,
                     email: form.email,
-                    countryName: country?.label ?? '',
-                    countryFlag: country?.flag ?? '',
+                    countryName: tenant?.label ?? '',
+                    countryFlag: tenant?.flag ?? '',
                     status: 'Pilot',
                   } as Partial<ClinicSummary>,
                   {

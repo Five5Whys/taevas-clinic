@@ -51,11 +51,11 @@ api.interceptors.response.use(
           return Promise.reject(error);
         }
 
-        const response = await axios.post('/api/auth/refresh-token', {
+        const response = await api.post('/auth/refresh-token', {
           refreshToken,
         });
 
-        const { token, refreshToken: newRefreshToken } = response.data;
+        const { token, refreshToken: newRefreshToken } = response.data.data;
 
         localStorage.setItem('authToken', token);
         if (newRefreshToken) {

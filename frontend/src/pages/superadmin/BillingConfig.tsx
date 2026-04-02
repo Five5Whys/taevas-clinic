@@ -43,8 +43,8 @@ const ToggleRow: React.FC<{
   </Box>
 );
 
-// ─── Country Selector Card ────────────────────────────────────────────────────
-const CountryCard: React.FC<{
+// ─── Tenant Selector Card ────────────────────────────────────────────────────
+const TenantCard: React.FC<{
   flag: string; name: string; sub: string;
   selected: boolean; onClick: () => void;
 }> = ({ flag, name, sub, selected, onClick }) => (
@@ -83,7 +83,7 @@ interface BillingForm {
 }
 
 // ─── Mock fallback data ──────────────────────────────────────────────────────
-const MOCK_COUNTRIES: Pick<CountryConfig, 'id' | 'name' | 'flagEmoji' | 'currencySymbol' | 'currencyCode' | 'taxRate' | 'taxType'>[] = [
+const MOCK_TENANTS: Pick<CountryConfig, 'id' | 'name' | 'flagEmoji' | 'currencySymbol' | 'currencyCode' | 'taxRate' | 'taxType'>[] = [
   { id: 'india', name: 'India', flagEmoji: '\u{1F1EE}\u{1F1F3}', currencySymbol: '\u20B9', currencyCode: 'INR', taxRate: 18, taxType: 'GST' },
   { id: 'thailand', name: 'Thailand', flagEmoji: '\u{1F1F9}\u{1F1ED}', currencySymbol: '\u0E3F', currencyCode: 'THB', taxRate: 7, taxType: 'VAT' },
   { id: 'maldives', name: 'Maldives', flagEmoji: '\u{1F1F2}\u{1F1FB}', currencySymbol: '\u0DBB', currencyCode: 'MVR', taxRate: 0, taxType: 'None' },
@@ -180,7 +180,7 @@ const BillingCardWrapper: React.FC<{
     apiData ? dtoToForm(apiData) : dtoToForm((MOCK_BILLING[countryId] ?? MOCK_BILLING.india)!)
   );
 
-  // Sync local form when API data loads or country changes
+  // Sync local form when API data loads or tenant changes
   useEffect(() => {
     if (apiData) {
       setForm(dtoToForm(apiData));
@@ -253,7 +253,7 @@ const BillingCardWrapper: React.FC<{
           </Grid>
         </Grid>
 
-        {/* Country-specific toggles */}
+        {/* Tenant-specific toggles */}
         {countryId === 'india' && (
           <>
             <ToggleRow
@@ -312,29 +312,29 @@ const BillingCardWrapper: React.FC<{
 
 // ─── Main ─────────────────────────────────────────────────────────────────────
 const BillingConfig: React.FC = () => {
-  const { data: countriesData, isLoading: countriesLoading } = useCountries();
+  const { data: tenantsData, isLoading: tenantsLoading } = useCountries();
 
-  // Build country list with fallback
-  const countries = (countriesData ?? MOCK_COUNTRIES) as typeof MOCK_COUNTRIES;
+  // Build tenant list with fallback
+  const tenants = (tenantsData ?? MOCK_TENANTS) as typeof MOCK_TENANTS;
 
   const [activePair, setActivePair] = useState<[string, string]>(['', '']);
 
-  // Auto-select first two countries when data loads
+  // Auto-select first two tenants when data loads
   useEffect(() => {
-    if (activePair[0] === '' && countries.length >= 2) {
-      setActivePair([countries[0]!.id, countries[1]!.id]);
-    } else if (activePair[0] === '' && countries.length === 1) {
-      setActivePair([countries[0]!.id, countries[0]!.id]);
+    if (activePair[0] === '' && tenants.length >= 2) {
+      setActivePair([tenants[0]!.id, tenants[1]!.id]);
+    } else if (activePair[0] === '' && tenants.length === 1) {
+      setActivePair([tenants[0]!.id, tenants[0]!.id]);
     }
-  }, [countries, activePair]);
+  }, [tenants, activePair]);
 
   return (
     <DashboardLayout pageTitle="Billing Config">
       <Container maxWidth="lg" sx={{ py: 3 }}>
 
-        {/* Country selector strip */}
+        {/* Tenant selector strip */}
         <Grid container spacing={1.5} sx={{ mb: 3 }}>
-          {countriesLoading ? (
+          {tenantsLoading ? (
             <>
               {[0, 1, 2].map((i) => (
                 <Grid item xs={12} sm={4} key={i}>
@@ -343,9 +343,9 @@ const BillingConfig: React.FC = () => {
               ))}
             </>
           ) : (
-            countries.map((c) => (
+            tenants.map((c) => (
               <Grid item xs={12} sm={4} key={c.id}>
-                <CountryCard
+                <TenantCard
                   flag={c.flagEmoji}
                   name={c.name}
                   sub={buildSubLine(c)}
@@ -366,7 +366,7 @@ const BillingConfig: React.FC = () => {
           <Grid container spacing={2.5}>
             {activePair.map((countryId) => (
               <Grid item xs={12} md={6} key={countryId}>
-                <BillingCardWrapper countryId={countryId} countries={countries} />
+                <BillingCardWrapper countryId={countryId} countries={tenants} />
               </Grid>
             ))}
           </Grid>

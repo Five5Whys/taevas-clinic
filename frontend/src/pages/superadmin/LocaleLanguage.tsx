@@ -90,8 +90,8 @@ const timezones = [
   'UTC',
 ];
 
-// Fallback countries when API is unavailable
-const FALLBACK_COUNTRIES: Pick<CountryConfig, 'id' | 'name' | 'flagEmoji'>[] = [
+// Fallback tenants when API is unavailable
+const FALLBACK_TENANTS: Pick<CountryConfig, 'id' | 'name' | 'flagEmoji'>[] = [
   { id: 'india', name: 'India', flagEmoji: '\u{1F1EE}\u{1F1F3}' },
   { id: 'thailand', name: 'Thailand', flagEmoji: '\u{1F1F9}\u{1F1ED}' },
   { id: 'maldives', name: 'Maldives', flagEmoji: '\u{1F1F2}\u{1F1FB}' },
@@ -101,16 +101,16 @@ const LocaleLanguage: React.FC = () => {
   const theme = useTheme();
 
   // --- API hooks ---
-  const { data: countriesData, isLoading: countriesLoading } = useCountries();
+  const { data: tenantsData, isLoading: tenantsLoading } = useCountries();
   const updateLocale = useUpdateLocale();
 
-  // Resolve countries: API data or fallback
-  const countries = (countriesData ?? FALLBACK_COUNTRIES).slice(0, 3);
+  // Resolve tenants: API data or fallback
+  const tenants = (tenantsData ?? FALLBACK_TENANTS).slice(0, 3);
 
-  // --- Locale fetch for up to 3 countries ---
-  const locale0 = useLocaleSettings(countries[0]?.id ?? '');
-  const locale1 = useLocaleSettings(countries[1]?.id ?? '');
-  const locale2 = useLocaleSettings(countries[2]?.id ?? '');
+  // --- Locale fetch for up to 3 tenants ---
+  const locale0 = useLocaleSettings(tenants[0]?.id ?? '');
+  const locale1 = useLocaleSettings(tenants[1]?.id ?? '');
+  const locale2 = useLocaleSettings(tenants[2]?.id ?? '');
   const localeQueries = [locale0, locale1, locale2];
 
   // --- Local form state ---
@@ -120,7 +120,7 @@ const LocaleLanguage: React.FC = () => {
   // Initialize form state from API data or fallback defaults
   useEffect(() => {
     const newSettings: Record<string, LocaleSettings> = {};
-    countries.forEach((country, idx) => {
+    tenants.forEach((country, idx) => {
       const apiData = localeQueries[idx]?.data as LocaleSettingsDto | undefined;
       if (apiData) {
         newSettings[country.id] = {
@@ -132,7 +132,7 @@ const LocaleLanguage: React.FC = () => {
           timezone: apiData.timezone,
         };
       } else if (!localeSettings[country.id]) {
-        // Only set fallback if we don't already have local state for this country
+        // Only set fallback if we don't already have local state for this tenant
         const key = country.id.toLowerCase();
         newSettings[country.id] = FALLBACK_DEFAULTS[key] ?? DEFAULT_LOCALE;
       }
@@ -141,7 +141,7 @@ const LocaleLanguage: React.FC = () => {
       setLocaleSettings((prev) => ({ ...prev, ...newSettings }));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [locale0.data, locale1.data, locale2.data, countries.length]);
+  }, [locale0.data, locale1.data, locale2.data, tenants.length]);
 
   const handleChange = (
     countryId: string,
@@ -181,17 +181,17 @@ const LocaleLanguage: React.FC = () => {
     <DashboardLayout pageTitle="Locale & Language Settings">
       <Container maxWidth="lg" sx={{ py: 3 }}>
         <Typography variant="body2" color="textSecondary" sx={{ mb: 3 }}>
-          Configure language, date formats, and measurement units for each country.
+          Configure language, date formats, and measurement units for each tenant.
         </Typography>
 
-        {(countriesLoading || isAnyLocaleLoading) && (
+        {(tenantsLoading || isAnyLocaleLoading) && (
           <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
             <CircularProgress size={32} sx={{ color: '#5519E6' }} />
           </Box>
         )}
 
         <Grid container spacing={3}>
-          {countries.map((country) => {
+          {tenants.map((country) => {
             const settings = localeSettings[country.id];
             if (!settings) return null;
             const isSaving = savingCountry === country.id;
@@ -357,7 +357,7 @@ const LocaleLanguage: React.FC = () => {
           </Typography>
 
           <Grid container spacing={3}>
-            {countries.map((country) => {
+            {tenants.map((country) => {
               const settings = localeSettings[country.id];
               if (!settings) return null;
               return (

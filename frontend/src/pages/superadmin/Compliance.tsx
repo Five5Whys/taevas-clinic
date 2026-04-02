@@ -6,7 +6,7 @@ import { useCompliance, useToggleModule } from '@/hooks/superadmin/useCompliance
 import { CountryConfig, ComplianceModuleDto } from '@/types/superadmin';
 
 // ─── Mock fallback data ──────────────────────────────────────────────────────
-const MOCK_COUNTRIES: Pick<CountryConfig, 'id' | 'name' | 'flagEmoji' | 'clinicCount' | 'doctorCount'>[] = [
+const MOCK_TENANTS: Pick<CountryConfig, 'id' | 'name' | 'flagEmoji' | 'clinicCount' | 'doctorCount'>[] = [
   { id: 'india', name: 'India', flagEmoji: '\u{1F1EE}\u{1F1F3}', clinicCount: 0, doctorCount: 0 },
   { id: 'thailand', name: 'Thailand', flagEmoji: '\u{1F1F9}\u{1F1ED}', clinicCount: 0, doctorCount: 0 },
   { id: 'maldives', name: 'Maldives', flagEmoji: '\u{1F1F2}\u{1F1FB}', clinicCount: 0, doctorCount: 0 },
@@ -35,16 +35,16 @@ const MOCK_MODULES: Record<string, ComplianceModuleDto[]> = {
 const Compliance: React.FC = () => {
   const [selectedId, setSelectedId] = useState<string>('');
 
-  // Fetch countries from API, fall back to mock
-  const { data: countriesData, isLoading: countriesLoading } = useCountries();
-  const countries = countriesData ?? MOCK_COUNTRIES;
+  // Fetch tenants from API, fall back to mock
+  const { data: tenantsData, isLoading: tenantsLoading } = useCountries();
+  const tenants = tenantsData ?? MOCK_TENANTS;
 
-  // Auto-select first country when countries load
+  // Auto-select first tenant when tenants load
   useEffect(() => {
-    if (!selectedId && countries.length > 0) {
-      setSelectedId(countries[0]!.id);
+    if (!selectedId && tenants.length > 0) {
+      setSelectedId(tenants[0]!.id);
     }
-  }, [countries, selectedId]);
+  }, [tenants, selectedId]);
 
   // Fetch compliance modules for selected country
   const { data: modulesData, isLoading: modulesLoading } = useCompliance(selectedId);
@@ -58,22 +58,22 @@ const Compliance: React.FC = () => {
   };
 
   const activeCount = modules.filter((m) => m.enabled).length;
-  const selectedCountry = countries.find((c) => c.id === selectedId);
+  const selectedTenant = tenants.find((c) => c.id === selectedId);
 
   return (
     <DashboardLayout pageTitle="Compliance">
       <Box sx={{ px: 3, py: 2, height: 'calc(100vh - 64px)', display: 'flex', flexDirection: 'column', gap: 1.5, overflow: 'hidden' }}>
 
-        {/* Country pill tabs */}
+        {/* Tenant pill tabs */}
         <Box sx={{ display: 'flex', gap: 1, flexShrink: 0 }}>
-          {countriesLoading ? (
+          {tenantsLoading ? (
             <>
               <Skeleton variant="rounded" width={120} height={34} sx={{ borderRadius: '20px' }} />
               <Skeleton variant="rounded" width={120} height={34} sx={{ borderRadius: '20px' }} />
               <Skeleton variant="rounded" width={120} height={34} sx={{ borderRadius: '20px' }} />
             </>
           ) : (
-            countries.map((c) => {
+            tenants.map((c) => {
               const sel = selectedId === c.id;
               return (
                 <Box
@@ -111,7 +111,7 @@ const Compliance: React.FC = () => {
                 <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1.5, flexShrink: 0 }}>
                   <Box>
                     <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>
-                      {selectedCountry?.flagEmoji} {selectedCountry?.name} — Compliance Modules
+                      {selectedTenant?.flagEmoji} {selectedTenant?.name} — Compliance Modules
                     </Typography>
                     <Typography variant="caption" sx={{ color: 'text.secondary', fontSize: '11px' }}>
                       {activeCount} of {modules.length} active
@@ -181,7 +181,7 @@ const Compliance: React.FC = () => {
                 {/* Footer note */}
                 <Box sx={{ mt: 1.5, px: 1.5, py: 1, background: '#F8F9FF', border: '1px solid #5519E620', borderRadius: 1.5, flexShrink: 0 }}>
                   <Typography sx={{ fontSize: '11px', color: '#5519E6' }}>
-                    {'\uD83D\uDD12'} Changes propagate to all clinics in this country. All data uses AES-256 encryption.
+                    {'\uD83D\uDD12'} Changes propagate to all clinics in this tenant. All data uses AES-256 encryption.
                   </Typography>
                 </Box>
               </>

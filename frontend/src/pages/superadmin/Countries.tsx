@@ -485,7 +485,7 @@ const Countries: React.FC = () => {
               </FieldGrid>
               <Box sx={{ mt: 2 }}>
                 <FieldGrid cols={2}>
-                  <Box><FieldLabel label="SMS Provider (optional)" /><FormControl fullWidth size="small"><Select defaultValue="auto" sx={{ fontSize: '13px' }}><MenuItem value="auto">Auto (platform default)</MenuItem><MenuItem value="twilio">Twilio</MenuItem><MenuItem value="msg91">MSG91</MenuItem></Select></FormControl><Typography sx={{ fontSize: '10px', color: CAP, mt: 0.5 }}>OTP delivery provider for this country</Typography></Box>
+                  <Box><FieldLabel label="SMS Provider (optional)" /><FormControl fullWidth size="small"><Select defaultValue="auto" sx={{ fontSize: '13px' }}><MenuItem value="auto">Auto (platform default)</MenuItem><MenuItem value="twilio">Twilio</MenuItem><MenuItem value="msg91">MSG91</MenuItem></Select></FormControl><Typography sx={{ fontSize: '10px', color: CAP, mt: 0.5 }}>OTP delivery provider for this tenant</Typography></Box>
                   <Box><FieldLabel label="Sender ID / From (optional)" /><TextField fullWidth size="small" placeholder="e.g. TAEVAS" sx={{ '& .MuiInputBase-input': { fontSize: '13px', py: '8px' } }} /><Typography sx={{ fontSize: '10px', color: CAP, mt: 0.5 }}>Alphanumeric sender ID (max 11 chars)</Typography></Box>
                 </FieldGrid>
               </Box>
@@ -522,7 +522,7 @@ const Countries: React.FC = () => {
         {/* Identity */}
         <SectionCard title="Identity">
           <FieldGrid>
-            <Box><FieldLabel label="Country Name" /><TextField fullWidth size="small" value={configForm.name} onChange={e => updateField('name', e.target.value)} sx={{ '& .MuiInputBase-input': { fontSize: '13px', py: '8px' } }} /></Box>
+            <Box><FieldLabel label="Tenant Name" /><TextField fullWidth size="small" value={configForm.name} onChange={e => updateField('name', e.target.value)} sx={{ '& .MuiInputBase-input': { fontSize: '13px', py: '8px' } }} /></Box>
             <Box><FieldLabel label="ISO Code" /><TextField fullWidth size="small" value={configForm.code} onChange={e => updateField('code', e.target.value)} sx={{ '& .MuiInputBase-input': { fontSize: '13px', py: '8px', fontFamily: MONO } }} /></Box>
             <Box><FieldLabel label="Dial Code" /><TextField fullWidth size="small" value={configForm.dialCode} onChange={e => updateField('dialCode', e.target.value)} sx={{ '& .MuiInputBase-input': { fontSize: '13px', py: '8px', fontFamily: MONO } }} /></Box>
             <Box><FieldLabel label="Currency Code" /><TextField fullWidth size="small" value={configForm.currencyCode} onChange={e => updateField('currencyCode', e.target.value)} sx={{ '& .MuiInputBase-input': { fontSize: '13px', py: '8px', fontFamily: MONO } }} /></Box>
@@ -575,7 +575,7 @@ const Countries: React.FC = () => {
         {/* Clinical & Billing */}
         <SectionCard title="Clinical & Billing">
           <FieldGrid>
-            <Box><FieldLabel label="Country Prefix" /><TextField fullWidth size="small" value={configForm.clinical.countryPrefix} onChange={e => updateField('clinical.countryPrefix', e.target.value)} sx={{ '& .MuiInputBase-input': { fontSize: '13px', py: '8px', fontFamily: MONO } }} /></Box>
+            <Box><FieldLabel label="Tenant Prefix" /><TextField fullWidth size="small" value={configForm.clinical.countryPrefix} onChange={e => updateField('clinical.countryPrefix', e.target.value)} sx={{ '& .MuiInputBase-input': { fontSize: '13px', py: '8px', fontFamily: MONO } }} /></Box>
             <Box><FieldLabel label="User ID Format" /><TextField fullWidth size="small" value={configForm.clinical.userIdFormat} onChange={e => updateField('clinical.userIdFormat', e.target.value)} sx={{ '& .MuiInputBase-input': { fontSize: '13px', py: '8px', fontFamily: MONO } }} /></Box>
             <Box><FieldLabel label="Clinic ID Format" /><TextField fullWidth size="small" value={configForm.clinical.clinicIdFormat} onChange={e => updateField('clinical.clinicIdFormat', e.target.value)} sx={{ '& .MuiInputBase-input': { fontSize: '13px', py: '8px', fontFamily: MONO } }} /></Box>
             <Box><FieldLabel label="Tax Type" /><TextField fullWidth size="small" value={configForm.clinical.taxType} onChange={e => updateField('clinical.taxType', e.target.value)} sx={{ '& .MuiInputBase-input': { fontSize: '13px', py: '8px' } }} /></Box>
@@ -722,7 +722,7 @@ const Countries: React.FC = () => {
                 </FieldGrid>
                 <Box sx={{ mt: 2 }}>
                   <FieldGrid cols={2}>
-                    <Box><FieldLabel label="SMS Provider (optional)" /><FormControl fullWidth size="small"><Select defaultValue="auto" sx={{ fontSize: '13px' }}><MenuItem value="auto">Auto (platform default)</MenuItem><MenuItem value="twilio">Twilio</MenuItem><MenuItem value="msg91">MSG91</MenuItem></Select></FormControl><Typography sx={{ fontSize: '10px', color: CAP, mt: 0.5 }}>OTP delivery provider for this country</Typography></Box>
+                    <Box><FieldLabel label="SMS Provider (optional)" /><FormControl fullWidth size="small"><Select defaultValue="auto" sx={{ fontSize: '13px' }}><MenuItem value="auto">Auto (platform default)</MenuItem><MenuItem value="twilio">Twilio</MenuItem><MenuItem value="msg91">MSG91</MenuItem></Select></FormControl><Typography sx={{ fontSize: '10px', color: CAP, mt: 0.5 }}>OTP delivery provider for this tenant</Typography></Box>
                     <Box><FieldLabel label="Sender ID / From (optional)" /><TextField fullWidth size="small" placeholder="e.g. TAEVAS" sx={{ '& .MuiInputBase-input': { fontSize: '13px', py: '8px' } }} /><Typography sx={{ fontSize: '10px', color: CAP, mt: 0.5 }}>Alphanumeric sender ID (max 11 chars)</Typography></Box>
                   </FieldGrid>
                 </Box>
@@ -767,10 +767,10 @@ const Countries: React.FC = () => {
               </Box>
             </Box>
 
-            <SectionCard title="Country Identity">
+            <SectionCard title="Tenant Identity">
               <FieldGrid cols={2}>
                 <Box>
-                  <FieldLabel label="Country Name *" />
+                  <FieldLabel label="Tenant Name *" />
                   <TextField fullWidth size="small" value={d.identity.countryName} onChange={e => updateWizard(dr => { dr.identity.countryName = e.target.value; })} placeholder="e.g. Philippines" sx={{ '& .MuiInputBase-input': { fontSize: '13px', py: '8px' } }} />
                 </Box>
                 <Box>
@@ -840,7 +840,7 @@ const Countries: React.FC = () => {
 
             <SectionCard title="ID Formats & Billing">
               <FieldGrid>
-                <Box><FieldLabel label="Country Prefix" /><TextField fullWidth size="small" value={d.setup.countryPrefix} onChange={e => updateWizard(dr => { dr.setup.countryPrefix = e.target.value.toUpperCase(); })} placeholder="PH" sx={{ '& .MuiInputBase-input': { fontSize: '13px', py: '8px', fontFamily: MONO } }} /></Box>
+                <Box><FieldLabel label="Tenant Prefix" /><TextField fullWidth size="small" value={d.setup.countryPrefix} onChange={e => updateWizard(dr => { dr.setup.countryPrefix = e.target.value.toUpperCase(); })} placeholder="PH" sx={{ '& .MuiInputBase-input': { fontSize: '13px', py: '8px', fontFamily: MONO } }} /></Box>
                 <Box><FieldLabel label="User ID Format" /><TextField fullWidth size="small" value={d.setup.userIdFormat} onChange={e => updateWizard(dr => { dr.setup.userIdFormat = e.target.value; })} placeholder="PH-UR-#####" sx={{ '& .MuiInputBase-input': { fontSize: '13px', py: '8px', fontFamily: MONO } }} /></Box>
                 <Box><FieldLabel label="Clinic ID Format" /><TextField fullWidth size="small" value={d.setup.clinicIdFormat} onChange={e => updateWizard(dr => { dr.setup.clinicIdFormat = e.target.value; })} placeholder="PH-CL-###" sx={{ '& .MuiInputBase-input': { fontSize: '13px', py: '8px', fontFamily: MONO } }} /></Box>
               </FieldGrid>
@@ -860,7 +860,7 @@ const Countries: React.FC = () => {
                 <Typography sx={{ fontSize: '10px', fontWeight: 700, color: SUB, textTransform: 'uppercase', letterSpacing: '0.08em', pb: 0.75, borderBottom: `1px solid ${BORDER}`, mb: 1.125 }}>Identity</Typography>
                 <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 0.75 }}>
                   {[
-                    { k: 'Country', v: d.identity.countryName },
+                    { k: 'Tenant', v: d.identity.countryName },
                     { k: 'ISO', v: d.identity.isoCode, mono: true },
                     { k: 'Dial Code', v: d.identity.dialCode, mono: true },
                   ].map(r => (
@@ -948,13 +948,13 @@ const Countries: React.FC = () => {
 
   // ─── Main Render ─────────────────────────────────────────────────────────────
   return (
-    <DashboardLayout pageTitle="Countries">
+    <DashboardLayout pageTitle="Tenants">
       <Box sx={{ display: 'flex', height: 'calc(100vh - 64px)' }}>
         {renderSidebar()}
 
         <Box sx={{ flex: 1, position: 'relative', overflow: 'hidden', background: BG }}>
           <Box
-            id="countries-scroll"
+            id="tenants-scroll"
             onScroll={(e: any) => {
               const el = e.target;
               const atBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 40;
@@ -968,7 +968,7 @@ const Countries: React.FC = () => {
           </Box>
           <Box
             id="scroll-arrow"
-            onClick={() => { const el = document.getElementById('countries-scroll'); if (el) el.scrollBy({ top: 300, behavior: 'smooth' }); }}
+            onClick={() => { const el = document.getElementById('tenants-scroll'); if (el) el.scrollBy({ top: 300, behavior: 'smooth' }); }}
             sx={{
               position: 'absolute', bottom: 8, right: 18,
               px: 1.25, py: 0.5, borderRadius: '12px',

@@ -70,15 +70,15 @@ const INTAKE_FIELDS: Record<string, FieldRow[]> = {
 };
 
 const SOAP_FIELDS: FieldRow[] = [
-  { id: 'cc',    label: 'Chief Complaint',           meta: 'All countries - Required',        type: 'textarea',   locked: true, required: true, scope: 'GLOBAL' },
-  { id: 'hpi',   label: 'History of Presenting Illness', meta: 'All countries - Required',   type: 'textarea', locked: true, required: true, scope: 'GLOBAL' },
-  { id: 'ent',   label: 'ENT Exam',                  meta: 'All countries - Required',        type: 'textarea',   locked: true, required: true, scope: 'GLOBAL' },
+  { id: 'cc',    label: 'Chief Complaint',           meta: 'All tenants - Required',        type: 'textarea',   locked: true, required: true, scope: 'GLOBAL' },
+  { id: 'hpi',   label: 'History of Presenting Illness', meta: 'All tenants - Required',   type: 'textarea', locked: true, required: true, scope: 'GLOBAL' },
+  { id: 'ent',   label: 'ENT Exam',                  meta: 'All tenants - Required',        type: 'textarea',   locked: true, required: true, scope: 'GLOBAL' },
   { id: 'abha',  label: 'ABHA Verification Status',  meta: 'India only - Optional',           type: 'text',       locked: false, required: false, scope: 'GLOBAL', countryIcon: '\u{1F1EE}\u{1F1F3}' },
-  { id: 'icd10', label: 'ICD-10 Code',               meta: 'All countries - Optional',        type: 'text', locked: false, required: false, scope: 'GLOBAL' },
+  { id: 'icd10', label: 'ICD-10 Code',               meta: 'All tenants - Optional',        type: 'text', locked: false, required: false, scope: 'GLOBAL' },
 ];
 
-// Fallback countries
-const FALLBACK_COUNTRIES: Pick<CountryConfig, 'id' | 'name' | 'flagEmoji'>[] = [
+// Fallback tenants
+const FALLBACK_TENANTS: Pick<CountryConfig, 'id' | 'name' | 'flagEmoji'>[] = [
   { id: 'india', name: 'India', flagEmoji: '\u{1F1EE}\u{1F1F3}' },
   { id: 'thailand', name: 'Thailand', flagEmoji: '\u{1F1F9}\u{1F1ED}' },
   { id: 'maldives', name: 'Maldives', flagEmoji: '\u{1F1F2}\u{1F1FB}' },
@@ -86,25 +86,25 @@ const FALLBACK_COUNTRIES: Pick<CountryConfig, 'id' | 'name' | 'flagEmoji'>[] = [
 
 // ---- Helpers ----------------------------------------------------------------
 
-/** Resolve country name from id for display */
-const resolveCountryName = (
+/** Resolve tenant name from id for display */
+const resolveTenantName = (
   countryId: string | null | undefined,
-  countriesMap: Record<string, { name: string; flag: string }>
+  tenantsMap: Record<string, { name: string; flag: string }>
 ): string | null => {
   if (!countryId) return null;
-  return countriesMap[countryId]?.name ?? countryId;
+  return tenantsMap[countryId]?.name ?? countryId;
 };
 
 /** Build a human-readable meta string from a FieldDefinitionDto */
 const buildMeta = (
   dto: FieldDefinitionDto,
-  countriesMap: Record<string, { name: string; flag: string }>
+  tenantsMap: Record<string, { name: string; flag: string }>
 ): string => {
   const parts: string[] = [];
   if (dto.scope === 'GLOBAL' || dto.scope === 'global') {
     parts.push('Global');
   } else {
-    const cName = resolveCountryName(dto.countryId, countriesMap);
+    const cName = resolveTenantName(dto.countryId, tenantsMap);
     parts.push(cName ?? dto.scope);
   }
   parts.push(dto.required ? 'Required' : 'Optional');
@@ -115,7 +115,7 @@ const buildMeta = (
 /** Map a FieldDefinitionDto to the display FieldRow */
 const mapDtoToFieldRow = (
   dto: FieldDefinitionDto,
-  countriesMap: Record<string, { name: string; flag: string }>
+  tenantsMap: Record<string, { name: string; flag: string }>
 ): FieldRow => ({
   id: dto.id,
   label: dto.label,
@@ -123,8 +123,8 @@ const mapDtoToFieldRow = (
   locked: dto.locked,
   required: dto.required,
   scope: dto.scope,
-  meta: buildMeta(dto, countriesMap),
-  countryIcon: dto.countryId ? (countriesMap[dto.countryId]?.flag ?? undefined) : undefined,
+  meta: buildMeta(dto, tenantsMap),
+  countryIcon: dto.countryId ? (tenantsMap[dto.countryId]?.flag ?? undefined) : undefined,
 });
 
 // ---- Field Row Component (SA Full Authority) --------------------------------
@@ -364,14 +364,14 @@ const AddFieldDialog: React.FC<{
         <FormControl fullWidth size="small">
           <InputLabel>Scope</InputLabel>
           <Select value={scope} label="Scope" onChange={(e) => setScope(e.target.value as 'GLOBAL' | 'COUNTRY')}>
-            <MenuItem value="GLOBAL">Global (all countries)</MenuItem>
-            <MenuItem value="COUNTRY">Country-specific</MenuItem>
+            <MenuItem value="GLOBAL">Global (all tenants)</MenuItem>
+            <MenuItem value="COUNTRY">Tenant-specific</MenuItem>
           </Select>
         </FormControl>
         {scope === 'COUNTRY' && (
           <FormControl fullWidth size="small">
-            <InputLabel>Country</InputLabel>
-            <Select value={scopeCountryId} label="Country" onChange={(e) => setScopeCountryId(e.target.value)}>
+            <InputLabel>Tenant</InputLabel>
+            <Select value={scopeCountryId} label="Tenant" onChange={(e) => setScopeCountryId(e.target.value)}>
               {countries.map((c) => <MenuItem key={c.id} value={c.id}>{c.flagEmoji} {c.name}</MenuItem>)}
             </Select>
           </FormControl>
@@ -490,14 +490,14 @@ const EditFieldDialog: React.FC<{
         <FormControl fullWidth size="small">
           <InputLabel>Scope</InputLabel>
           <Select value={scope} label="Scope" onChange={(e) => setScope(e.target.value as 'GLOBAL' | 'COUNTRY')}>
-            <MenuItem value="GLOBAL">Global (all countries)</MenuItem>
-            <MenuItem value="COUNTRY">Country-specific</MenuItem>
+            <MenuItem value="GLOBAL">Global (all tenants)</MenuItem>
+            <MenuItem value="COUNTRY">Tenant-specific</MenuItem>
           </Select>
         </FormControl>
         {scope === 'COUNTRY' && (
           <FormControl fullWidth size="small">
-            <InputLabel>Country</InputLabel>
-            <Select value={scopeCountryId} label="Country" onChange={(e) => setScopeCountryId(e.target.value)}>
+            <InputLabel>Tenant</InputLabel>
+            <Select value={scopeCountryId} label="Tenant" onChange={(e) => setScopeCountryId(e.target.value)}>
               {countries.map((c) => <MenuItem key={c.id} value={c.id}>{c.flagEmoji} {c.name}</MenuItem>)}
             </Select>
           </FormControl>
@@ -602,17 +602,17 @@ const FieldManager: React.FC = () => {
   const [removeTarget, setRemoveTarget] = useState<{ id: string; label: string; locked: boolean } | null>(null);
 
   // --- API hooks ---
-  const { data: countriesData } = useCountries();
-  const countries = (countriesData ?? FALLBACK_COUNTRIES) as Array<
+  const { data: tenantsData } = useCountries();
+  const tenants = (tenantsData ?? FALLBACK_TENANTS) as Array<
     Pick<CountryConfig, 'id' | 'name' | 'flagEmoji'>
   >;
 
-  // Auto-select first country
+  // Auto-select first tenant
   React.useEffect(() => {
-    if (countries.length > 0 && !countries.find((c) => c.id === intakeCountry)) {
-      setIntakeCountry(countries[0]!.id);
+    if (tenants.length > 0 && !tenants.find((c) => c.id === intakeCountry)) {
+      setIntakeCountry(tenants[0]!.id);
     }
-  }, [countries, intakeCountry]);
+  }, [tenants, intakeCountry]);
 
   const {
     data: intakeApiData,
@@ -629,34 +629,34 @@ const FieldManager: React.FC = () => {
   const [removingId, setRemovingId] = useState<string | null>(null);
   const [togglingId, setTogglingId] = useState<string | null>(null);
 
-  // Build a country id -> {name, flag} map
-  const countriesMap = useMemo(() => {
+  // Build a tenant id -> {name, flag} map
+  const tenantsMap = useMemo(() => {
     const map: Record<string, { name: string; flag: string }> = {};
-    countries.forEach((c) => {
+    tenants.forEach((c) => {
       map[c.id] = { name: c.name, flag: c.flagEmoji ?? '' };
     });
     return map;
-  }, [countries]);
+  }, [tenants]);
 
   // --- Resolve intake fields: API or fallback ---
   const intakeFields: FieldRow[] = useMemo(() => {
     if (intakeApiData && Array.isArray(intakeApiData) && intakeApiData.length > 0) {
       return (intakeApiData as FieldDefinitionDto[])
         .sort((a, b) => a.sortOrder - b.sortOrder)
-        .map((dto) => mapDtoToFieldRow(dto, countriesMap));
+        .map((dto) => mapDtoToFieldRow(dto, tenantsMap));
     }
     return INTAKE_FIELDS[intakeCountry] ?? [];
-  }, [intakeApiData, intakeCountry, countriesMap]);
+  }, [intakeApiData, intakeCountry, tenantsMap]);
 
   // --- Resolve SOAP fields: API or fallback ---
   const soapFields: FieldRow[] = useMemo(() => {
     if (soapApiData && Array.isArray(soapApiData) && soapApiData.length > 0) {
       return (soapApiData as FieldDefinitionDto[])
         .sort((a, b) => a.sortOrder - b.sortOrder)
-        .map((dto) => mapDtoToFieldRow(dto, countriesMap));
+        .map((dto) => mapDtoToFieldRow(dto, tenantsMap));
     }
     return SOAP_FIELDS;
-  }, [soapApiData, countriesMap]);
+  }, [soapApiData, tenantsMap]);
 
   // Build a lookup from field id -> FieldDefinitionDto for edit dialog
   const fieldDtoMap = useMemo(() => {
@@ -733,7 +733,7 @@ const FieldManager: React.FC = () => {
                   showCountrySelect
                   country={intakeCountry}
                   onCountryChange={setIntakeCountry}
-                  countries={countries}
+                  countries={tenants}
                   onAddField={() => { setAddDialogSection('registration'); setAddDialogOpen(true); }}
                 />
 
@@ -796,14 +796,14 @@ const FieldManager: React.FC = () => {
           onClose={() => setAddDialogOpen(false)}
           section={addDialogSection}
           countryId={intakeCountry}
-          countries={countries}
+          countries={tenants}
         />
 
         <EditFieldDialog
           open={!!editField}
           onClose={() => setEditField(null)}
           field={editField}
-          countries={countries}
+          countries={tenants}
         />
 
         <ConfirmRemoveDialog

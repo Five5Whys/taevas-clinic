@@ -87,7 +87,7 @@ export const NAVIGATION_CONFIG = {
     // Overview
     { id: 'dashboard',      label: 'Control Center',     emoji: '📊', icon: 'Dashboard',    path: '/superadmin',                section: 'Overview' },
     { id: 'manage',         label: 'Manage',             emoji: '👥', icon: 'People',       path: '/superadmin/manage',         section: 'Overview' },
-    { id: 'countries',      label: 'Countries',          emoji: '🌍', icon: 'Public',       path: '/superadmin/countries',      section: 'Overview' },
+    { id: 'countries',      label: 'Tenants',             emoji: '🌍', icon: 'Public',       path: '/superadmin/countries',      section: 'Overview' },
     { id: 'audit',          label: 'Audit Log',          emoji: '📜', icon: 'History',       path: '/superadmin/audit',          section: 'Data' },
     // Configuration
     { id: 'feature-flags',  label: 'Features',           emoji: '🚩', icon: 'ToggleOn',     path: '/superadmin/feature-flags',  section: 'Configuration' },

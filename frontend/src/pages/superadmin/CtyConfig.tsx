@@ -45,7 +45,7 @@ const TOGGLE_META: Record<string, { name: string; desc: string }> = {
 };
 
 // ─── Mock fallback data ─────────────────────────────────────────────────────────
-const MOCK_COUNTRIES: CountryConfig[] = [
+const MOCK_TENANTS: CountryConfig[] = [
   { id: 'india', code: 'IN', name: 'India', flagEmoji: '\u{1F1EE}\u{1F1F3}', status: 'ACTIVE', currencyCode: 'INR', currencySymbol: '\u20B9', taxType: 'GST', taxRate: 18, dateFormat: 'DD/MM/YYYY', primaryLanguage: 'English', secondaryLanguage: 'Hindi', regulatoryBodies: ['NMC', 'ABDM', 'FHIR R4'], clinicCount: 4, doctorCount: 31 },
   { id: 'thailand', code: 'TH', name: 'Thailand', flagEmoji: '\u{1F1F9}\u{1F1ED}', status: 'ACTIVE', currencyCode: 'THB', currencySymbol: '\u0E3F', taxType: 'VAT', taxRate: 7, dateFormat: 'DD/MM/YYYY', primaryLanguage: 'Thai', secondaryLanguage: 'English', regulatoryBodies: ['MOPH', 'NHSO', 'PDPA'], clinicCount: 4, doctorCount: 11 },
   { id: 'maldives', code: 'MV', name: 'Maldives', flagEmoji: '\u{1F1F2}\u{1F1FB}', status: 'PILOT', currencyCode: 'MVR', currencySymbol: 'Rf', taxType: 'GST', taxRate: 8, dateFormat: 'DD/MM/YYYY', primaryLanguage: 'Dhivehi', secondaryLanguage: 'English', regulatoryBodies: ['MOH'], clinicCount: 4, doctorCount: 5 },
@@ -110,14 +110,14 @@ const ToggleRow: React.FC<{ name: string; desc: string; checked: boolean; onChan
 
 // ─── Main Component ─────────────────────────────────────────────────────────────
 const CtyConfig: React.FC = () => {
-  const { data: countriesData, isLoading } = useCountries();
+  const { data: tenantsData, isLoading } = useCountries();
   const updateCountry = useUpdateCountry();
   const updateBilling = useUpdateBilling();
   const updateLocale = useUpdateLocale();
 
   const [toast, setToast] = useState<{ open: boolean; message: string; severity: 'success' | 'error' }>({ open: false, message: '', severity: 'success' });
 
-  const countries = countriesData ?? MOCK_COUNTRIES;
+  const tenants = tenantsData ?? MOCK_TENANTS;
   const [selectedId, setSelectedId] = useState('');
   const [activeTab, setActiveTab] = useState<'localization' | 'billing'>('localization');
 
@@ -140,22 +140,22 @@ const CtyConfig: React.FC = () => {
   const [claimCode, setClaimCode] = useState('');
   const [toggles, setToggles] = useState<Record<string, boolean>>({});
 
-  const selected = countries.find((c) => c.id === selectedId);
+  const selected = tenants.find((c) => c.id === selectedId);
 
-  // Fetch billing & locale for selected country
+  // Fetch billing & locale for selected tenant
   const { data: billingData } = useBillingConfig(selectedId);
   const { data: localeData } = useLocaleSettings(selectedId);
 
-  // Auto-select first country, or re-select when list IDs change
+  // Auto-select first tenant, or re-select when list IDs change
   useEffect(() => {
-    if (countries.length === 0) return;
-    const match = countries.find((c) => c.id === selectedId);
+    if (tenants.length === 0) return;
+    const match = tenants.find((c) => c.id === selectedId);
     if (!match) {
-      setSelectedId(countries[0]!.id);
+      setSelectedId(tenants[0]!.id);
     }
-  }, [countries, selectedId]);
+  }, [tenants, selectedId]);
 
-  // Sync localization form when country changes
+  // Sync localization form when tenant changes
   useEffect(() => {
     if (!selected) return;
     const locale = localeData ?? MOCK_LOCALE[selected.id] ?? MOCK_LOCALE[selected.name.toLowerCase()];
@@ -169,7 +169,7 @@ const CtyConfig: React.FC = () => {
     setHeightUnit(locale?.heightUnit ?? 'cm');
   }, [selected?.id, localeData]);
 
-  // Sync billing form when country changes
+  // Sync billing form when tenant changes
   useEffect(() => {
     if (!selected) return;
     const billing = billingData ?? MOCK_BILLING[selected.id] ?? MOCK_BILLING[selected.name.toLowerCase()];
@@ -214,7 +214,7 @@ const CtyConfig: React.FC = () => {
 
   if (isLoading) {
     return (
-      <DashboardLayout pageTitle="CTY Config">
+      <DashboardLayout pageTitle="Tenant Config">
         <Box sx={{ display: 'flex', justifyContent: 'center', py: 10 }}>
           <CircularProgress sx={{ color: '#5519E6' }} />
         </Box>
@@ -225,18 +225,18 @@ const CtyConfig: React.FC = () => {
   const statusStyle = STATUS_STYLES[selected?.status ?? 'ACTIVE'];
 
   return (
-    <DashboardLayout pageTitle="CTY Config">
+    <DashboardLayout pageTitle="Tenant Config">
       <Box sx={{ display: 'flex', height: 'calc(100vh - 64px)' }}>
 
-        {/* ─── Country Sidebar ─── */}
+        {/* ─── Tenant Sidebar ─── */}
         <Box sx={{
           width: 200, flexShrink: 0, background: '#fff', borderRight: '1px solid #E5E7EB',
           overflowY: 'auto', py: 2,
         }}>
           <Typography sx={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#9CA3AF', px: 2, mb: 1, fontWeight: 600 }}>
-            Countries ({countries.length})
+            Tenants ({tenants.length})
           </Typography>
-          {countries.map((c) => {
+          {tenants.map((c) => {
             const ss = (STATUS_STYLES[c.status] ?? STATUS_STYLES.ACTIVE)!;
             return (
               <Box
@@ -268,7 +268,7 @@ const CtyConfig: React.FC = () => {
         <Box sx={{ flex: 1, overflowY: 'auto', px: 3, py: 2.5 }}>
           {selected && (
             <>
-              {/* Country Header */}
+              {/* Tenant Header */}
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 2 }}>
                 <Typography sx={{ fontSize: '20px', fontWeight: 800 }}>{selected.name}</Typography>
                 <Chip
@@ -302,7 +302,7 @@ const CtyConfig: React.FC = () => {
               {/* ═══ Localization Tab ═══ */}
               {activeTab === 'localization' && (
                 <>
-                  <SectionCard title="Country Details">
+                  <SectionCard title="Tenant Details">
                     <FieldGrid>
                       <ReadOnlyField label="ISO Code" value={selected.code} />
                       <Box>
@@ -383,7 +383,7 @@ const CtyConfig: React.FC = () => {
                   </SectionCard>
 
                   <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1.25, mt: 1 }}>
-                    <Button variant="outlined" size="small" sx={{ borderColor: '#E5E7EB', color: '#6B7280', fontWeight: 600 }}>Reset</Button>
+                    <Button variant="outlined" size="small" onClick={() => { if (selected) { const locale = localeData ?? MOCK_LOCALE[selected.id] ?? MOCK_LOCALE[selected.name.toLowerCase()]; setRegulatoryBodies(selected.regulatoryBodies ?? []); setCurrency(selected.currencyCode); setPrimaryLang(locale?.primaryLanguage ?? selected.primaryLanguage); setSecondaryLang(locale?.secondaryLanguage ?? selected.secondaryLanguage); setTimezone(locale?.timezone ?? 'UTC'); setDateFormat(locale?.dateFormat ?? selected.dateFormat); setWeightUnit(locale?.weightUnit ?? 'kg'); setHeightUnit(locale?.heightUnit ?? 'cm'); } }} sx={{ borderColor: '#E5E7EB', color: '#6B7280', fontWeight: 600 }}>Reset</Button>
                     <Button
                       variant="contained" size="small"
                       disabled={isSaving}
@@ -463,7 +463,7 @@ const CtyConfig: React.FC = () => {
                   </SectionCard>
 
                   <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1.25, mt: 1 }}>
-                    <Button variant="outlined" size="small" sx={{ borderColor: '#E5E7EB', color: '#6B7280', fontWeight: 600 }}>Reset</Button>
+                    <Button variant="outlined" size="small" onClick={() => { if (selected) { const billing = billingData ?? MOCK_BILLING[selected.id] ?? MOCK_BILLING[selected.name.toLowerCase()]; setTaxType(selected.taxType); setTaxRate(billing ? `${billing.taxRate}%` : `${selected.taxRate}%`); setTaxSplit(billing?.taxSplit ?? ''); setInvoicePrefix(billing?.invoicePrefix ?? ''); setInvoiceFormat(billing?.invoiceFormat ?? ''); setClaimCode(billing?.claimCode ?? ''); setToggles(billing?.toggles ?? {}); } }} sx={{ borderColor: '#E5E7EB', color: '#6B7280', fontWeight: 600 }}>Reset</Button>
                     <Button
                       variant="contained" size="small"
                       disabled={isSaving}

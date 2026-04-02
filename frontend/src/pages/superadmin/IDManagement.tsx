@@ -63,8 +63,8 @@ const INITIAL: Record<string, IDFormat[]> = {
   ],
 };
 
-// Fallback countries when API is unavailable
-const FALLBACK_COUNTRIES: Pick<CountryConfig, 'id' | 'name' | 'flagEmoji'>[] = [
+// Fallback tenants when API is unavailable
+const FALLBACK_TENANTS: Pick<CountryConfig, 'id' | 'name' | 'flagEmoji'>[] = [
   { id: 'india', name: 'India', flagEmoji: '\u{1F1EE}\u{1F1F3}' },
   { id: 'thailand', name: 'Thailand', flagEmoji: '\u{1F1F9}\u{1F1ED}' },
   { id: 'maldives', name: 'Maldives', flagEmoji: '\u{1F1F2}\u{1F1FB}' },
@@ -86,19 +86,19 @@ const mapDtoToFormat = (dto: IdFormatTemplateDto): IDFormat => ({
 // ---- Main -------------------------------------------------------------------
 const IDManagement: React.FC = () => {
   // --- API hooks ---
-  const { data: countriesData, isLoading: countriesLoading } = useCountries();
-  const countries = (countriesData ?? FALLBACK_COUNTRIES) as Array<
+  const { data: tenantsData, isLoading: tenantsLoading } = useCountries();
+  const tenants = (tenantsData ?? FALLBACK_TENANTS) as Array<
     Pick<CountryConfig, 'id' | 'name' | 'flagEmoji'>
   >;
 
   const [activeTab, setActiveTab] = useState('');
 
-  // Auto-select first country when countries load
+  // Auto-select first tenant when tenants load
   useEffect(() => {
-    if (countries.length > 0 && !activeTab) {
-      setActiveTab(countries[0]!.id);
+    if (tenants.length > 0 && !activeTab) {
+      setActiveTab(tenants[0]!.id);
     }
-  }, [countries, activeTab]);
+  }, [tenants, activeTab]);
 
   const {
     data: apiFormats,
@@ -122,9 +122,9 @@ const IDManagement: React.FC = () => {
   }, [apiFormats, activeTab]);
 
   const current = formats[activeTab] ?? [];
-  const countryObj = countries.find((c) => c.id === activeTab);
-  const countryLabel = countryObj
-    ? `${countryObj.flagEmoji ?? ''} ${countryObj.name}`
+  const tenantObj = tenants.find((c) => c.id === activeTab);
+  const tenantLabel = tenantObj
+    ? `${tenantObj.flagEmoji ?? ''} ${tenantObj.name}`
     : '';
 
   const updateField = (fmtId: string, key: keyof IDFormat, val: any) => {
@@ -179,14 +179,14 @@ const IDManagement: React.FC = () => {
           }}
         >
           <Typography variant="caption" sx={{ color: '#FF8232', fontSize: '12px' }}>
-            Entity codes, separators and padding are set by Taevas Global for each country. You can only customise the <strong>clinic prefix</strong> per entity. Changes apply to all new IDs -- existing IDs are never changed.
+            Entity codes, separators and padding are set by Taevas Global for each tenant. You can only customise the <strong>clinic prefix</strong> per entity. Changes apply to all new IDs -- existing IDs are never changed.
           </Typography>
         </Box>
 
         {/* Pill Tabs */}
         <Box sx={{ display: 'flex', gap: 1, mb: 2.5, alignItems: 'center' }}>
-          {countriesLoading && <CircularProgress size={18} sx={{ color: '#5519E6' }} />}
-          {countries.map((c) => (
+          {tenantsLoading && <CircularProgress size={18} sx={{ color: '#5519E6' }} />}
+          {tenants.map((c) => (
             <Box
               key={c.id}
               onClick={() => setActiveTab(c.id)}
@@ -214,10 +214,10 @@ const IDManagement: React.FC = () => {
           <CardContent sx={{ p: 0 }}>
             <Box sx={{ px: 2.5, py: 2, borderBottom: '1px solid #E5E7EB', display: 'flex', alignItems: 'baseline', justifyContent: 'space-between' }}>
               <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
-                {countryLabel} -- Default ID Formats
+                {tenantLabel} -- Default ID Formats
               </Typography>
               <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-                Country defaults - Clinic Admin can override prefix only
+                Tenant defaults - Clinic Admin can override prefix only
               </Typography>
             </Box>
 

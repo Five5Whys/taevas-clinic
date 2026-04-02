@@ -94,13 +94,13 @@ const FALLBACK_FLAGS: FeatureFlagDto[] = [
   },
 ];
 
-const FALLBACK_COUNTRIES: Pick<CountryConfig, 'id' | 'name' | 'flagEmoji' | 'clinicCount' | 'doctorCount'>[] = [
+const FALLBACK_TENANTS: Pick<CountryConfig, 'id' | 'name' | 'flagEmoji' | 'clinicCount' | 'doctorCount'>[] = [
   { id: 'india', name: 'India', flagEmoji: '🇮🇳', clinicCount: 8, doctorCount: 31 },
   { id: 'thailand', name: 'Thailand', flagEmoji: '🇹🇭', clinicCount: 3, doctorCount: 11 },
   { id: 'maldives', name: 'Maldives', flagEmoji: '🇲🇻', clinicCount: 1, doctorCount: 5 },
 ];
 
-const COUNTRY_CHIP_COLORS: Record<string, string> = {
+const TENANT_CHIP_COLORS: Record<string, string> = {
   india: '#5519E6',
   thailand: '#A046F0',
   maldives: '#FF8232',
@@ -110,23 +110,23 @@ const FeatureFlags: React.FC = () => {
   const theme = useTheme();
 
   const { data: flagsData, isLoading: flagsLoading } = useFeatureFlags();
-  const { data: countriesData, isLoading: countriesLoading } = useCountries();
+  const { data: tenantsData, isLoading: tenantsLoading } = useCountries();
   const toggleFlag = useToggleFlag();
   const toggleLock = useToggleFlagLock();
 
   const flags: FeatureFlagDto[] = flagsData ?? FALLBACK_FLAGS;
-  const countries = countriesData ?? FALLBACK_COUNTRIES;
+  const tenants = tenantsData ?? FALLBACK_TENANTS;
 
-  const isLoading = flagsLoading || countriesLoading;
+  const isLoading = flagsLoading || tenantsLoading;
 
-  // Build a lookup of country id -> { doctorCount, clinicCount } for impact calculation
-  const countryLookup = useMemo(() => {
+  // Build a lookup of tenant id -> { doctorCount, clinicCount } for impact calculation
+  const tenantLookup = useMemo(() => {
     const map: Record<string, { doctorCount: number; clinicCount: number }> = {};
-    for (const c of countries) {
+    for (const c of tenants) {
       map[c.id] = { doctorCount: c.doctorCount, clinicCount: c.clinicCount };
     }
     return map;
-  }, [countries]);
+  }, [tenants]);
 
   const handleToggle = (flag: FeatureFlagDto, countryId: string) => {
     if (flag.locked) return;
@@ -143,10 +143,10 @@ const FeatureFlags: React.FC = () => {
     let affectedDoctors = 0;
     let affectedClinics = 0;
 
-    for (const country of countries) {
-      if (flag.countries[country.id]) {
+    for (const tenant of tenants) {
+      if (flag.countries[tenant.id]) {
         enabledCount++;
-        const lookup = countryLookup[country.id];
+        const lookup = tenantLookup[tenant.id];
         if (lookup) {
           affectedDoctors += lookup.doctorCount;
           affectedClinics += lookup.clinicCount;
@@ -173,7 +173,7 @@ const FeatureFlags: React.FC = () => {
     <DashboardLayout pageTitle="Features">
       <Container maxWidth="lg" sx={{ py: 3 }}>
         <Typography variant="body2" color="textSecondary" sx={{ mb: 3 }}>
-          Manage feature availability by country. Click lock icons to prevent
+          Manage feature availability by tenant. Click lock icons to prevent
           accidental changes.
         </Typography>
 
@@ -186,13 +186,13 @@ const FeatureFlags: React.FC = () => {
                   <TableCell sx={{ fontWeight: 700, width: '20%' }}>
                     Feature
                   </TableCell>
-                  {countries.map((country) => (
+                  {tenants.map((tenant) => (
                     <TableCell
-                      key={country.id}
+                      key={tenant.id}
                       align="center"
                       sx={{ fontWeight: 700, width: '15%' }}
                     >
-                      {country.flagEmoji} {country.name}
+                      {tenant.flagEmoji} {tenant.name}
                     </TableCell>
                   ))}
                   <TableCell align="center" sx={{ fontWeight: 700, width: '10%' }}>
@@ -213,11 +213,11 @@ const FeatureFlags: React.FC = () => {
                     <TableCell sx={{ fontWeight: 600 }}>
                       {flag.name}
                     </TableCell>
-                    {countries.map((country) => (
-                      <TableCell key={country.id} align="center">
+                    {tenants.map((tenant) => (
+                      <TableCell key={tenant.id} align="center">
                         <Switch
-                          checked={flag.countries[country.id] ?? false}
-                          onChange={() => handleToggle(flag, country.id)}
+                          checked={flag.countries[tenant.id] ?? false}
+                          onChange={() => handleToggle(flag, tenant.id)}
                           disabled={flag.locked}
                           size="small"
                         />
@@ -271,10 +271,10 @@ const FeatureFlags: React.FC = () => {
 
           <Grid container spacing={3}>
             {flags.map((flag) => {
-              const hasEnabledCountry = countries.some(
+              const hasEnabledTenant = tenants.some(
                 (c) => flag.countries[c.id]
               );
-              if (!hasEnabledCountry) {
+              if (!hasEnabledTenant) {
                 return null; // Skip disabled features
               }
 
@@ -298,16 +298,16 @@ const FeatureFlags: React.FC = () => {
                     </Typography>
 
                     <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mb: 1.5 }}>
-                      {countries.map((country) =>
-                        flag.countries[country.id] ? (
+                      {tenants.map((tenant) =>
+                        flag.countries[tenant.id] ? (
                           <Chip
-                            key={country.id}
-                            label={country.name}
+                            key={tenant.id}
+                            label={tenant.name}
                             size="small"
                             variant="outlined"
                             sx={{
-                              borderColor: COUNTRY_CHIP_COLORS[country.id] ?? theme.palette.primary.main,
-                              color: COUNTRY_CHIP_COLORS[country.id] ?? theme.palette.primary.main,
+                              borderColor: TENANT_CHIP_COLORS[tenant.id] ?? theme.palette.primary.main,
+                              color: TENANT_CHIP_COLORS[tenant.id] ?? theme.palette.primary.main,
                             }}
                           />
                         ) : null
