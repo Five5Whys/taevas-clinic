@@ -1,5 +1,6 @@
 package com.taevas.clinic.controller.doctor;
 
+import com.taevas.clinic.controller.BaseController;
 import com.taevas.clinic.dto.ApiResponse;
 import com.taevas.clinic.dto.clinicadmin.AppointmentDto;
 import com.taevas.clinic.service.doctor.DoctorAppointmentService;
@@ -13,10 +14,8 @@ import java.util.UUID;
 
 @RestController @RequestMapping("/api/doctor/appointments") @PreAuthorize("hasAnyRole('DOCTOR','CLINIC_ADMIN')")
 @Tag(name = "Doctor - Appointments") @RequiredArgsConstructor
-public class DoctorAppointmentController {
+public class DoctorAppointmentController extends BaseController {
     private final DoctorAppointmentService service;
-    private UUID getClinicId() { return UUID.fromString("d0000000-0000-0000-0000-000000000001"); }
-    private UUID getStaffId() { return UUID.fromString("a1000000-0000-0000-0000-000000000001"); }
 
     @GetMapping public ResponseEntity<ApiResponse<Page<AppointmentDto>>> getAll(
             @RequestParam(required = false) String date, @RequestParam(required = false) String status,

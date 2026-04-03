@@ -1,0 +1,39 @@
+spring:
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration
+      - org.springframework.boot.autoconfigure.data.redis.RedisRepositoriesAutoConfiguration
+
+  datasource:
+    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=false
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+
+  flyway:
+    enabled: false
+
+  sql:
+    init:
+      mode: never
+
+app:
+  jwt:
+    secret: dGVzdC1zZWNyZXQta2V5LWZvci10YWV2YXMtY2xpbmljLXVuaXQtdGVzdHMtMjAyNC1sb25nLWVub3VnaC1mb3ItaG1hYy1zaGEyNTY
+    access-token-expiry: 3600000
+    refresh-token-expiry: 604800000
+  sms:
+    provider: mock
+
+logging:
+  level:
+    root: WARN
+    com.taevas.clinic: INFO

@@ -3,6 +3,7 @@
  * Activated when VITE_MOCK_AUTH=true in .env (default in dev).
  */
 import { User, UserRole } from '@/types';
+import api from './api';
 
 // Pre-built mock users for each role
 export const MOCK_USERS: Record<UserRole, User> = {
@@ -74,12 +75,63 @@ export const MOCK_USERS: Record<UserRole, User> = {
 
 const MOCK_TOKEN = 'mock-jwt-token-for-dev-only';
 
+/** Dev credentials for each role — must match seeded backend users */
+const MOCK_CREDENTIALS: Partial<Record<UserRole, { identifier: string; password: string }>> = {
+  SUPERADMIN:   { identifier: '9876543210', password: 'password' },
+  CLINIC_ADMIN: { identifier: '9876543211', password: 'password' },
+};
+
+/**
+ * Silently fetch a real JWT from the backend using dev credentials.
+ * On success, overwrites the mock token so all API calls are authenticated.
+ * On failure (BE down), mock token stays — graceful degradation.
+ */
+const acquireRealToken = async (role: UserRole): Promise<void> => {
+  const creds = MOCK_CREDENTIALS[role] ?? MOCK_CREDENTIALS.SUPERADMIN;
+  if (!creds) return;
+  try {
+    const res = await api.post('/auth/login', { identifier: creds.identifier, password: creds.password });
+    const d = res.data?.data;
+    if (d?.token) {
+      localStorage.setItem('authToken', d.token);
+      if (d.refreshToken) localStorage.setItem('refreshToken', d.refreshToken);
+      if (d.user) localStorage.setItem('user', JSON.stringify(d.user));
+      if (import.meta.env.DEV) console.info('[MockAuth] Real JWT acquired for', role);
+    }
+  } catch {
+    if (import.meta.env.DEV) console.warn('[MockAuth] BE unreachable — using mock token');
+  }
+};
+
 export const isMockAuthEnabled = (): boolean => {
   return import.meta.env.VITE_MOCK_AUTH === 'true';
 };
 
 export const mockLogin = (role: UserRole): { user: User; token: string } => {
   const user = MOCK_USERS[role];
+  localStorage.setItem('authToken', MOCK_TOKEN);
+  localStorage.setItem('user', JSON.stringify(user));
+  return { user, token: MOCK_TOKEN };
+};
+
+/** Awaitable version — gets real JWT before returning. Falls back to mock if BE down. */
+export const mockLoginWithRealToken = async (role: UserRole): Promise<{ user: User; token: string }> => {
+  const user = MOCK_USERS[role];
+  const creds = MOCK_CREDENTIALS[role] ?? MOCK_CREDENTIALS.SUPERADMIN;
+  if (creds) {
+    try {
+      const res = await api.post('/auth/login', { identifier: creds.identifier, password: creds.password });
+      const d = res.data?.data;
+      if (d?.token) {
+        localStorage.setItem('authToken', d.token);
+        if (d.refreshToken) localStorage.setItem('refreshToken', d.refreshToken);
+        if (d.user) localStorage.setItem('user', JSON.stringify(d.user));
+        return { user: d.user ?? user, token: d.token };
+      }
+    } catch {
+      if (import.meta.env.DEV) console.warn('[MockAuth] BE unreachable — using mock token');
+    }
+  }
   localStorage.setItem('authToken', MOCK_TOKEN);
   localStorage.setItem('user', JSON.stringify(user));
   return { user, token: MOCK_TOKEN };

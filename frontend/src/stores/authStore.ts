@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { User, AuthState, UserRole } from '@/types';
 import authService from '@/services/authService';
+import { isMockAuthEnabled, mockLoginWithRealToken } from '@/services/mockAuth';
 
 interface AuthStoreState extends AuthState {
   login: (user: User, token: string) => void;
@@ -58,19 +59,16 @@ export const useAuthStore = create<AuthStoreState>((set, get) => ({
     const user = authService.getCurrentUser();
 
     if (token && user) {
-      set({
-        token,
-        user,
-        isAuthenticated: true,
-        isLoading: false,
-      });
+      if (isMockAuthEnabled() && token === 'mock-jwt-token-for-dev-only') {
+        // Keep isLoading:true until real JWT arrives — prevents API calls firing with mock token (→ 401)
+        mockLoginWithRealToken(user.role as UserRole).then(({ user: u, token: t }) => {
+          set({ token: t, user: u, isAuthenticated: true, isLoading: false });
+        });
+      } else {
+        set({ token, user, isAuthenticated: true, isLoading: false });
+      }
     } else {
-      set({
-        token: null,
-        user: null,
-        isAuthenticated: false,
-        isLoading: false,
-      });
+      set({ token: null, user: null, isAuthenticated: false, isLoading: false });
     }
   },
 

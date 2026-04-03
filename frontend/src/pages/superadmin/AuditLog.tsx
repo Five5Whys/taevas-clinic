@@ -99,8 +99,8 @@ const AuditLog: React.FC = () => {
             sx={{ flex: 1, '& .MuiOutlinedInput-root': { borderRadius: '8px' } }}
           />
           <FormControl size="small" sx={{ minWidth: 160 }}>
-            <InputLabel>Country</InputLabel>
-            <Select value={countryFilter} label="Country" onChange={e => setCountryFilter(e.target.value)}>
+            <InputLabel>Tenant</InputLabel>
+            <Select value={countryFilter} label="Tenant" onChange={e => setCountryFilter(e.target.value)}>
               {COUNTRIES.map(c => (
                 <MenuItem key={c.code} value={c.code}>{c.label}</MenuItem>
               ))}

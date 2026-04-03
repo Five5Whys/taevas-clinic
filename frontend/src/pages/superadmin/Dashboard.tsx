@@ -7,16 +7,14 @@ import {
   Typography,
   Chip,
   Stack,
-  Checkbox,
   LinearProgress,
 } from '@mui/material';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import LoadingSkeleton from '@/components/common/LoadingSkeleton';
 import { ErrorState } from '@/components/common/ErrorState';
 import { useStats } from '@/hooks/superadmin/useDashboard';
-import type { DashboardStats } from '@/types/superadmin';
-
-const isMockMode = import.meta.env.VITE_MOCK_AUTH === 'true';
+import { useCountries } from '@/hooks/superadmin/useCountries';
+import type { DashboardStats, CountryConfig } from '@/types/superadmin';
 
 // ─── Mini Stat ─────────────────────────────────────────────────────────────────
 const MiniStat: React.FC<{ icon: string; value: string | number; label: string; delta: string; accent: string }> = ({
@@ -55,14 +53,6 @@ const MiniStat: React.FC<{ icon: string; value: string | number; label: string; 
       </Box>
     </CardContent>
   </Card>
-);
-
-// ─── Mini KPI ─────────────────────────────────────────────────────────────────
-const KPI: React.FC<{ val: string; lbl: string }> = ({ val, lbl }) => (
-  <Box sx={{ flex: 1, textAlign: 'center', py: 0.75, background: '#F8F9FA', borderRadius: 1.5, border: '1px solid #E5E7EB' }}>
-    <Typography variant="body2" sx={{ fontWeight: 700, fontSize: '12px' }}>{val}</Typography>
-    <Typography variant="caption" sx={{ color: 'text.secondary', fontSize: '10px' }}>{lbl}</Typography>
-  </Box>
 );
 
 // ─── Mock Data (fallback when VITE_MOCK_AUTH=true) ───────────────────────────
@@ -184,13 +174,29 @@ const SuperAdminDashboard: React.FC = () => {
       .catch(() => { /* use fallback */ });
   }, []);
 
-  // Use real API when not in mock mode; fall back to mock data
+  // Always use real API; fall back to mock data if BE unavailable
   const { data: apiStats, isLoading, error, refetch } = useStats();
-  const stats = isMockMode ? MOCK_STATS : (apiStats ?? MOCK_STATS);
+  const { data: apiCountries } = useCountries();
+  const stats = apiStats ?? MOCK_STATS;
   const STATS = buildStatCards(stats);
 
-  if (!isMockMode && isLoading) return <DashboardLayout pageTitle="Control Center"><LoadingSkeleton /></DashboardLayout>;
-  if (!isMockMode && error) return <DashboardLayout pageTitle="Control Center"><ErrorState onRetry={refetch} /></DashboardLayout>;
+  // Build tenants from real API or fall back to hardcoded
+  const tenants = (apiCountries && apiCountries.length > 0)
+    ? apiCountries.map((c: CountryConfig) => ({
+        flag: c.flagEmoji, name: c.name,
+        sub: [c.currencyCode, ...(c.regulatoryBodies ?? []).slice(0, 1), `${c.clinicCount} clinic${c.clinicCount !== 1 ? 's' : ''}`].filter(Boolean).join(' · '),
+        status: c.status === 'ACTIVE' ? 'Active' : c.status === 'PILOT' ? 'Pilot' : c.status,
+        statusColor: c.status === 'ACTIVE' ? '#6B7A00' : '#B85600',
+        statusBg: c.status === 'ACTIVE' ? '#CDDC5020' : '#FF823220',
+        kpis: [
+          { val: String(c.doctorCount ?? 0), lbl: 'Doctors' },
+          { val: String(c.clinicCount ?? 0), lbl: 'Clinics' },
+        ],
+      }))
+    : TENANTS;
+
+  if (isLoading) return <DashboardLayout pageTitle="Control Center"><LoadingSkeleton /></DashboardLayout>;
+  if (error) return <DashboardLayout pageTitle="Control Center"><ErrorState onRetry={refetch} /></DashboardLayout>;
 
   return (
   <DashboardLayout pageTitle="Control Center">
@@ -215,7 +221,7 @@ const SuperAdminDashboard: React.FC = () => {
             <CardContent sx={{ p: 1.5, pb: '12px !important', height: '100%', display: 'flex', flexDirection: 'column' }}>
               <Typography sx={{ fontWeight: 800, fontSize: '12px', color: '#1A1A2E', mb: 1, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Tenants</Typography>
               <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 0.75 }}>
-                {TENANTS.map((c) => (
+                {tenants.map((c) => (
                   <Box key={c.name} sx={{
                     p: 1, borderRadius: '10px', background: '#FAFAFA', border: '1px solid #F0F0F0',
                     transition: 'all 0.15s', '&:hover': { background: '#F5F3FF', borderColor: '#5519E620' },
@@ -229,9 +235,11 @@ const SuperAdminDashboard: React.FC = () => {
                         </Box>
                       </Box>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.4 }}>
-                        <Box sx={{ px: 0.5, py: 0.15, borderRadius: '4px', background: '#F3F4F6', fontSize: '8px', color: '#6B7280', fontWeight: 600 }}>
-                          {c.loginIcon} {c.loginType}
-                        </Box>
+                        {'loginType' in c && (
+                          <Box sx={{ px: 0.5, py: 0.15, borderRadius: '4px', background: '#F3F4F6', fontSize: '8px', color: '#6B7280', fontWeight: 600 }}>
+                            {(c as any).loginIcon} {(c as any).loginType}
+                          </Box>
+                        )}
                         <Box sx={{ px: 0.6, py: 0.15, borderRadius: '4px', background: c.statusBg, fontSize: '8px', color: c.statusColor, fontWeight: 700 }}>
                           {c.status}
                         </Box>
@@ -331,7 +339,7 @@ const SuperAdminDashboard: React.FC = () => {
           <Card sx={{ flex: 1, overflow: 'hidden', borderRadius: '14px', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
             <CardContent sx={{ p: 1.5, pb: '12px !important', height: '100%', display: 'flex', flexDirection: 'column' }}>
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 0.75 }}>
-                <Typography sx={{ fontWeight: 800, fontSize: '12px', color: '#1A1A2E', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Pending</Typography>
+                <Typography sx={{ fontWeight: 800, fontSize: '12px', color: '#1A1A2E', textTransform: 'uppercase', letterSpacing: '0.5px' }}>ToDo</Typography>
                 <Chip label={`${doneCount}/${pending.length}`} size="small"
                   sx={{ height: 18, fontSize: '10px', fontWeight: 700, background: doneCount === pending.length ? '#DCFCE7' : '#FEF3C7', color: doneCount === pending.length ? '#16A34A' : '#D97706' }}
                 />
@@ -342,18 +350,18 @@ const SuperAdminDashboard: React.FC = () => {
               <Box sx={{ flex: 1, overflow: 'auto', display: 'flex', flexDirection: 'column', gap: 0.25 }}>
                 {pending.map((item) => (
                   <Box key={item.id} onClick={() => togglePending(item.id)} sx={{
-                    display: 'flex', alignItems: 'center', gap: 0.25, py: 0.4, px: 0.5, borderRadius: '8px',
+                    display: 'flex', alignItems: 'center', gap: 0.5, py: 0.4, px: 0.5, borderRadius: '8px',
                     cursor: 'pointer', transition: 'all 0.15s',
                     '&:hover': { background: '#F5F3FF' },
                     opacity: item.done ? 0.5 : 1,
                   }}>
-                    <Checkbox checked={item.done} size="small"
-                      sx={{ p: 0.25, color: '#D1D5DB', '&.Mui-checked': { color: '#5519E6' } }}
-                    />
                     <Typography sx={{
                       fontSize: '10px', fontWeight: 500, color: '#374151', flex: 1,
                       textDecoration: item.done ? 'line-through' : 'none',
                     }}>{item.label}</Typography>
+                    <Box sx={{ fontSize: '14px', lineHeight: 1, flexShrink: 0 }}>
+                      {item.done ? '✅' : '❌'}
+                    </Box>
                   </Box>
                 ))}
               </Box>

@@ -1,5 +1,6 @@
 package com.taevas.clinic.controller.clinicadmin;
 
+import com.taevas.clinic.controller.BaseController;
 import com.taevas.clinic.dto.ApiResponse;
 import com.taevas.clinic.dto.clinicadmin.*;
 import com.taevas.clinic.service.clinicadmin.CustomFieldService;
@@ -13,9 +14,8 @@ import java.util.*;
 
 @RestController @RequestMapping("/api/clinicadmin/custom-fields") @PreAuthorize("hasRole('CLINIC_ADMIN')")
 @Tag(name = "Clinic Admin - Custom Fields") @RequiredArgsConstructor
-public class CustomFieldController {
+public class CustomFieldController extends BaseController {
     private final CustomFieldService service;
-    private UUID getClinicId() { return UUID.fromString("d0000000-0000-0000-0000-000000000001"); }
 
     @GetMapping public ResponseEntity<ApiResponse<List<CustomFieldDto>>> getAll() { return ResponseEntity.ok(ApiResponse.success(service.getAll(getClinicId()))); }
     @PostMapping public ResponseEntity<ApiResponse<CustomFieldDto>> create(@Valid @RequestBody CustomFieldRequest r) { return ResponseEntity.ok(ApiResponse.success(service.create(getClinicId(), r))); }

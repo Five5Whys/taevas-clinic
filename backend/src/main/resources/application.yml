@@ -6,9 +6,9 @@ spring:
     active: dev
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/taevas_clinic
-    username: taevas
-    password: taevas123
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/taevas_clinic}
+    username: ${DB_USERNAME:taevas}
+    password: ${DB_PASSWORD:taevas123}
     driver-class-name: org.postgresql.Driver
     hikari:
       maximum-pool-size: 10
@@ -38,13 +38,14 @@ server:
 
 app:
   jwt:
-    secret: b3BlbnNlc2FtZS1jbGluaWMtand0LXNlY3JldC1rZXktZm9yLXRhZXZhcy1jbGluaWMtYXBwbGljYXRpb24tMjAyNC1zZWN1cmUtdG9rZW4
+    secret: ${JWT_SECRET:b3BlbnNlc2FtZS1jbGluaWMtand0LXNlY3JldC1rZXktZm9yLXRhZXZhcy1jbGluaWMtYXBwbGljYXRpb24tMjAyNC1zZWN1cmUtdG9rZW4}
     access-token-expiry: 3600000    # 1 hour in milliseconds
     refresh-token-expiry: 604800000 # 7 days in milliseconds
   sms:
     provider: mock
   cors:
-    allowed-origins: http://localhost:5173,https://*.trycloudflare.com
+    allowed-origins: http://localhost:5173
+    allowed-origin-patterns: https://*.trycloudflare.com
 
 logging:
   level:

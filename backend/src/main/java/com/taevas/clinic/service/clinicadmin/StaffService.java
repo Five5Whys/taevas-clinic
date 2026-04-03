@@ -3,6 +3,7 @@ package com.taevas.clinic.service.clinicadmin;
 import com.taevas.clinic.dto.clinicadmin.StaffDto;
 import com.taevas.clinic.dto.clinicadmin.StaffRequest;
 import com.taevas.clinic.exception.ResourceNotFoundException;
+import com.taevas.clinic.exception.UnauthorizedException;
 import com.taevas.clinic.model.ClinicStaff;
 import com.taevas.clinic.repository.ClinicStaffRepository;
 import jakarta.persistence.criteria.Predicate;
@@ -35,6 +36,7 @@ public class StaffService {
 
     public StaffDto getById(UUID clinicId, UUID id) {
         ClinicStaff s = repo.findById(id).orElseThrow(() -> new ResourceNotFoundException("Staff", "id", id));
+        if (!s.getClinicId().equals(clinicId)) throw new UnauthorizedException("Access denied to this staff member");
         return toDto(s);
     }
 
@@ -47,6 +49,7 @@ public class StaffService {
 
     @Transactional public StaffDto update(UUID clinicId, UUID id, StaffRequest r) {
         ClinicStaff s = repo.findById(id).orElseThrow(() -> new ResourceNotFoundException("Staff", "id", id));
+        if (!s.getClinicId().equals(clinicId)) throw new UnauthorizedException("Access denied to this staff member");
         s.setName(r.getName()); s.setRole(r.getRole()); s.setSpecialization(r.getSpecialization());
         s.setPhone(r.getPhone()); s.setEmail(r.getEmail()); s.setRegistrationNo(r.getRegistrationNo());
         return toDto(repo.save(s));
@@ -54,6 +57,7 @@ public class StaffService {
 
     @Transactional public void delete(UUID clinicId, UUID id) {
         ClinicStaff s = repo.findById(id).orElseThrow(() -> new ResourceNotFoundException("Staff", "id", id));
+        if (!s.getClinicId().equals(clinicId)) throw new UnauthorizedException("Access denied to this staff member");
         repo.delete(s);
     }
 

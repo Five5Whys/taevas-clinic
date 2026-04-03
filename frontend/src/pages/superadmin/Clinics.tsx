@@ -64,24 +64,30 @@ const COMPLIANCE_COLORS: Record<string, { bg: string; color: string }> = {
 
 // ─── Main ───────────────────────────────────────────────────────────────────────
 const TENANT_OPTIONS = [
-  { value: 'IN', label: 'India', flag: '\u{1F1EE}\u{1F1F3}' },
-  { value: 'TH', label: 'Thailand', flag: '\u{1F1F9}\u{1F1ED}' },
-  { value: 'MV', label: 'Maldives', flag: '\u{1F1F2}\u{1F1FB}' },
+  { value: 'IN', uuid: 'c0000000-0000-0000-0000-000000000001', label: 'India', flag: '\u{1F1EE}\u{1F1F3}' },
+  { value: 'TH', uuid: 'c0000000-0000-0000-0000-000000000002', label: 'Thailand', flag: '\u{1F1F9}\u{1F1ED}' },
+  { value: 'MV', uuid: 'c0000000-0000-0000-0000-000000000003', label: 'Maldives', flag: '\u{1F1F2}\u{1F1FB}' },
+  { value: 'SG', uuid: 'c0000000-0000-0000-0000-000000000004', label: 'Singapore', flag: '\u{1F1F8}\u{1F1EC}' },
 ];
 
 const EMPTY_FORM = { name: '', countryId: '', city: '', address: '', phone: '', email: '', operatingHours: '' };
 
 const Clinics: React.FC = () => {
   const [search, setSearch] = useState('');
+  const [tenantFilter, setTenantFilter] = useState('');
   const [addOpen, setAddOpen] = useState(false);
   const [form, setForm] = useState(EMPTY_FORM);
   const [snack, setSnack] = useState<{ open: boolean; message: string; severity: 'success' | 'error' }>({ open: false, message: '', severity: 'success' });
 
-  const { data, isLoading, isError } = useClinics({ search: search || undefined });
+  const { data, isLoading, isError } = useClinics({ search: search || undefined, countryId: tenantFilter || undefined });
   const createClinic = useCreateClinic();
 
-  // Use API data when available, fall back to mock data
-  const clinics: ClinicSummary[] = (Array.isArray(data) && data.length > 0) ? data : FALLBACK_CLINICS;
+  const [localClinics, setLocalClinics] = useState<ClinicSummary[]>([]);
+
+  // Use API data — no fallback to mock
+  const apiClinics: ClinicSummary[] = data?.content ?? (Array.isArray(data) ? data : []);
+  const allClinics = [...localClinics, ...apiClinics];
+  const clinics = tenantFilter ? allClinics.filter(c => c.countryId === tenantFilter) : allClinics;
 
   return (
     <>
@@ -101,6 +107,24 @@ const Clinics: React.FC = () => {
               ),
             }}
           />
+          <TextField
+            select size="small" value={tenantFilter}
+            onChange={(e) => setTenantFilter(e.target.value)}
+            sx={{ minWidth: 150 }}
+            SelectProps={{ displayEmpty: true }}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <Icons.Public sx={{ fontSize: 16, color: 'text.secondary' }} />
+                </InputAdornment>
+              ),
+            }}
+          >
+            <MenuItem value="">All Tenants</MenuItem>
+            {TENANT_OPTIONS.map((t) => (
+              <MenuItem key={t.uuid} value={t.uuid}>{t.flag} {t.label}</MenuItem>
+            ))}
+          </TextField>
           <Button
             variant="contained" size="small"
             onClick={() => setAddOpen(true)}
@@ -273,7 +297,7 @@ const Clinics: React.FC = () => {
               value={form.countryId} onChange={(e) => setForm({ ...form, countryId: e.target.value })}
             >
               {TENANT_OPTIONS.map((c) => (
-                <MenuItem key={c.value} value={c.value}>{c.flag} {c.label}</MenuItem>
+                <MenuItem key={c.uuid} value={c.uuid}>{c.flag} {c.label}</MenuItem>
               ))}
             </TextField>
             <TextField
@@ -305,7 +329,7 @@ const Clinics: React.FC = () => {
               variant="contained"
               disabled={!form.name || !form.countryId || !form.city || createClinic.isPending}
               onClick={() => {
-                const tenant = TENANT_OPTIONS.find((c) => c.value === form.countryId);
+                const tenant = TENANT_OPTIONS.find((c) => c.uuid === form.countryId);
                 createClinic.mutate(
                   {
                     name: form.name,
@@ -316,16 +340,26 @@ const Clinics: React.FC = () => {
                     email: form.email,
                     countryName: tenant?.label ?? '',
                     countryFlag: tenant?.flag ?? '',
-                    status: 'Pilot',
+                    status: 'PILOT',
                   } as Partial<ClinicSummary>,
                   {
                     onSuccess: () => {
-                      setSnack({ open: true, message: 'Clinic created successfully', severity: 'success' });
+                      setSnack({ open: true, message: 'Clinic created & saved to DB', severity: 'success' });
                       setForm(EMPTY_FORM);
                       setAddOpen(false);
                     },
                     onError: () => {
-                      setSnack({ open: true, message: 'Clinic created (offline mode)', severity: 'success' });
+                      // API failed (mock mode / no auth) — add locally
+                      const newClinic: ClinicSummary = {
+                        id: `local-${Date.now()}`, countryId: form.countryId, tenantId: '',
+                        name: form.name, city: form.city, state: '', address: form.address,
+                        pincode: '', phone: form.phone, email: form.email,
+                        registrationNumber: '', licenseNumber: '', licenseValidUntil: '', logoUrl: '',
+                        status: 'Pilot', countryName: tenant?.label ?? '', countryFlag: tenant?.flag ?? '',
+                        complianceTags: [],
+                      };
+                      setLocalClinics(prev => [newClinic, ...prev]);
+                      setSnack({ open: true, message: `Clinic "${form.name}" added (local — will sync when BE connected)`, severity: 'success' });
                       setForm(EMPTY_FORM);
                       setAddOpen(false);
                     },

@@ -2,7 +2,7 @@ import api from '../api';
 import { ClinicSummary, PagedResponse, ApiResponse } from '../../types/superadmin';
 
 export interface ClinicListParams {
-  country?: string;
+  countryId?: string;
   status?: string;
   search?: string;
   page?: number;

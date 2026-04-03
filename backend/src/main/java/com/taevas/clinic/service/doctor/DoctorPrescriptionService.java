@@ -1,6 +1,7 @@
 package com.taevas.clinic.service.doctor;
 
 import com.taevas.clinic.dto.clinicadmin.*;
+import com.taevas.clinic.exception.ResourceNotFoundException;
 import com.taevas.clinic.model.*;
 import com.taevas.clinic.repository.*;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +16,7 @@ import java.util.stream.Collectors;
 public class DoctorPrescriptionService {
     private final PrescriptionRepository rxRepo;
     private final PrescriptionItemRepository itemRepo;
+    private final EncounterRepository encounterRepo;
     private final ClinicPatientRepository patientRepo;
     private final ClinicStaffRepository staffRepo;
 
@@ -27,8 +29,11 @@ public class DoctorPrescriptionService {
     }
 
     @Transactional public PrescriptionDto create(UUID clinicId, UUID staffId, PrescriptionRequest r) {
-        Prescription rx = Prescription.builder().clinicId(clinicId).encounterId(UUID.fromString(r.getEncounterId()))
-            .doctorId(staffId).patientId(clinicId).diagnosis(r.getDiagnosis()).notes(r.getNotes()).status("ACTIVE").build();
+        UUID encounterId = UUID.fromString(r.getEncounterId());
+        Encounter encounter = encounterRepo.findById(encounterId)
+            .orElseThrow(() -> new ResourceNotFoundException("Encounter", "id", encounterId));
+        Prescription rx = Prescription.builder().clinicId(clinicId).encounterId(encounterId)
+            .doctorId(staffId).patientId(encounter.getPatientId()).diagnosis(r.getDiagnosis()).notes(r.getNotes()).status("ACTIVE").build();
         rx = rxRepo.save(rx);
         if (r.getItems() != null) {
             for (int i = 0; i < r.getItems().size(); i++) {

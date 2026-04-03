@@ -13,6 +13,7 @@ import java.util.UUID;
 @Service @RequiredArgsConstructor @Transactional(readOnly = true)
 public class DoctorEncounterService {
     private final EncounterRepository repo;
+    private final AppointmentRepository appointmentRepo;
     private final ClinicPatientRepository patientRepo;
     private final ClinicStaffRepository staffRepo;
 
@@ -21,8 +22,11 @@ public class DoctorEncounterService {
     }
 
     @Transactional public EncounterDto create(UUID clinicId, UUID staffId, EncounterRequest r) {
-        Encounter e = Encounter.builder().clinicId(clinicId).appointmentId(UUID.fromString(r.getAppointmentId()))
-            .doctorId(staffId).patientId(clinicId) // will be set from appointment
+        UUID appointmentId = UUID.fromString(r.getAppointmentId());
+        Appointment appointment = appointmentRepo.findById(appointmentId)
+            .orElseThrow(() -> new ResourceNotFoundException("Appointment", "id", appointmentId));
+        Encounter e = Encounter.builder().clinicId(clinicId).appointmentId(appointmentId)
+            .doctorId(staffId).patientId(appointment.getPatientId())
             .chiefComplaint(r.getChiefComplaint()).hpi(r.getHpi()).examination(r.getExamination())
             .diagnosis(r.getDiagnosis()).icd10Code(r.getIcd10Code()).treatmentPlan(r.getTreatmentPlan())
             .followUpDate(r.getFollowUpDate() != null ? LocalDate.parse(r.getFollowUpDate()) : null)

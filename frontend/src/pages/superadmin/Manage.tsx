@@ -22,15 +22,15 @@ const Manage: React.FC = () => {
             '& .MuiTabs-indicator': { backgroundColor: BRAND },
           }}
         >
-          <Tab icon={<People sx={{ fontSize: 18 }} />} iconPosition="start" label="Users" />
           <Tab icon={<LocationCity sx={{ fontSize: 18 }} />} iconPosition="start" label="Clinics" />
+          <Tab icon={<People sx={{ fontSize: 18 }} />} iconPosition="start" label="Users" />
         </Tabs>
       </Box>
       <Box sx={{ display: tab === 0 ? 'block' : 'none' }}>
-        <UserManagement />
+        <Clinics />
       </Box>
       <Box sx={{ display: tab === 1 ? 'block' : 'none' }}>
-        <Clinics />
+        <UserManagement />
       </Box>
     </DashboardLayout>
   );

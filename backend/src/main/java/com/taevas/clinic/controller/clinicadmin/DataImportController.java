@@ -1,5 +1,6 @@
 package com.taevas.clinic.controller.clinicadmin;
 
+import com.taevas.clinic.controller.BaseController;
 import com.taevas.clinic.dto.ApiResponse;
 import com.taevas.clinic.dto.clinicadmin.DataImportDto;
 import com.taevas.clinic.service.clinicadmin.DataImportService;
@@ -13,9 +14,8 @@ import java.util.UUID;
 
 @RestController @RequestMapping("/api/clinicadmin/import") @PreAuthorize("hasRole('CLINIC_ADMIN')")
 @Tag(name = "Clinic Admin - Import") @RequiredArgsConstructor
-public class DataImportController {
+public class DataImportController extends BaseController {
     private final DataImportService service;
-    private UUID getClinicId() { return UUID.fromString("d0000000-0000-0000-0000-000000000001"); }
 
     @GetMapping("/history") public ResponseEntity<ApiResponse<Page<DataImportDto>>> getHistory(
             @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {

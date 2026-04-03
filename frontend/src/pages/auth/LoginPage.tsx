@@ -20,7 +20,7 @@ import {
 } from '@mui/material';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { useAuthStore } from '@/stores/authStore';
-import { isMockAuthEnabled, MOCK_USERS } from '@/services/mockAuth';
+import { isMockAuthEnabled, mockLoginWithRealToken } from '@/services/mockAuth';
 import { UserRole } from '@/types';
 import { ROLE_REDIRECT_MAP, COUNTRY_CODES } from '@/utils/constants';
 import authService from '@/services/authService';
@@ -97,9 +97,8 @@ const LoginPage: React.FC = () => {
     setError('');
     try {
       if (mockMode) {
-        // In mock mode, accept any password and log in as SUPERADMIN by default
-        const mockUser = MOCK_USERS.SUPERADMIN;
-        login(mockUser, 'mock-jwt-token-for-dev-only');
+        const { user, token } = await mockLoginWithRealToken('SUPERADMIN');
+        login(user, token);
         navigate(ROLE_REDIRECT_MAP.SUPERADMIN ?? '/superadmin');
       } else {
         const identifier = loginMethod === 'phone' ? `${countryCode}${phone}` : email;
@@ -119,9 +118,9 @@ const LoginPage: React.FC = () => {
     }
   };
 
-  const handleQuickLogin = (role: UserRole) => {
-    const user = MOCK_USERS[role];
-    login(user, 'mock-jwt-token-for-dev-only');
+  const handleQuickLogin = async (role: UserRole) => {
+    const { user, token } = await mockLoginWithRealToken(role);
+    login(user, token);
     navigate(ROLE_REDIRECT_MAP[role] ?? '/login');
   };
 

@@ -1,5 +1,6 @@
 package com.taevas.clinic.controller.clinicadmin;
 
+import com.taevas.clinic.controller.BaseController;
 import com.taevas.clinic.dto.ApiResponse;
 import com.taevas.clinic.dto.clinicadmin.*;
 import com.taevas.clinic.service.clinicadmin.StaffService;
@@ -14,9 +15,8 @@ import java.util.UUID;
 
 @RestController @RequestMapping("/api/clinicadmin/staff") @PreAuthorize("hasRole('CLINIC_ADMIN')")
 @Tag(name = "Clinic Admin - Staff") @RequiredArgsConstructor
-public class StaffController {
+public class StaffController extends BaseController {
     private final StaffService service;
-    private UUID getClinicId() { return UUID.fromString("d0000000-0000-0000-0000-000000000001"); }
 
     @GetMapping
     public ResponseEntity<ApiResponse<Page<StaffDto>>> getAll(

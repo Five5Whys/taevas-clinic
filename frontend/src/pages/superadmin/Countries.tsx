@@ -15,7 +15,10 @@ import {
   DialogContent,
   DialogActions,
   Snackbar,
+  InputAdornment,
+  IconButton,
 } from '@mui/material';
+import * as Icons from '@mui/icons-material';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import { useCountries, useUpdateCountry } from '@/hooks/superadmin/useCountries';
 import type {
@@ -290,6 +293,15 @@ const Countries: React.FC = () => {
           fullWidth size="small" placeholder="Search tenants..."
           value={search} onChange={e => setSearch(e.target.value)}
           sx={{ '& .MuiInputBase-input': { fontSize: '11px', py: '4px' }, '& .MuiOutlinedInput-root': { borderRadius: '6px' }, mb: 0.75 }}
+          InputProps={search ? {
+            endAdornment: (
+              <InputAdornment position="end">
+                <IconButton size="small" onClick={() => setSearch('')} sx={{ p: 0.25 }}>
+                  <Icons.Close sx={{ fontSize: 14 }} />
+                </IconButton>
+              </InputAdornment>
+            ),
+          } : undefined}
         />
         <Button
           fullWidth variant="contained"

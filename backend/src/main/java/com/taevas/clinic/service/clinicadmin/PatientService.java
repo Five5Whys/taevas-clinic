@@ -3,6 +3,7 @@ package com.taevas.clinic.service.clinicadmin;
 import com.taevas.clinic.dto.clinicadmin.PatientDto;
 import com.taevas.clinic.dto.clinicadmin.PatientRequest;
 import com.taevas.clinic.exception.ResourceNotFoundException;
+import com.taevas.clinic.exception.UnauthorizedException;
 import com.taevas.clinic.model.ClinicPatient;
 import com.taevas.clinic.repository.ClinicPatientRepository;
 import jakarta.persistence.criteria.Predicate;
@@ -34,7 +35,9 @@ public class PatientService {
     }
 
     public PatientDto getById(UUID clinicId, UUID id) {
-        return toDto(repo.findById(id).orElseThrow(() -> new ResourceNotFoundException("Patient", "id", id)));
+        ClinicPatient p = repo.findById(id).orElseThrow(() -> new ResourceNotFoundException("Patient", "id", id));
+        if (!p.getClinicId().equals(clinicId)) throw new UnauthorizedException("Access denied to this patient");
+        return toDto(p);
     }
 
     @Transactional public PatientDto create(UUID clinicId, PatientRequest r) {
@@ -47,6 +50,7 @@ public class PatientService {
 
     @Transactional public PatientDto update(UUID clinicId, UUID id, PatientRequest r) {
         ClinicPatient p = repo.findById(id).orElseThrow(() -> new ResourceNotFoundException("Patient", "id", id));
+        if (!p.getClinicId().equals(clinicId)) throw new UnauthorizedException("Access denied to this patient");
         p.setFirstName(r.getFirstName()); p.setLastName(r.getLastName()); p.setPhone(r.getPhone());
         p.setEmail(r.getEmail()); p.setGender(r.getGender()); p.setBloodGroup(r.getBloodGroup());
         if (r.getDateOfBirth() != null) p.setDateOfBirth(LocalDate.parse(r.getDateOfBirth()));

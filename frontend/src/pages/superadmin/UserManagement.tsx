@@ -89,6 +89,7 @@ const UserManagement: React.FC = () => {
 
   const [users, setUsers] = useState<MockUser[]>(INITIAL_USERS);
   const [search, setSearch] = useState('');
+  const [tenantFilter, setTenantFilter] = useState('');
   const [createOpen, setCreateOpen] = useState(false);
   const [assignOpen, setAssignOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<MockUser | null>(null);
@@ -117,9 +118,11 @@ const UserManagement: React.FC = () => {
   const hasEmail = isValidEmail(newEmail);
   const isCreateValid = newFirstName.trim().length > 0 && (hasPhone || hasEmail) && isPhoneValid && isEmailValid;
 
-  const filtered = users.filter(u =>
-    `${u.firstName} ${u.lastName} ${u.phone} ${u.email}`.toLowerCase().includes(search.toLowerCase())
-  );
+  const filtered = users.filter(u => {
+    const matchSearch = `${u.firstName} ${u.lastName} ${u.phone} ${u.email}`.toLowerCase().includes(search.toLowerCase());
+    const matchTenant = !tenantFilter || u.phone.startsWith(tenantFilter);
+    return matchSearch && matchTenant;
+  });
 
   const toggleNewRole = (role: RoleType) => {
     setNewRoles(prev => prev.includes(role) ? prev.filter(r => r !== role) : [...prev, role]);
@@ -193,27 +196,34 @@ const UserManagement: React.FC = () => {
   return (
     <>
       <Box sx={{ px: 3, py: 2.5 }}>
-        {/* Header */}
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2.5 }}>
-          <Box>
-            <Typography variant="h6" sx={{ fontWeight: 800 }}>Users</Typography>
-            <Typography variant="body2" sx={{ color: SUB }}>{users.length} total &middot; {users.filter(u => u.status === 'ACTIVE').length} active</Typography>
-          </Box>
-          <Button
-            variant="contained"
-            onClick={() => setCreateOpen(true)}
-            sx={{ background: BRAND, '&:hover': { background: '#4410C0' }, fontWeight: 700, textTransform: 'none' }}
+        {/* Toolbar: Search + Tenant filter + Add User — single line */}
+        <Box sx={{ display: 'flex', gap: 1, mb: 2, alignItems: 'center' }}>
+          <TextField
+            size="small" placeholder="Search name, phone, email…"
+            value={search} onChange={e => setSearch(e.target.value)}
+            sx={{ width: 280, '& .MuiOutlinedInput-root': { borderRadius: '8px' } }}
+          />
+          <TextField
+            select size="small" value={tenantFilter}
+            onChange={e => setTenantFilter(e.target.value)}
+            sx={{ minWidth: 140, '& .MuiOutlinedInput-root': { borderRadius: '8px' } }}
+            SelectProps={{ displayEmpty: true }}
           >
-            + Create User
+            <MenuItem value="">All Tenants</MenuItem>
+            {TENANTS.map(t => (
+              <MenuItem key={t.code} value={t.code}>{t.country}</MenuItem>
+            ))}
+          </TextField>
+          <Box sx={{ flex: 1 }} />
+          <Typography variant="body2" sx={{ color: SUB, fontSize: '12px', whiteSpace: 'nowrap' }}>{users.length} total · {users.filter(u => u.status === 'ACTIVE').length} active</Typography>
+          <Button
+            variant="contained" size="small"
+            onClick={() => setCreateOpen(true)}
+            sx={{ background: BRAND, '&:hover': { background: '#4410C0' }, fontWeight: 700, textTransform: 'none', whiteSpace: 'nowrap' }}
+          >
+            + Add User
           </Button>
         </Box>
-
-        {/* Search */}
-        <TextField
-          fullWidth size="small" placeholder="Search by name, phone, or email..."
-          value={search} onChange={e => setSearch(e.target.value)}
-          sx={{ mb: 2, '& .MuiOutlinedInput-root': { borderRadius: '8px' } }}
-        />
 
         {/* Table */}
         <Card>
@@ -265,7 +275,7 @@ const UserManagement: React.FC = () => {
 
       {/* Create User Dialog */}
       <Dialog open={createOpen} onClose={resetCreateForm} maxWidth="xs" fullWidth>
-        <DialogTitle sx={{ fontWeight: 700 }}>Create New User</DialogTitle>
+        <DialogTitle sx={{ fontWeight: 700 }}>Add User</DialogTitle>
         <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: '16px !important' }}>
           <Typography variant="body2" sx={{ color: SUB }}>
             User will receive an invite via SMS/Email ID with a default password. They must change it on first login.
@@ -289,22 +299,19 @@ const UserManagement: React.FC = () => {
           </FormControl>
 
           {/* Phone with tenant-based validation */}
-          <Box sx={{ display: 'flex', gap: 1 }}>
-            <TextField
-              disabled size="small" value={selectedTenant.code}
-              sx={{ width: 72, '& .MuiOutlinedInput-root': { borderRadius: '8px' } }}
-            />
-            <TextField
-              fullWidth size="small"
-              label="Phone Number"
-              placeholder={`Enter ${selectedTenant.maxLen}-digit ${selectedTenant.country} number`}
-              value={newPhone}
-              onChange={e => { setNewPhone(e.target.value.replace(/\D/g, '').slice(0, selectedTenant.maxLen)); setPhoneTouched(true); }}
-              onBlur={() => setPhoneTouched(true)}
-              error={phoneTouched && newPhone.length > 0 && newPhone.length !== selectedTenant.maxLen}
-              helperText={phoneTouched && newPhone.length > 0 && newPhone.length !== selectedTenant.maxLen ? `Enter a valid ${selectedTenant.maxLen}-digit ${selectedTenant.country} number` : ''}
-            />
-          </Box>
+          <TextField
+            fullWidth size="small"
+            label="Phone Number"
+            placeholder={`Enter ${selectedTenant.maxLen}-digit number`}
+            value={newPhone}
+            onChange={e => { setNewPhone(e.target.value.replace(/\D/g, '').slice(0, selectedTenant.maxLen)); setPhoneTouched(true); }}
+            onBlur={() => setPhoneTouched(true)}
+            error={phoneTouched && newPhone.length > 0 && newPhone.length !== selectedTenant.maxLen}
+            helperText={phoneTouched && newPhone.length > 0 && newPhone.length !== selectedTenant.maxLen ? `Enter a valid ${selectedTenant.maxLen}-digit ${selectedTenant.country} number` : ''}
+            InputProps={{
+              startAdornment: <Box component="span" sx={{ color: SUB, fontSize: '14px', mr: 0.5, whiteSpace: 'nowrap' }}>{selectedTenant.code}</Box>,
+            }}
+          />
 
           {/* Email with validation */}
           <TextField

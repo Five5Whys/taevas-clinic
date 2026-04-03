@@ -14,7 +14,7 @@ import {
 import * as Icons from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '@/stores/authStore';
-import { isMockAuthEnabled, MOCK_USERS } from '@/services/mockAuth';
+import { isMockAuthEnabled, mockLoginWithRealToken } from '@/services/mockAuth';
 import { UserRole } from '@/types';
 import { ROLE_REDIRECT_MAP } from '@/utils/constants';
 
@@ -33,9 +33,9 @@ const DevRoleSwitcher: React.FC = () => {
 
   if (!isMockAuthEnabled()) return null;
 
-  const handleSwitch = (role: UserRole) => {
-    const mockUser = MOCK_USERS[role];
-    login(mockUser, 'mock-jwt-token-for-dev-only');
+  const handleSwitch = async (role: UserRole) => {
+    const { user: u, token } = await mockLoginWithRealToken(role);
+    login(u, token);
     navigate(ROLE_REDIRECT_MAP[role] || '/login');
     setExpanded(false);
   };

@@ -1,5 +1,6 @@
 package com.taevas.clinic.controller.clinicadmin;
 
+import com.taevas.clinic.controller.BaseController;
 import com.taevas.clinic.dto.ApiResponse;
 import com.taevas.clinic.dto.clinicadmin.*;
 import com.taevas.clinic.service.clinicadmin.ClinicAdminConfigService;
@@ -12,9 +13,8 @@ import java.util.*;
 
 @RestController @RequestMapping("/api/clinicadmin/config") @PreAuthorize("hasRole('CLINIC_ADMIN')")
 @Tag(name = "Clinic Admin - Config") @RequiredArgsConstructor
-public class ClinicAdminConfigController {
+public class ClinicAdminConfigController extends BaseController {
     private final ClinicAdminConfigService service;
-    private UUID getClinicId() { return UUID.fromString("d0000000-0000-0000-0000-000000000001"); }
 
     @GetMapping public ResponseEntity<ApiResponse<ClinicConfigDto>> getConfig() {
         return ResponseEntity.ok(ApiResponse.success(service.getClinicConfig(getClinicId())));

@@ -1,5 +1,6 @@
 package com.taevas.clinic.controller.doctor;
 
+import com.taevas.clinic.controller.BaseController;
 import com.taevas.clinic.dto.ApiResponse;
 import com.taevas.clinic.dto.clinicadmin.ClinicDashboardDto;
 import com.taevas.clinic.service.doctor.DoctorDashboardService;
@@ -12,10 +13,8 @@ import java.util.UUID;
 
 @RestController @RequestMapping("/api/doctor/dashboard") @PreAuthorize("hasAnyRole('DOCTOR','CLINIC_ADMIN')")
 @Tag(name = "Doctor - Dashboard") @RequiredArgsConstructor
-public class DoctorDashboardController {
+public class DoctorDashboardController extends BaseController {
     private final DoctorDashboardService service;
-    private UUID getClinicId() { return UUID.fromString("d0000000-0000-0000-0000-000000000001"); }
-    private UUID getStaffId() { return UUID.fromString("a1000000-0000-0000-0000-000000000001"); }
 
     @GetMapping("/stats") public ResponseEntity<ApiResponse<ClinicDashboardDto>> getStats() {
         return ResponseEntity.ok(ApiResponse.success(service.getDashboard(getClinicId(), getStaffId())));

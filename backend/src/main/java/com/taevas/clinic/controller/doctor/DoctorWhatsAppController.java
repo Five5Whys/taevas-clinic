@@ -1,5 +1,6 @@
 package com.taevas.clinic.controller.doctor;
 
+import com.taevas.clinic.controller.BaseController;
 import com.taevas.clinic.dto.ApiResponse;
 import com.taevas.clinic.dto.clinicadmin.WhatsAppConfigDto;
 import com.taevas.clinic.service.doctor.DoctorWhatsAppService;
@@ -12,9 +13,8 @@ import java.util.UUID;
 
 @RestController @RequestMapping("/api/doctor/whatsapp") @PreAuthorize("hasAnyRole('DOCTOR','CLINIC_ADMIN')")
 @Tag(name = "Doctor - WhatsApp") @RequiredArgsConstructor
-public class DoctorWhatsAppController {
+public class DoctorWhatsAppController extends BaseController {
     private final DoctorWhatsAppService service;
-    private UUID getClinicId() { return UUID.fromString("d0000000-0000-0000-0000-000000000001"); }
 
     @GetMapping("/config") public ResponseEntity<ApiResponse<WhatsAppConfigDto>> getConfig() {
         return ResponseEntity.ok(ApiResponse.success(service.getConfig(getClinicId())));
