@@ -1,4 +1,5 @@
-import { createTheme, ThemeOptions, alpha } from '@mui/material/styles';
+import { createTheme, alpha } from '@mui/material/styles';
+import type { ThemeOptions } from '@mui/material/styles';
 
 // Taevas Brand Colors
 const taevasColors = {
