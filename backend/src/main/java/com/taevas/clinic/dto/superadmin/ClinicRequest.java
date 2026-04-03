@@ -27,7 +27,6 @@ public class ClinicRequest {
     private String pincode;
     private String phone;
 
-    @Email(message = "Email must be valid")
     private String email;
 
     private String registrationNumber;

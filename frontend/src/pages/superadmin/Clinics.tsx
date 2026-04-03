@@ -25,22 +25,6 @@ import * as Icons from '@mui/icons-material';
 import { useClinics, useCreateClinic } from '@/hooks/superadmin/useClinics';
 import { ClinicSummary } from '@/types/superadmin';
 
-// ─── Fallback mock data ─────────────────────────────────────────────────────────
-const FALLBACK_CLINICS: ClinicSummary[] = [
-  { id:'1',  countryId:'IN', tenantId:'t1',  name:'ENT Care Center',            city:'Pune',       state:'MH', address:'', pincode:'', phone:'', email:'', registrationNumber:'', licenseNumber:'', licenseValidUntil:'', logoUrl:'', status:'Active', countryName:'India',    countryFlag:'🇮🇳', complianceTags:['ABDM','FHIR R4'] },
-  { id:'2',  countryId:'IN', tenantId:'t2',  name:'Apollo Clinic',              city:'Delhi',      state:'DL', address:'', pincode:'', phone:'', email:'', registrationNumber:'', licenseNumber:'', licenseValidUntil:'', logoUrl:'', status:'Active', countryName:'India',    countryFlag:'🇮🇳', complianceTags:['ABDM','NMC'] },
-  { id:'3',  countryId:'IN', tenantId:'t3',  name:'MedPoint',                   city:'Hyderabad',  state:'TG', address:'', pincode:'', phone:'', email:'', registrationNumber:'', licenseNumber:'', licenseValidUntil:'', logoUrl:'', status:'Active', countryName:'India',    countryFlag:'🇮🇳', complianceTags:['ABDM'] },
-  { id:'4',  countryId:'IN', tenantId:'t4',  name:'CareFirst',                  city:'Bangalore',  state:'KA', address:'', pincode:'', phone:'', email:'', registrationNumber:'', licenseNumber:'', licenseValidUntil:'', logoUrl:'', status:'Active', countryName:'India',    countryFlag:'🇮🇳', complianceTags:['ABDM','NMC'] },
-  { id:'5',  countryId:'IN', tenantId:'t5',  name:'Sree Diagnostics',           city:'Hyderabad',  state:'TG', address:'', pincode:'', phone:'', email:'', registrationNumber:'', licenseNumber:'', licenseValidUntil:'', logoUrl:'', status:'Active', countryName:'India',    countryFlag:'🇮🇳', complianceTags:['ABDM'] },
-  { id:'6',  countryId:'IN', tenantId:'t6',  name:'Fortis ENT',                 city:'Mumbai',     state:'MH', address:'', pincode:'', phone:'', email:'', registrationNumber:'', licenseNumber:'', licenseValidUntil:'', logoUrl:'', status:'Active', countryName:'India',    countryFlag:'🇮🇳', complianceTags:['ABDM','FHIR R4'] },
-  { id:'7',  countryId:'IN', tenantId:'t7',  name:'Kokilaben ENT',              city:'Mumbai',     state:'MH', address:'', pincode:'', phone:'', email:'', registrationNumber:'', licenseNumber:'', licenseValidUntil:'', logoUrl:'', status:'Active', countryName:'India',    countryFlag:'🇮🇳', complianceTags:['ABDM'] },
-  { id:'8',  countryId:'IN', tenantId:'t8',  name:'Medanta ENT',                city:'Gurgaon',    state:'HR', address:'', pincode:'', phone:'', email:'', registrationNumber:'', licenseNumber:'', licenseValidUntil:'', logoUrl:'', status:'Active', countryName:'India',    countryFlag:'🇮🇳', complianceTags:['ABDM'] },
-  { id:'9',  countryId:'TH', tenantId:'t9',  name:'Bangkok ENT Clinic',         city:'Bangkok',    state:'',   address:'', pincode:'', phone:'', email:'', registrationNumber:'', licenseNumber:'', licenseValidUntil:'', logoUrl:'', status:'Active', countryName:'Thailand', countryFlag:'🇹🇭', complianceTags:['NHSO','PDPA'] },
-  { id:'10', countryId:'TH', tenantId:'t10', name:'Phuket Medical Center',      city:'Phuket',     state:'',   address:'', pincode:'', phone:'', email:'', registrationNumber:'', licenseNumber:'', licenseValidUntil:'', logoUrl:'', status:'Active', countryName:'Thailand', countryFlag:'🇹🇭', complianceTags:['NHSO','MOPH'] },
-  { id:'11', countryId:'TH', tenantId:'t11', name:'Bumrungrad ENT',             city:'Bangkok',    state:'',   address:'', pincode:'', phone:'', email:'', registrationNumber:'', licenseNumber:'', licenseValidUntil:'', logoUrl:'', status:'Pilot',  countryName:'Thailand', countryFlag:'🇹🇭', complianceTags:['NHSO'] },
-  { id:'12', countryId:'MV', tenantId:'t12', name:'Male ENT & Hearing',         city:'Male',       state:'',   address:'', pincode:'', phone:'', email:'', registrationNumber:'', licenseNumber:'', licenseValidUntil:'', logoUrl:'', status:'Pilot',  countryName:'Maldives', countryFlag:'🇲🇻', complianceTags:['MOH'] },
-];
-
 // ─── Helpers ────────────────────────────────────────────────────────────────────
 const AVATAR_PALETTE = ['#5519E6', '#A046F0', '#FF8232', '#25D366', '#CDDC50'];
 
@@ -79,15 +63,11 @@ const Clinics: React.FC = () => {
   const [form, setForm] = useState(EMPTY_FORM);
   const [snack, setSnack] = useState<{ open: boolean; message: string; severity: 'success' | 'error' }>({ open: false, message: '', severity: 'success' });
 
-  const { data, isLoading, isError } = useClinics({ search: search || undefined, countryId: tenantFilter || undefined });
+  const { data, isLoading, isError } = useClinics({ search: search || undefined, countryId: tenantFilter || undefined, size: 200 });
   const createClinic = useCreateClinic();
 
-  const [localClinics, setLocalClinics] = useState<ClinicSummary[]>([]);
-
-  // Use API data — no fallback to mock
   const apiClinics: ClinicSummary[] = data?.content ?? (Array.isArray(data) ? data : []);
-  const allClinics = [...localClinics, ...apiClinics];
-  const clinics = tenantFilter ? allClinics.filter(c => c.countryId === tenantFilter) : allClinics;
+  const clinics = tenantFilter ? apiClinics.filter(c => c.countryId === tenantFilter) : apiClinics;
 
   return (
     <>
@@ -334,12 +314,10 @@ const Clinics: React.FC = () => {
                   {
                     name: form.name,
                     countryId: form.countryId,
-                    city: form.city,
-                    address: form.address,
-                    phone: form.phone,
-                    email: form.email,
-                    countryName: tenant?.label ?? '',
-                    countryFlag: tenant?.flag ?? '',
+                    city: form.city || undefined,
+                    address: form.address || undefined,
+                    phone: form.phone || undefined,
+                    email: form.email || undefined,
                     status: 'PILOT',
                   } as Partial<ClinicSummary>,
                   {
@@ -348,20 +326,9 @@ const Clinics: React.FC = () => {
                       setForm(EMPTY_FORM);
                       setAddOpen(false);
                     },
-                    onError: () => {
-                      // API failed (mock mode / no auth) — add locally
-                      const newClinic: ClinicSummary = {
-                        id: `local-${Date.now()}`, countryId: form.countryId, tenantId: '',
-                        name: form.name, city: form.city, state: '', address: form.address,
-                        pincode: '', phone: form.phone, email: form.email,
-                        registrationNumber: '', licenseNumber: '', licenseValidUntil: '', logoUrl: '',
-                        status: 'Pilot', countryName: tenant?.label ?? '', countryFlag: tenant?.flag ?? '',
-                        complianceTags: [],
-                      };
-                      setLocalClinics(prev => [newClinic, ...prev]);
-                      setSnack({ open: true, message: `Clinic "${form.name}" added (local — will sync when BE connected)`, severity: 'success' });
-                      setForm(EMPTY_FORM);
-                      setAddOpen(false);
+                    onError: (err: any) => {
+                      const msg = err?.response?.data?.message || err?.message || 'Failed to create clinic';
+                      setSnack({ open: true, message: msg, severity: 'error' });
                     },
                   }
                 );
