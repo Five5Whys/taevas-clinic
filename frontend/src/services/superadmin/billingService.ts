@@ -1,5 +1,5 @@
 import api from '../api';
-import { BillingConfigDto, ApiResponse } from '../../types/superadmin';
+import type { BillingConfigDto, ApiResponse } from '../../types/superadmin';
 
 export const billingService = {
   getByCountry: async (countryId: string): Promise<BillingConfigDto> => {

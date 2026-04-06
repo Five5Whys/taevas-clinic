@@ -1,5 +1,5 @@
 import api from '../api';
-import { LocaleSettingsDto, ApiResponse } from '../../types/superadmin';
+import type { LocaleSettingsDto, ApiResponse } from '../../types/superadmin';
 
 export const localeService = {
   getByCountry: async (countryId: string): Promise<LocaleSettingsDto> => {

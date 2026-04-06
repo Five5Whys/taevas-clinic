@@ -18,7 +18,7 @@ import { useAuthStore } from '@/stores/authStore';
 import { ROLE_REDIRECT_MAP } from '@/utils/constants';
 import { getErrorMessage } from '@/utils/helpers';
 import { isMockAuthEnabled, mockVerifyOtp, mockSendOtp } from '@/services/mockAuth';
-import { UserRole } from '@/types';
+import type { UserRole } from '@/types';
 
 const ROLE_OPTIONS: { role: UserRole; label: string; color: string; icon: string }[] = [
   { role: 'SUPERADMIN', label: 'Super Admin', color: '#A046F0', icon: '🌍' },

@@ -1,5 +1,5 @@
 import api from '../api';
-import { DashboardStats, AuditLogEntry, PagedResponse, ApiResponse } from '../../types/superadmin';
+import type { DashboardStats, AuditLogEntry, PagedResponse, ApiResponse } from '../../types/superadmin';
 
 export const dashboardService = {
   getStats: async (): Promise<DashboardStats> => {

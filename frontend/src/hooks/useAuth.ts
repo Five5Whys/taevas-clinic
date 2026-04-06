@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 import { useAuthStore } from '@/stores/authStore';
-import { User, UserRole } from '@/types';
+import type { User, UserRole } from '@/types';
 
 interface UseAuthReturn {
   user: User | null;

@@ -21,7 +21,7 @@ import { Search } from '@mui/icons-material';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import { useRoster, useUpdateRoles, useDeactivateDoctor } from '@/hooks/superadmin/useRoster';
 import { useCountries } from '@/hooks/superadmin/useCountries';
-import { DoctorRosterDto } from '@/types/superadmin';
+import type { DoctorRosterDto } from '@/types/superadmin';
 
 // ─── Fallback Data ──────────────────────────────────────────────────────────────
 const MOCK_DOCTORS: DoctorRosterDto[] = [

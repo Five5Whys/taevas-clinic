@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { fieldService } from '../../services/superadmin/fieldService';
-import { FieldDefinitionDto } from '../../types/superadmin';
+import type { FieldDefinitionDto } from '../../types/superadmin';
 
 export const useFields = (section: string, countryId?: string) => {
   return useQuery({

@@ -1,5 +1,5 @@
 import api from '../api';
-import { FieldDefinitionDto, ApiResponse } from '../../types/superadmin';
+import type { FieldDefinitionDto, ApiResponse } from '../../types/superadmin';
 
 export const fieldService = {
   getFields: async (section: string, countryId?: string): Promise<FieldDefinitionDto[]> => {

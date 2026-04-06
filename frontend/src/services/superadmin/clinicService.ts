@@ -1,5 +1,5 @@
 import api from '../api';
-import { ClinicSummary, PagedResponse, ApiResponse } from '../../types/superadmin';
+import type { ClinicSummary, PagedResponse, ApiResponse } from '../../types/superadmin';
 
 export interface ClinicListParams {
   countryId?: string;

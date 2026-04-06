@@ -1,5 +1,5 @@
 import api from '../api';
-import { IdFormatTemplateDto, ApiResponse } from '../../types/superadmin';
+import type { IdFormatTemplateDto, ApiResponse } from '../../types/superadmin';
 
 export const idFormatService = {
   getByCountry: async (countryId: string): Promise<IdFormatTemplateDto[]> => {

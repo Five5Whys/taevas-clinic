@@ -1,5 +1,5 @@
 import api from '../api';
-import { DoctorRosterDto, PagedResponse, ApiResponse } from '../../types/superadmin';
+import type { DoctorRosterDto, PagedResponse, ApiResponse } from '../../types/superadmin';
 
 export interface RosterListParams {
   country?: string;

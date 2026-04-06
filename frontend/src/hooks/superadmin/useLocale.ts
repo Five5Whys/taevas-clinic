@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { localeService } from '../../services/superadmin/localeService';
-import { LocaleSettingsDto } from '../../types/superadmin';
+import type { LocaleSettingsDto } from '../../types/superadmin';
 
 export const useLocaleSettings = (countryId: string) => {
   return useQuery({

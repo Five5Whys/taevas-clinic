@@ -1,5 +1,5 @@
 import api from '../api';
-import { FeatureFlagDto, ApiResponse } from '../../types/superadmin';
+import type { FeatureFlagDto, ApiResponse } from '../../types/superadmin';
 
 export const featureFlagService = {
   getAll: async (): Promise<FeatureFlagDto[]> => {

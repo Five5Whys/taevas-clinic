@@ -1,5 +1,5 @@
 import api from '../api';
-import { CountryConfig, ApiResponse } from '../../types/superadmin';
+import type { CountryConfig, ApiResponse } from '../../types/superadmin';
 
 export const countryService = {
   getAll: async (): Promise<CountryConfig[]> => {

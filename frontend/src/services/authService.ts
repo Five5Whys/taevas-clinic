@@ -1,5 +1,5 @@
 import api from './api';
-import { AuthResponse, SendOtpRequest, VerifyOtpRequest, TokenRefreshResponse } from '@/types';
+import type { AuthResponse, SendOtpRequest, VerifyOtpRequest, TokenRefreshResponse } from '@/types';
 
 const authService = {
   /**

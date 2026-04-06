@@ -1,4 +1,4 @@
-import { UserRole } from '@/types';
+import type { UserRole } from '@/types';
 
 // Country Codes — single source of truth
 export const COUNTRY_CODES = [

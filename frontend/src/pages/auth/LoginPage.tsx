@@ -21,7 +21,7 @@ import {
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { useAuthStore } from '@/stores/authStore';
 import { isMockAuthEnabled, mockLoginWithRealToken } from '@/services/mockAuth';
-import { UserRole } from '@/types';
+import type { UserRole } from '@/types';
 import { ROLE_REDIRECT_MAP, COUNTRY_CODES } from '@/utils/constants';
 import authService from '@/services/authService';
 import { getErrorMessage } from '@/utils/helpers';

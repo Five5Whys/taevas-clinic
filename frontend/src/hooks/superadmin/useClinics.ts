@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { clinicService, ClinicListParams } from '../../services/superadmin/clinicService';
-import { ClinicSummary } from '../../types/superadmin';
+import type { ClinicSummary } from '../../types/superadmin';
 
 export const useClinics = (params: ClinicListParams = {}) => {
   return useQuery({

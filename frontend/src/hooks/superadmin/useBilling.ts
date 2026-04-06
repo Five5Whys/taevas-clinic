@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { billingService } from '../../services/superadmin/billingService';
-import { BillingConfigDto } from '../../types/superadmin';
+import type { BillingConfigDto } from '../../types/superadmin';
 
 export const useBillingConfig = (countryId: string) => {
   return useQuery({

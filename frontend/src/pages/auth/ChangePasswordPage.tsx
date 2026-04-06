@@ -15,7 +15,7 @@ import {
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { useAuthStore } from '@/stores/authStore';
 import { ROLE_REDIRECT_MAP } from '@/utils/constants';
-import { UserRole } from '@/types';
+import type { UserRole } from '@/types';
 import api from '@/services/api';
 
 const BRAND = '#5519E6';

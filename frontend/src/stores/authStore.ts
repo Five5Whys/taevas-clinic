@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { User, AuthState, UserRole } from '@/types';
+import type { User, AuthState, UserRole } from '@/types';
 import authService from '@/services/authService';
 import { isMockAuthEnabled, mockLoginWithRealToken } from '@/services/mockAuth';
 

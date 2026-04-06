@@ -3,7 +3,7 @@ import { Box, Card, CardContent, Typography, Switch, CircularProgress, Skeleton 
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import { useCountries } from '@/hooks/superadmin/useCountries';
 import { useCompliance, useToggleModule } from '@/hooks/superadmin/useCompliance';
-import { CountryConfig, ComplianceModuleDto } from '@/types/superadmin';
+import type { CountryConfig, ComplianceModuleDto } from '@/types/superadmin';
 
 // ─── Mock fallback data ──────────────────────────────────────────────────────
 const MOCK_TENANTS: Pick<CountryConfig, 'id' | 'name' | 'flagEmoji' | 'clinicCount' | 'doctorCount'>[] = [

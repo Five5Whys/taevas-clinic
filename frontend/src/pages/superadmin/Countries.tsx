@@ -20,7 +20,7 @@ import {
 } from '@mui/material';
 import * as Icons from '@mui/icons-material';
 import DashboardLayout from '@/components/layout/DashboardLayout';
-import { useCountries, useUpdateCountry } from '@/hooks/superadmin/useCountries';
+import { useCountries, useUpdateCountry, useCreateCountry } from '@/hooks/superadmin/useCountries';
 import type {
   TenantFullConfig,
   TenantLoginConfig,
@@ -44,50 +44,6 @@ const STATUS_COLORS: Record<string, { color: string; bg: string; border: string 
   ACTIVE: { color: GREEN, bg: '#CDDC5020', border: '#CDDC5045' },
   INACTIVE: { color: '#9F1239', bg: '#F43F5E12', border: '#F43F5E30' },
 };
-
-// ─── Mock Data ─────────────────────────────────────────────────────────────────
-const INITIAL_TENANTS: TenantFullConfig[] = [
-  {
-    id: 'india', tenantId: 'TN-000', code: 'IN', name: 'India', flagEmoji: '\u{1F1EE}\u{1F1F3}', status: 'ACTIVE',
-    currencyCode: 'INR', currencySymbol: '\u20B9', dialCode: '+91',
-    loginConfig: { emailEnabled: false, phoneEnabled: true, nationalIdEnabled: false, phoneOtp: { length: 6, expiryMin: 5, retries: 3, smsMessage: '{{otp}} is your code' }, nationalId: { systemName: 'ABHA', format: '##-####-####-####' } },
-    locale: { timezone: 'Asia/Kolkata', primaryLanguage: 'English', secondaryLanguage: 'Hindi' },
-    compliance: { modules: ['FHIR R4', 'ABDM / ABHA', 'NMC', 'E2E Encryption', 'ICD-10', 'Audit Logs'], regulatoryBody: 'NMC + ABDM', dataResidency: 'ap-south-1 (Mumbai)' },
-    clinical: { countryPrefix: 'IN', userIdFormat: 'IN-UR-#####', clinicIdFormat: 'IN-CL-###', billingModel: 'Per Clinic / Month', taxType: 'GST', taxRate: 18 },
-    stats: { clinics: 8, doctors: 31, patients: 1247, uniqueLogins: 892, uptime: '96.2%' },
-    dateFormat: 'DD/MM/YYYY', primaryLanguage: 'English', secondaryLanguage: 'Hindi', regulatoryBodies: ['NMC', 'ABDM'], taxType: 'GST', taxRate: 18, clinicCount: 8, doctorCount: 31,
-  },
-  {
-    id: 'thailand', tenantId: 'TN-001', code: 'TH', name: 'Thailand', flagEmoji: '\u{1F1F9}\u{1F1ED}', status: 'ACTIVE',
-    currencyCode: 'THB', currencySymbol: '\u0E3F', dialCode: '+66',
-    loginConfig: { emailEnabled: false, phoneEnabled: true, nationalIdEnabled: false, phoneOtp: { length: 6, expiryMin: 5, retries: 3, smsMessage: '{{otp}} code' }, nationalId: { systemName: 'NHSO', format: '#-####-#####-##-#' } },
-    locale: { timezone: 'Asia/Bangkok', primaryLanguage: 'Thai', secondaryLanguage: 'English' },
-    compliance: { modules: ['FHIR R4', 'NHSO', 'PDPA', 'ICD-10', 'Audit Logs'], regulatoryBody: 'MOPH', dataResidency: 'ap-southeast-1' },
-    clinical: { countryPrefix: 'TH', userIdFormat: 'TH-UR-#####', clinicIdFormat: 'TH-CL-###', billingModel: 'Per Clinic / Month', taxType: 'VAT', taxRate: 7 },
-    stats: { clinics: 3, doctors: 11, patients: 402, uniqueLogins: 284, uptime: '99.1%' },
-    dateFormat: 'DD/MM/YYYY', primaryLanguage: 'Thai', secondaryLanguage: 'English', regulatoryBodies: ['MOPH', 'NHSO'], taxType: 'VAT', taxRate: 7, clinicCount: 3, doctorCount: 11,
-  },
-  {
-    id: 'maldives', tenantId: 'TN-002', code: 'MV', name: 'Maldives', flagEmoji: '\u{1F1F2}\u{1F1FB}', status: 'INACTIVE',
-    currencyCode: 'MVR', currencySymbol: 'Rf', dialCode: '+960',
-    loginConfig: { emailEnabled: false, phoneEnabled: true, nationalIdEnabled: false, phoneOtp: { length: 6, expiryMin: 5, retries: 3, smsMessage: '{{otp}} code' } },
-    locale: { timezone: 'Indian/Maldives', primaryLanguage: 'Dhivehi', secondaryLanguage: 'English' },
-    compliance: { modules: ['FHIR R4', 'MOH', 'E2E Encryption', 'Audit Logs'], regulatoryBody: 'MOH', dataResidency: 'ap-south-1' },
-    clinical: { countryPrefix: 'MV', userIdFormat: 'MV-UR-#####', clinicIdFormat: 'MV-CL-###', billingModel: 'Per Clinic / Month', taxType: 'GST', taxRate: 8 },
-    stats: { clinics: 1, doctors: 5, patients: 87, uniqueLogins: 42, uptime: '98.5%' },
-    dateFormat: 'DD/MM/YYYY', primaryLanguage: 'Dhivehi', secondaryLanguage: 'English', regulatoryBodies: ['MOH'], taxType: 'GST', taxRate: 8, clinicCount: 1, doctorCount: 5,
-  },
-  {
-    id: 'singapore', tenantId: 'TN-003', code: 'SG', name: 'Singapore', flagEmoji: '\u{1F1F8}\u{1F1EC}', status: 'INACTIVE' as TenantStatusType,
-    currencyCode: 'SGD', currencySymbol: 'S$', dialCode: '+65',
-    loginConfig: { emailEnabled: true, phoneEnabled: false, nationalIdEnabled: false, emailOtp: { length: 6, expiryMin: 15, retries: 5, subject: 'Your {{clinic_name}} code: {{otp}}', body: 'Hi {{user_name}}, your code is {{otp}}' } },
-    locale: { timezone: 'Asia/Singapore', primaryLanguage: 'English', secondaryLanguage: '' },
-    compliance: { modules: ['FHIR R4', 'E2E Encryption', 'PDPA', 'ICD-10', 'Audit Logs'], regulatoryBody: 'MOH SG', dataResidency: 'ap-southeast-1' },
-    clinical: { countryPrefix: 'SG', userIdFormat: 'SG-UR-#####', clinicIdFormat: 'SG-CL-###', billingModel: 'Per Clinic / Month', taxType: 'GST', taxRate: 9 },
-    stats: { clinics: 0, doctors: 0, patients: 0, uniqueLogins: 0, uptime: '\u2014' },
-    dateFormat: 'DD/MM/YYYY', primaryLanguage: 'English', secondaryLanguage: '', regulatoryBodies: ['MOH SG'], taxType: 'GST', taxRate: 9, clinicCount: 0, doctorCount: 0,
-  },
-];
 
 const DEFAULT_WIZARD: TenantDraft = {
   loginConfig: { emailEnabled: false, phoneEnabled: false, nationalIdEnabled: false },
@@ -139,8 +95,8 @@ const apiToTenant = (c: any): TenantFullConfig => {
 // ─── Main Component ────────────────────────────────────────────────────────────
 const Countries: React.FC = () => {
   const { data: apiCountries } = useCountries();
-  const [tenants, setTenants] = useState<TenantFullConfig[]>(INITIAL_TENANTS);
-  const [selectedId, setSelectedId] = useState(INITIAL_TENANTS[0]?.id || '');
+  const [tenants, setTenants] = useState<TenantFullConfig[]>([]);
+  const [selectedId, setSelectedId] = useState('');
   const [search, setSearch] = useState('');
   const [showWizard, setShowWizard] = useState(false);
   const [wizardStep, setWizardStep] = useState(1);
@@ -153,6 +109,7 @@ const Countries: React.FC = () => {
   const [wizSmsApiOpen, setWizSmsApiOpen] = useState(false);
   const [confirmDialog, setConfirmDialog] = useState<{ open: boolean; tenantId: string }>({ open: false, tenantId: '' });
   const updateCountry = useUpdateCountry();
+  const createCountry = useCreateCountry();
 
   // Load from API when data arrives
   useEffect(() => {
@@ -230,38 +187,36 @@ const Countries: React.FC = () => {
 
   const handleWizardSubmit = () => {
     const d = wizardData;
-    const newId = d.identity.countryName.toLowerCase().replace(/\s+/g, '-');
-    const tnNum = tenants.length.toString().padStart(3, '0');
-    const newTenant: TenantFullConfig = {
-      id: newId,
-      tenantId: `TN-${tnNum}`,
+    const payload = {
       code: d.identity.isoCode,
       name: d.identity.countryName,
       flagEmoji: d.identity.flagEmoji,
       status: 'INACTIVE',
       currencyCode: d.setup.currency,
       currencySymbol: '',
-      dialCode: d.identity.dialCode,
-      loginConfig: { ...d.loginConfig },
-      locale: { timezone: d.setup.timezone, primaryLanguage: d.setup.language, secondaryLanguage: '' },
-      compliance: { modules: [...d.setup.complianceModules], regulatoryBody: '', dataResidency: '' },
-      clinical: { countryPrefix: d.setup.countryPrefix, userIdFormat: d.setup.userIdFormat, clinicIdFormat: d.setup.clinicIdFormat, billingModel: d.setup.billingModel, taxType: '', taxRate: 0 },
-      stats: { clinics: 0, doctors: 0, patients: 0, uniqueLogins: 0, uptime: '\u2014' },
+      taxType: '',
+      taxRate: 0,
       dateFormat: 'DD/MM/YYYY',
       primaryLanguage: d.setup.language,
       secondaryLanguage: '',
-      regulatoryBodies: [],
-      taxType: '',
-      taxRate: 0,
-      clinicCount: 0,
-      doctorCount: 0,
+      regulatoryBody: '',
+      dialCode: d.identity.dialCode,
+      config: JSON.stringify({
+        loginConfig: { ...d.loginConfig },
+        locale: { timezone: d.setup.timezone, primaryLanguage: d.setup.language, secondaryLanguage: '' },
+        compliance: { modules: [...d.setup.complianceModules], regulatoryBody: '', dataResidency: '' },
+        clinical: { countryPrefix: d.setup.countryPrefix, userIdFormat: d.setup.userIdFormat, clinicIdFormat: d.setup.clinicIdFormat, billingModel: d.setup.billingModel, taxType: '', taxRate: 0 },
+      }),
     };
-    setTenants(prev => [...prev, newTenant]);
-    setSelectedId(newId);
-    setShowWizard(false);
-    setWizardStep(1);
-    setWizardData(JSON.parse(JSON.stringify(DEFAULT_WIZARD)));
-    setAlertMsg(`${d.identity.countryName} added as INACTIVE.`);
+    createCountry.mutate(payload as any, {
+      onSuccess: () => {
+        setAlertMsg(`${d.identity.countryName} tenant created.`);
+        setShowWizard(false);
+        setWizardStep(1);
+        setWizardData(JSON.parse(JSON.stringify(DEFAULT_WIZARD)));
+      },
+      onError: () => setAlertMsg('Failed to create tenant — please try again.'),
+    });
   };
 
   const wizardValid = (step: number): boolean => {
@@ -948,9 +903,10 @@ const Countries: React.FC = () => {
             <Button
               variant="contained" size="small"
               onClick={handleWizardSubmit}
+              disabled={createCountry.isPending}
               sx={{ background: GREEN, '&:hover': { background: '#5a6600' }, fontWeight: 700, textTransform: 'none' }}
             >
-              Submit
+              {createCountry.isPending ? 'Creating...' : 'Submit'}
             </Button>
           )}
         </Box>

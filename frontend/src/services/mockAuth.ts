@@ -2,7 +2,7 @@
  * Mock Auth Service — enables the frontend to run standalone without the backend.
  * Activated when VITE_MOCK_AUTH=true in .env (default in dev).
  */
-import { User, UserRole } from '@/types';
+import type { User, UserRole } from '@/types';
 import api from './api';
 
 // Pre-built mock users for each role

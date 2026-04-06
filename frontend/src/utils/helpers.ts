@@ -1,5 +1,5 @@
 import { format, parseISO } from 'date-fns';
-import { User } from '@/types';
+import type { User } from '@/types';
 
 /**
  * Format phone number to readable format

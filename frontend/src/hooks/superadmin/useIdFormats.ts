@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { idFormatService } from '../../services/superadmin/idFormatService';
-import { IdFormatTemplateDto } from '../../types/superadmin';
+import type { IdFormatTemplateDto } from '../../types/superadmin';
 
 export const useIdFormats = (countryId: string) => {
   return useQuery({

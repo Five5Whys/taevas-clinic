@@ -17,7 +17,7 @@ import {
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import { useCountries } from '@/hooks/superadmin/useCountries';
 import { useBillingConfig, useUpdateBilling } from '@/hooks/superadmin/useBilling';
-import { BillingConfigDto, CountryConfig } from '@/types/superadmin';
+import type { BillingConfigDto, CountryConfig } from '@/types/superadmin';
 
 // ─── Toggle Row ────────────────────────────────────────────────────────────────
 const ToggleRow: React.FC<{

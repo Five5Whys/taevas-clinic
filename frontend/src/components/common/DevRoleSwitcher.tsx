@@ -15,7 +15,7 @@ import * as Icons from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '@/stores/authStore';
 import { isMockAuthEnabled, mockLoginWithRealToken } from '@/services/mockAuth';
-import { UserRole } from '@/types';
+import type { UserRole } from '@/types';
 import { ROLE_REDIRECT_MAP } from '@/utils/constants';
 
 const ROLES: { role: UserRole; label: string; color: string; icon: string }[] = [

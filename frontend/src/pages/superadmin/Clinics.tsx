@@ -23,7 +23,7 @@ import {
 import * as Icons from '@mui/icons-material';
 // DashboardLayout provided by parent Manage page
 import { useClinics, useCreateClinic } from '@/hooks/superadmin/useClinics';
-import { ClinicSummary } from '@/types/superadmin';
+import type { ClinicSummary } from '@/types/superadmin';
 
 // ─── Helpers ────────────────────────────────────────────────────────────────────
 const AVATAR_PALETTE = ['#5519E6', '#A046F0', '#FF8232', '#25D366', '#CDDC50'];

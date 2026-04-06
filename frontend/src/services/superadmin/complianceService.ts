@@ -1,5 +1,5 @@
 import api from '../api';
-import { ComplianceModuleDto, ApiResponse } from '../../types/superadmin';
+import type { ComplianceModuleDto, ApiResponse } from '../../types/superadmin';
 
 export const complianceService = {
   getByCountry: async (countryId: string): Promise<ComplianceModuleDto[]> => {

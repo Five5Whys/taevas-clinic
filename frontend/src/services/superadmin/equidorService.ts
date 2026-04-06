@@ -1,5 +1,5 @@
 import api from '../api';
-import { EquidorSessionDto, EquidorFileDto, ApiResponse } from '../../types/superadmin';
+import type { EquidorSessionDto, EquidorFileDto, ApiResponse } from '../../types/superadmin';
 
 export interface EquidorSessionParams {
   dateFrom?: string;

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
-import { UserRole } from '@/types';
+import type { UserRole } from '@/types';
 import LoadingSkeleton from './LoadingSkeleton';
 
 interface ProtectedRouteProps {

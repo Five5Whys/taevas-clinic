@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { countryService } from '../../services/superadmin/countryService';
-import { CountryConfig } from '../../types/superadmin';
+import type { CountryConfig } from '../../types/superadmin';
 
 export const useCountries = () => {
   return useQuery({
