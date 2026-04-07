@@ -18,3 +18,14 @@ frontend/dist/
 # Env overrides
 *.env.local
 *.env.production
+
+# Secrets & keys
+*.pem
+*.PEM
+*.ppk
+
+# Binaries
+*.exe
+
+# Test artifacts
+frontend/test-results/
