@@ -1,5 +1,4 @@
 import { Box, Typography, Button } from '@mui/material';
-import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 
 interface ErrorStateProps {
   title?: string;
@@ -13,7 +12,7 @@ export const ErrorState = ({
   onRetry
 }: ErrorStateProps) => (
   <Box sx={{ textAlign: 'center', py: 8, px: 2 }}>
-    <ErrorOutlineIcon sx={{ fontSize: 64, color: 'error.main', mb: 2 }} />
+    <Typography sx={{ fontSize: 64, mb: 2, lineHeight: 1 }}>&#9888;</Typography>
     <Typography variant="h6" gutterBottom>{title}</Typography>
     <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>{message}</Typography>
     {onRetry && (
