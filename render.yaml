@@ -5,7 +5,6 @@ databases:
     user: taevas
 
 services:
-  # Backend API
   - type: web
     plan: free
     name: taevas-api
@@ -39,25 +38,3 @@ services:
         generateValue: true
       - key: CORS_ALLOWED_ORIGINS
         value: https://taevas-app.onrender.com
-
-  # Frontend Static Site
-  - type: web
-    plan: free
-    name: taevas-app
-    runtime: static
-    buildCommand: cd frontend && npm install && npm run build
-    staticPublishPath: ./frontend/dist
-    routes:
-      - type: rewrite
-        source: /*
-        destination: /index.html
-    headers:
-      - path: /*
-        name: X-Frame-Options
-        value: DENY
-      - path: /*
-        name: X-Content-Type-Options
-        value: nosniff
-    envVars:
-      - key: VITE_API_BASE_URL
-        value: https://taevas-api.onrender.com/api
