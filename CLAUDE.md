@@ -28,12 +28,19 @@ npm run dev -- --host
 Frontend runs on `http://localhost:5173`. Vite proxies `/api` → `localhost:8080`.
 
 ## Login Credentials
-- Phone: `9876543210` / Password: `password` → SUPERADMIN role
+- Phone: `9876543210` / Password: `wecandonow` → SUPERADMIN role
 
 ## Roles
 SUPERADMIN, CLINIC_ADMIN, DOCTOR, PATIENT
 
-## External Access (Tunnel)
+## Production
+- **URL**: https://taevasclinic.taevasglobal.com
+- **Server**: AWS Lightsail, Ubuntu 24.04, IP 54.204.220.170
+- **SSL**: Let's Encrypt (auto-renew)
+- **Rate limiting**: Nginx, 10 req/min on /api/auth/ endpoints
+- **SSH**: `ssh -i Ashraf-New1.PEM ashraf42@54.204.220.170`
+
+## External Access (Local Dev)
 ```bash
 cloudflared tunnel --url http://localhost:5173
 ```
