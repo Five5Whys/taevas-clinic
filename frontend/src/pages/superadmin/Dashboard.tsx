@@ -8,6 +8,7 @@ import {
   Chip,
   Stack,
   LinearProgress,
+  Button,
 } from '@mui/material';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import LoadingSkeleton from '@/components/common/LoadingSkeleton';
@@ -365,6 +366,9 @@ const SuperAdminDashboard: React.FC = () => {
                   </Box>
                 ))}
               </Box>
+              <Button size="small" variant="contained" onClick={() => savePending(pending)}
+                sx={{ mt: 1, fontSize: '10px', fontWeight: 700, textTransform: 'none', borderRadius: '8px', background: 'linear-gradient(90deg, #5519E6, #A046F0)', '&:hover': { background: 'linear-gradient(90deg, #4010C0, #8A30D0)' } }}
+              >Save</Button>
             </CardContent>
           </Card>
         </Grid>
