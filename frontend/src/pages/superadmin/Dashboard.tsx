@@ -7,13 +7,12 @@ import {
   Typography,
   Chip,
   Stack,
-  LinearProgress,
-  Button,
 } from '@mui/material';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import LoadingSkeleton from '@/components/common/LoadingSkeleton';
 import { ErrorState } from '@/components/common/ErrorState';
-import { useStats } from '@/hooks/superadmin/useDashboard';
+import { useNavigate } from 'react-router-dom';
+import { useStats, useActivity } from '@/hooks/superadmin/useDashboard';
 import { useCountries } from '@/hooks/superadmin/useCountries';
 import type { DashboardStats, CountryConfig } from '@/types/superadmin';
 
@@ -120,41 +119,11 @@ function setCachedNews(items: NewsItem[]) {
   localStorage.setItem(NEWS_CACHE_KEY, JSON.stringify({ items, ts: Date.now() }));
 }
 
-// ─── Pending Tasks (dynamic via localStorage) ──────────────────────────────
-const PENDING_STORAGE_KEY = 'taevas_sa_pending';
-
-type PendingItem = { id: string; label: string; done: boolean };
-
-const DEFAULT_PENDING: PendingItem[] = [
-  { id: 'templates', label: 'Templates — wire save to API', done: false },
-  { id: 'user-mgmt', label: 'User Management — API persistence', done: false },
-  { id: 'data-import', label: 'Data Import — Start Import handler', done: false },
-  { id: 'audit-log', label: 'Audit Log — connect to BE API', done: false },
-  { id: 'roster-add', label: 'Global Roster — Add Doctor flow', done: false },
-  { id: 'equidor-ts', label: 'Equidor — fix 42 TS errors', done: false },
-];
-
-function loadPending(): PendingItem[] {
-  try {
-    const raw = localStorage.getItem(PENDING_STORAGE_KEY);
-    return raw ? JSON.parse(raw) : DEFAULT_PENDING;
-  } catch { return DEFAULT_PENDING; }
-}
-
-function savePending(items: PendingItem[]) {
-  localStorage.setItem(PENDING_STORAGE_KEY, JSON.stringify(items));
-}
-
 // ─── Main ─────────────────────────────────────────────────────────────────────
 const SuperAdminDashboard: React.FC = () => {
+  const navigate = useNavigate();
   const [newsItems, setNewsItems] = useState<NewsItem[]>(getCachedNews() ?? FALLBACK_NEWS);
-  const [pending, setPending] = useState<PendingItem[]>(loadPending);
-  const doneCount = pending.filter(p => p.done).length;
-  const togglePending = (id: string) => {
-    const next = pending.map(p => p.id === id ? { ...p, done: !p.done } : p);
-    setPending(next);
-    savePending(next);
-  };
+  const { data: activityData } = useActivity(0, 5);
 
   useEffect(() => {
     if (getCachedNews()) return;
@@ -335,40 +304,30 @@ const SuperAdminDashboard: React.FC = () => {
           </Card>
         </Grid>
 
-        {/* Pending Tasks — last */}
+        {/* Recent Audit Activity */}
         <Grid item xs={12} md={3} sx={{ display: 'flex', flexDirection: 'column' }}>
-          <Card sx={{ flex: 1, overflow: 'hidden', borderRadius: '14px', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
+          <Card sx={{ flex: 1, overflow: 'hidden', borderRadius: '14px', boxShadow: '0 1px 3px rgba(0,0,0,0.04)', cursor: 'pointer' }} onClick={() => navigate('/superadmin/audit')}>
             <CardContent sx={{ p: 1.5, pb: '12px !important', height: '100%', display: 'flex', flexDirection: 'column' }}>
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 0.75 }}>
-                <Typography sx={{ fontWeight: 800, fontSize: '12px', color: '#1A1A2E', textTransform: 'uppercase', letterSpacing: '0.5px' }}>ToDo</Typography>
-                <Chip label={`${doneCount}/${pending.length}`} size="small"
-                  sx={{ height: 18, fontSize: '10px', fontWeight: 700, background: doneCount === pending.length ? '#DCFCE7' : '#FEF3C7', color: doneCount === pending.length ? '#16A34A' : '#D97706' }}
+                <Typography sx={{ fontWeight: 800, fontSize: '12px', color: '#1A1A2E', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Recent Activity</Typography>
+                <Chip label="View All" size="small"
+                  sx={{ height: 18, fontSize: '10px', fontWeight: 700, background: '#EDE9FE', color: '#5519E6' }}
                 />
               </Box>
-              <LinearProgress variant="determinate" value={(doneCount / pending.length) * 100}
-                sx={{ height: 3, borderRadius: 2, mb: 1, backgroundColor: '#F3F4F6', '& .MuiLinearProgress-bar': { background: 'linear-gradient(90deg, #5519E6, #A046F0)', borderRadius: 2 } }}
-              />
-              <Box sx={{ flex: 1, overflow: 'auto', display: 'flex', flexDirection: 'column', gap: 0.25 }}>
-                {pending.map((item) => (
-                  <Box key={item.id} onClick={() => togglePending(item.id)} sx={{
-                    display: 'flex', alignItems: 'center', gap: 0.5, py: 0.4, px: 0.5, borderRadius: '8px',
-                    cursor: 'pointer', transition: 'all 0.15s',
-                    '&:hover': { background: '#F5F3FF' },
-                    opacity: item.done ? 0.5 : 1,
-                  }}>
-                    <Typography sx={{
-                      fontSize: '10px', fontWeight: 500, color: '#374151', flex: 1,
-                      textDecoration: item.done ? 'line-through' : 'none',
-                    }}>{item.label}</Typography>
-                    <Box sx={{ fontSize: '14px', lineHeight: 1, flexShrink: 0 }}>
-                      {item.done ? '✅' : '❌'}
-                    </Box>
+              <Box sx={{ flex: 1, overflow: 'auto', display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+                {activityData?.content?.length ? activityData.content.map((entry) => (
+                  <Box key={entry.id} sx={{ py: 0.5, px: 0.5, borderRadius: '8px', borderLeft: '3px solid #5519E6', pl: 1 }}>
+                    <Typography sx={{ fontSize: '10px', fontWeight: 600, color: '#374151' }}>
+                      {entry.action.replace(/_/g, ' ')}
+                    </Typography>
+                    <Typography sx={{ fontSize: '9px', color: '#9CA3AF' }}>
+                      {entry.entityType} &middot; {new Date(entry.createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}
+                    </Typography>
                   </Box>
-                ))}
+                )) : (
+                  <Typography sx={{ fontSize: '10px', color: '#9CA3AF', textAlign: 'center', mt: 2 }}>No recent activity</Typography>
+                )}
               </Box>
-              <Button size="small" variant="contained" onClick={() => savePending(pending)}
-                sx={{ mt: 1, fontSize: '10px', fontWeight: 700, textTransform: 'none', borderRadius: '8px', background: 'linear-gradient(90deg, #5519E6, #A046F0)', '&:hover': { background: 'linear-gradient(90deg, #4010C0, #8A30D0)' } }}
-              >Save</Button>
             </CardContent>
           </Card>
         </Grid>
