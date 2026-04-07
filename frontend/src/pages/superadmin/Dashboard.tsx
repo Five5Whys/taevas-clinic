@@ -315,17 +315,31 @@ const SuperAdminDashboard: React.FC = () => {
                 />
               </Box>
               <Box sx={{ flex: 1, overflow: 'auto', display: 'flex', flexDirection: 'column', gap: 0.5 }}>
-                {activityData?.content?.length ? activityData.content.map((entry) => (
-                  <Box key={entry.id} sx={{ py: 0.5, px: 0.5, borderRadius: '8px', borderLeft: '3px solid #5519E6', pl: 1 }}>
-                    <Typography sx={{ fontSize: '10px', fontWeight: 600, color: '#374151' }}>
-                      {entry.action.replace(/_/g, ' ')}
-                    </Typography>
-                    <Typography sx={{ fontSize: '9px', color: '#9CA3AF' }}>
-                      {entry.entityType} &middot; {new Date(entry.createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}
-                    </Typography>
+                {activityData?.content?.length ? activityData.content.map((entry) => {
+                  const act = entry.action.toUpperCase();
+                  const isCritical = ['DELETE', 'LOGIN_FAILED', 'DISABLE', 'REVOKE'].some(k => act.includes(k));
+                  const isUpdate = act.includes('UPDATE') || act.includes('EDIT');
+                  const color = isCritical ? '#DC2626' : isUpdate ? '#D97706' : '#059669';
+                  const bg = isCritical ? '#FEF2F2' : isUpdate ? '#FFFBEB' : '#F0FDF4';
+                  const icon = isCritical ? '\u26A0' : isUpdate ? '\u270E' : '\u2713';
+                  return (
+                    <Box key={entry.id} sx={{ py: 0.5, px: 0.75, borderRadius: '8px', background: bg, borderLeft: `3px solid ${color}` }}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                        <Typography sx={{ fontSize: '11px', lineHeight: 1 }}>{icon}</Typography>
+                        <Typography sx={{ fontSize: '10px', fontWeight: 700, color, textTransform: 'uppercase' }}>
+                          {act.replace(/_/g, ' ')}
+                        </Typography>
+                      </Box>
+                      <Typography sx={{ fontSize: '9px', color: '#6B7280', mt: 0.25 }}>
+                        {entry.entityType.replace(/_/g, ' ')} &middot; {new Date(entry.createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}
+                      </Typography>
+                    </Box>
+                  );
+                }) : (
+                  <Box sx={{ textAlign: 'center', mt: 2 }}>
+                    <Typography sx={{ fontSize: '18px', mb: 0.5 }}>{'\u2714'}</Typography>
+                    <Typography sx={{ fontSize: '10px', color: '#9CA3AF' }}>No recent activity</Typography>
                   </Box>
-                )) : (
-                  <Typography sx={{ fontSize: '10px', color: '#9CA3AF', textAlign: 'center', mt: 2 }}>No recent activity</Typography>
                 )}
               </Box>
             </CardContent>
