@@ -38,30 +38,6 @@ const Roster: React.FC = () => {
       registration: 'NMC-12345',
       avatar: 'RK',
     },
-    {
-      id: '2',
-      name: 'Dr. Priya Sharma',
-      roles: ['Junior Doctor'],
-      speciality: 'Audiometry',
-      registration: 'NMC-12346',
-      avatar: 'PS',
-    },
-    {
-      id: '3',
-      name: 'Dr. Amit Patel',
-      roles: ['Consultant'],
-      speciality: 'Otolaryngology',
-      registration: 'NMC-12347',
-      avatar: 'AP',
-    },
-    {
-      id: '4',
-      name: 'Dr. Sneha Verma',
-      roles: ['Consultant', 'Telehealth Provider'],
-      speciality: 'Otolaryngology',
-      registration: 'NMC-12348',
-      avatar: 'SV',
-    },
   ]);
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);

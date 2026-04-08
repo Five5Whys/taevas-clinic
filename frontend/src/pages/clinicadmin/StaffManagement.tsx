@@ -53,10 +53,6 @@ interface ClinicUser {
 
 const FALLBACK_STAFF: ClinicUser[] = [
   { id: 'S-001', firstName: 'Dr. Meera', lastName: 'Kapoor', phone: '+919876500010', email: 'meera.kapoor@clinic.com', roles: ['DOCTOR'], status: 'ACTIVE', createdAt: '2026-03-01' },
-  { id: 'S-002', firstName: 'Sanjay', lastName: 'Reddy', phone: '+919876500011', email: 'sanjay.r@clinic.com', roles: ['NURSE'], status: 'ACTIVE', createdAt: '2026-03-05' },
-  { id: 'S-003', firstName: 'Neha', lastName: 'Gupta', phone: '+919876500012', email: 'neha.g@clinic.com', roles: ['ASSISTANT'], status: 'ACTIVE', createdAt: '2026-03-10' },
-  { id: 'S-004', firstName: 'Dr. Arjun', lastName: 'Nair', phone: '+919876500013', email: '', roles: ['DOCTOR'], status: 'INVITED', createdAt: '2026-03-20' },
-  { id: 'S-005', firstName: 'Priya', lastName: 'Menon', phone: '+919876500014', email: 'priya.m@clinic.com', roles: ['NURSE', 'ASSISTANT'], status: 'ACTIVE', createdAt: '2026-02-15' },
 ];
 
 const StaffManagement: React.FC = () => {

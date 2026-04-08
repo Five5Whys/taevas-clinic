@@ -73,10 +73,6 @@ const QuickAction: React.FC<QuickActionProps> = ({ icon, label, onClick }) => (
 // ─── Mock Data (appointments – no list API yet) ─────────────────────────────
 const APPOINTMENTS = [
   { time: '9:00 AM', patient: 'Anita Sharma', doctor: 'Dr. Rajesh', type: 'Follow-up', status: 'Confirmed' },
-  { time: '9:30 AM', patient: 'Priya Das', doctor: 'Dr. Rajesh', type: 'New Visit', status: 'Waiting' },
-  { time: '10:00 AM', patient: 'Vikram Singh', doctor: 'Dr. Meena', type: 'ENT Check', status: 'Confirmed' },
-  { time: '10:30 AM', patient: 'Ravi Patel', doctor: 'Dr. Rajesh', type: 'Surgery Consult', status: 'Confirmed' },
-  { time: '11:00 AM', patient: 'Lakshmi Iyer', doctor: 'Dr. Meena', type: 'Follow-up', status: 'Cancelled' },
 ];
 
 const STATUS_COLORS: Record<string, { bg: string; color: string }> = {
@@ -213,11 +209,11 @@ const Dashboard: React.FC = () => {
           open={snackOpen}
           autoHideDuration={3000}
           onClose={() => setSnackOpen(false)}
-          anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-          sx={{ mb: 8 }}
+          anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+          sx={{ mt: 7 }}
         >
-          <Alert onClose={() => setSnackOpen(false)} severity="info" sx={{ width: '100%' }}>
-            Coming soon
+          <Alert onClose={() => setSnackOpen(false)} severity="warning" variant="outlined" sx={{ width: '100%', fontWeight: 700, bgcolor: '#FFF8E1', color: '#B45309', whiteSpace: 'nowrap' }}>
+            🚧 Coming soon!
           </Alert>
         </Snackbar>
 

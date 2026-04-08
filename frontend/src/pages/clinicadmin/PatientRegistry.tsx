@@ -59,10 +59,6 @@ const PatientRegistry: React.FC = () => {
 
   const FALLBACK_PATIENTS: Patient[] = [
     { id: 'P-001', firstName: 'Anita', lastName: 'Sharma', phone: '9876500001', email: 'anita@email.com', gender: 'Female', bloodGroup: 'B+', lastVisit: '2026-03-28', status: 'ACTIVE' },
-    { id: 'P-002', firstName: 'Vikram', lastName: 'Singh', phone: '9876500002', email: '', gender: 'Male', bloodGroup: 'O+', lastVisit: '2026-03-25', status: 'ACTIVE' },
-    { id: 'P-003', firstName: 'Priya', lastName: 'Das', phone: '9876500003', email: 'priya.das@email.com', gender: 'Female', bloodGroup: 'A+', lastVisit: '2026-03-20', status: 'ACTIVE' },
-    { id: 'P-004', firstName: 'Ravi', lastName: 'Patel', phone: '9876500004', email: '', gender: 'Male', bloodGroup: 'AB+', lastVisit: '2026-02-15', status: 'INACTIVE' },
-    { id: 'P-005', firstName: 'Lakshmi', lastName: 'Iyer', phone: '9876500005', email: 'lakshmi.i@email.com', gender: 'Female', bloodGroup: 'O-', lastVisit: '2026-03-30', status: 'ACTIVE' },
   ];
 
   const isMock = localStorage.getItem('authToken') === 'mock-jwt-token-for-dev-only';
