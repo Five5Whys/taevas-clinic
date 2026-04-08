@@ -15,10 +15,10 @@ import {
   TableRow,
   Chip,
   Button,
-  SelectChangeEvent,
   Alert,
   CircularProgress,
 } from '@mui/material';
+import type { SelectChangeEvent } from '@mui/material';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import { useClinicReport } from '@/hooks/clinicadmin/useReports';
 
