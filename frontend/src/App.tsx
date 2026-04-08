@@ -36,6 +36,8 @@ const CATemplates = lazy(() => import('@/pages/clinicadmin/Templates'));
 const CADataImport = lazy(() => import('@/pages/clinicadmin/DataImport'));
 const CAUserManagement = lazy(() => import('@/pages/clinicadmin/UserManagement'));
 const CAReports = lazy(() => import('@/pages/clinicadmin/Reports'));
+const CAPatientRegistry = lazy(() => import('@/pages/clinicadmin/PatientRegistry'));
+const CAStaffManagement = lazy(() => import('@/pages/clinicadmin/StaffManagement'));
 
 // Doctor Pages
 const DRDashboard = lazy(() => import('@/pages/doctor/Dashboard'));
@@ -157,6 +159,8 @@ const App: React.FC = () => {
                   <Route path="data-import" element={<CADataImport />} />
                   <Route path="users" element={<CAUserManagement />} />
                   <Route path="reports" element={<CAReports />} />
+                  <Route path="patients" element={<CAPatientRegistry />} />
+                  <Route path="staff" element={<CAStaffManagement />} />
                 </Routes>
               </ProtectedRoute>
             }

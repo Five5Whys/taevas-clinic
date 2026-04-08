@@ -214,6 +214,7 @@ const Dashboard: React.FC = () => {
           autoHideDuration={3000}
           onClose={() => setSnackOpen(false)}
           anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+          sx={{ mb: 8 }}
         >
           <Alert onClose={() => setSnackOpen(false)} severity="info" sx={{ width: '100%' }}>
             Coming soon
