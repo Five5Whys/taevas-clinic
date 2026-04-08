@@ -67,7 +67,7 @@ const Reports: React.FC = () => {
 
   return (
     <DashboardLayout pageTitle="Reports">
-      <Alert severity="warning" sx={{ mb: 2, borderRadius: '12px' }}>
+      <Alert severity="warning" variant="outlined" sx={{ mb: 2, borderRadius: '12px', fontWeight: 700, bgcolor: '#FFF8E1', color: '#B45309' }}>
         🚧 This feature is under development — coming soon!
       </Alert>
       {/* Header */}
