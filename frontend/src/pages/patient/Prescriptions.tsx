@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Box, Typography, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Chip, CircularProgress, Alert, TablePagination } from '@mui/material';
+import DashboardLayout from '@/components/layout/DashboardLayout';
 import { usePatientPrescriptions } from '../../hooks/patient';
 
 const Prescriptions = () => {
@@ -8,7 +9,8 @@ const Prescriptions = () => {
   const { data, isLoading, error } = usePatientPrescriptions({ page, size: rowsPerPage });
 
   return (
-    <Box>
+    <DashboardLayout pageTitle="My Prescriptions">
+      <Box sx={{ px: 3, py: 2.5 }}>
       <Typography variant="h5" fontWeight={700} mb={3}>My Prescriptions</Typography>
       {isLoading && <CircularProgress />}
       {error && <Alert severity="error">Failed to load prescriptions</Alert>}
@@ -34,7 +36,8 @@ const Prescriptions = () => {
             onRowsPerPageChange={(e) => { setRowsPerPage(parseInt(e.target.value, 10)); setPage(0); }} />
         </TableContainer>
       )}
-    </Box>
+      </Box>
+    </DashboardLayout>
   );
 };
 export default Prescriptions;

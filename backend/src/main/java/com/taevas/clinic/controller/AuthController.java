@@ -65,16 +65,4 @@ public class AuthController {
         return ResponseEntity.ok(ApiResponse.success("Logged out"));
     }
 
-    @PostMapping("/change-password")
-    @Operation(summary = "Change Password", description = "Change the authenticated user's password")
-    public ResponseEntity<ApiResponse<String>> changePassword(@RequestBody java.util.Map<String, String> body) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
-        String newPassword = body.get("newPassword");
-        if (newPassword == null || newPassword.length() < 8) {
-            return ResponseEntity.badRequest().body(ApiResponse.error("Password must be at least 8 characters"));
-        }
-        authService.changePassword(principal.getId(), newPassword);
-        return ResponseEntity.ok(ApiResponse.success("Password changed"));
-    }
 }

@@ -1,10 +1,12 @@
 import { Box, Typography, Paper, Card, CardContent, Chip, CircularProgress, Alert, Grid } from '@mui/material';
+import DashboardLayout from '@/components/layout/DashboardLayout';
 import { usePatientFamily } from '../../hooks/patient';
 
 const Family = () => {
   const { data, isLoading, error } = usePatientFamily();
   return (
-    <Box>
+    <DashboardLayout pageTitle="My Family">
+      <Box sx={{ px: 3, py: 2.5 }}>
       <Typography variant="h5" fontWeight={700} mb={3}>My Family</Typography>
       {isLoading && <CircularProgress />}
       {error && <Alert severity="error">Failed to load family data</Alert>}
@@ -28,7 +30,8 @@ const Family = () => {
           ))}
         </Grid>
       )}
-    </Box>
+      </Box>
+    </DashboardLayout>
   );
 };
 export default Family;

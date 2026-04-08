@@ -43,7 +43,7 @@ const ChangePasswordPage: React.FC = () => {
     setLoading(true);
     setError('');
     try {
-      await api.post('/auth/change-password', { newPassword });
+      await api.post('/users/change-password', { newPassword });
       const role = user?.role as UserRole;
       if (role) {
         navigate(ROLE_REDIRECT_MAP[role] || '/');

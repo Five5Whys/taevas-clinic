@@ -16,10 +16,12 @@ import {
 } from '@mui/material';
 import * as Icons from '@mui/icons-material';
 import { useAuth } from '@/hooks/useAuth';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { getFullName, getUserInitials } from '@/utils/helpers';
 import { ROLE_REDIRECT_MAP } from '@/utils/constants';
 import type { UserRole } from '@/types';
+
+const ROOT_PATHS = ['/superadmin', '/admin', '/doctor', '/patient'];
 
 interface TopBarProps {
   onMenuClick?: () => void;
@@ -39,8 +41,10 @@ const ROLE_LABELS: Record<string, string> = {
 const TopBar: React.FC<TopBarProps> = ({ onMenuClick }) => {
   const theme = useTheme();
   const navigate = useNavigate();
+  const location = useLocation();
   const { user, logout, setUser } = useAuth();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const isRootPage = ROOT_PATHS.includes(location.pathname);
 
   const [userMenuAnchor, setUserMenuAnchor] = useState<null | HTMLElement>(null);
   const [notificationAnchor, setNotificationAnchor] = useState<null | HTMLElement>(null);
@@ -100,7 +104,7 @@ const TopBar: React.FC<TopBarProps> = ({ onMenuClick }) => {
         }}
       >
         {/* Left Section */}
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flex: 1 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flex: 1 }}>
           {isMobile && (
             <IconButton
               edge="start"
@@ -112,7 +116,16 @@ const TopBar: React.FC<TopBarProps> = ({ onMenuClick }) => {
             </IconButton>
           )}
 
-          {/* Page title removed — shown inside page content */}
+          {/* Back button — hidden on root dashboard pages */}
+          {!isRootPage && (
+            <IconButton
+              color="inherit"
+              onClick={() => navigate(-1)}
+              sx={{ '&:hover': { backgroundColor: theme.palette.action.hover } }}
+            >
+              <Icons.ArrowBack sx={{ fontSize: '1.2rem' }} />
+            </IconButton>
+          )}
         </Box>
 
         {/* Clinic Switcher — shows when user has multiple role+clinic assignments */}
@@ -199,7 +212,7 @@ const TopBar: React.FC<TopBarProps> = ({ onMenuClick }) => {
                 fontWeight: 700,
               }}
             >
-              {getUserInitials(user)}
+              {getUserInitials(user) || <Icons.PersonOutlined sx={{ fontSize: '1.2rem' }} />}
             </Avatar>
           </IconButton>
 

@@ -1,11 +1,13 @@
 import { Box, Typography, Paper, CircularProgress, Alert, List, ListItem, ListItemText, Chip } from '@mui/material';
+import DashboardLayout from '@/components/layout/DashboardLayout';
 import { usePatientHealthRecords } from '../../hooks/patient';
 
 const HealthRecords = () => {
   const { data, isLoading, error } = usePatientHealthRecords();
   const records = Array.isArray(data) ? data : [];
   return (
-    <Box>
+    <DashboardLayout pageTitle="Health Records">
+      <Box sx={{ px: 3, py: 2.5 }}>
       <Typography variant="h5" fontWeight={700} mb={3}>Health Records</Typography>
       {isLoading && <CircularProgress />}
       {error && <Alert severity="error">Failed to load health records</Alert>}
@@ -29,7 +31,8 @@ const HealthRecords = () => {
           </List>
         </Paper>
       )}
-    </Box>
+      </Box>
+    </DashboardLayout>
   );
 };
 export default HealthRecords;
