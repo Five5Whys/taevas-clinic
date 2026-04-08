@@ -81,27 +81,28 @@ const MOCK_CREDENTIALS: Partial<Record<UserRole, { identifier: string; password:
   CLINIC_ADMIN: { identifier: '9876543211', password: 'password' },
 };
 
-/**
- * Silently fetch a real JWT from the backend using dev credentials.
- * On success, overwrites the mock token so all API calls are authenticated.
- * On failure (BE down), mock token stays — graceful degradation.
- */
-const acquireRealToken = async (role: UserRole): Promise<void> => {
-  const creds = MOCK_CREDENTIALS[role] ?? MOCK_CREDENTIALS.SUPERADMIN;
-  if (!creds) return;
-  try {
-    const res = await api.post('/auth/login', { identifier: creds.identifier, password: creds.password });
-    const d = res.data?.data;
-    if (d?.token) {
-      localStorage.setItem('authToken', d.token);
-      if (d.refreshToken) localStorage.setItem('refreshToken', d.refreshToken);
-      if (d.user) localStorage.setItem('user', JSON.stringify(d.user));
-      if (import.meta.env.DEV) console.info('[MockAuth] Real JWT acquired for', role);
-    }
-  } catch {
-    if (import.meta.env.DEV) console.warn('[MockAuth] BE unreachable — using mock token');
-  }
-};
+// TODO: Re-enable when real token acquisition flow is needed
+// /**
+//  * Silently fetch a real JWT from the backend using dev credentials.
+//  * On success, overwrites the mock token so all API calls are authenticated.
+//  * On failure (BE down), mock token stays — graceful degradation.
+//  */
+// const acquireRealToken = async (role: UserRole): Promise<void> => {
+//   const creds = MOCK_CREDENTIALS[role] ?? MOCK_CREDENTIALS.SUPERADMIN;
+//   if (!creds) return;
+//   try {
+//     const res = await api.post('/auth/login', { identifier: creds.identifier, password: creds.password });
+//     const d = res.data?.data;
+//     if (d?.token) {
+//       localStorage.setItem('authToken', d.token);
+//       if (d.refreshToken) localStorage.setItem('refreshToken', d.refreshToken);
+//       if (d.user) localStorage.setItem('user', JSON.stringify(d.user));
+//       if (import.meta.env.DEV) console.info('[MockAuth] Real JWT acquired for', role);
+//     }
+//   } catch {
+//     if (import.meta.env.DEV) console.warn('[MockAuth] BE unreachable — using mock token');
+//   }
+// };
 
 export const isMockAuthEnabled = (): boolean => {
   return import.meta.env.VITE_MOCK_AUTH === 'true';

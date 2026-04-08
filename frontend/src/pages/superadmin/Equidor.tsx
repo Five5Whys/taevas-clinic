@@ -1,13 +1,13 @@
 import React, { useState, useMemo } from 'react';
 import {
-  Box, Typography, TextField, Select, MenuItem,
-  InputAdornment, Dialog, DialogTitle, DialogContent,
+  Box, Typography, Select, MenuItem,
+  Dialog, DialogContent,
   DialogActions, Button, Table, TableHead, TableBody,
-  TableRow, TableCell, IconButton, Tooltip, Divider,
+  TableRow, TableCell, Tooltip,
 } from '@mui/material';
 import {
   Search, ExpandMore, ChevronRight,
-  Close, Download, NavigateBefore, NavigateNext, Delete,
+  Close, Delete,
 } from '@mui/icons-material';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 
@@ -245,7 +245,7 @@ const Equidor: React.FC = () => {
         <Box sx={{
           px:'24px',py:'10px',bgcolor:'#fff',
           borderBottom:'1px solid #E5E7EB',
-          display:'flex',alignItems:'center',gap:'10px',flexWrap:'wrap',
+          display:'flex',alignItems:'center',gap:'10px',
           boxShadow:'0 1px 0 #E5E7EB',
           position:'sticky',top:'56px',zIndex:10,flexShrink:0,flexWrap:'nowrap',
         }}>

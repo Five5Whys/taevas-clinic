@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { rosterService, RosterListParams } from '../../services/superadmin/rosterService';
+import { rosterService } from '../../services/superadmin/rosterService';
+import type { RosterListParams } from '../../services/superadmin/rosterService';
 
 export const useRoster = (params: RosterListParams = {}) => {
   return useQuery({

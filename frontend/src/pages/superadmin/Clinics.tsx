@@ -309,7 +309,6 @@ const Clinics: React.FC = () => {
               variant="contained"
               disabled={!form.name || !form.countryId || !form.city || createClinic.isPending}
               onClick={() => {
-                const tenant = TENANT_OPTIONS.find((c) => c.uuid === form.countryId);
                 createClinic.mutate(
                   {
                     name: form.name,

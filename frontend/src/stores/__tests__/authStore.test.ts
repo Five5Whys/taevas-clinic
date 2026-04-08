@@ -1,5 +1,5 @@
 import { useAuthStore } from '../authStore';
-import { User } from '@/types';
+import type { User } from '@/types';
 
 // Mock authService used by the store
 jest.mock('@/services/authService', () => ({

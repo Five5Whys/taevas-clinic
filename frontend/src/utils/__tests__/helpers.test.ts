@@ -14,7 +14,7 @@ import {
   formatMinutesToTime,
   debounce,
 } from '../helpers';
-import { User } from '@/types';
+import type { User } from '@/types';
 
 // ── formatPhoneNumber ──────────────────────────────────────────────
 describe('formatPhoneNumber', () => {

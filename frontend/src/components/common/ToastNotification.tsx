@@ -1,5 +1,5 @@
 import { Snackbar, Alert } from '@mui/material';
-import { ToastSeverity } from '../../hooks/useToast';
+import type { ToastSeverity } from '../../hooks/useToast';
 
 interface ToastNotificationProps {
   open: boolean;

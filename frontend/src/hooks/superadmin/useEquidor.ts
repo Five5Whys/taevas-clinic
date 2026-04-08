@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { equidorService, EquidorSessionParams } from '../../services/superadmin/equidorService';
+import { equidorService } from '../../services/superadmin/equidorService';
+import type { EquidorSessionParams } from '../../services/superadmin/equidorService';
 
 export const useEquidorSessions = (params: EquidorSessionParams = {}) => {
   return useQuery({
