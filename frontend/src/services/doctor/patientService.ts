@@ -3,4 +3,6 @@ export const doctorPatientService = {
   getAll: async (params: any = {}) => { const r = await api.get('/doctor/patients', { params }); return r.data.data?.content ?? r.data.data; },
   getById: async (id: string) => { const r = await api.get(`/doctor/patients/${id}`); return r.data.data; },
   create: async (data: any) => { const r = await api.post('/doctor/patients', data); return r.data.data; },
+  update: async (id: string, data: any) => { const r = await api.put(`/doctor/patients/${id}`, data); return r.data.data; },
+  remove: async (id: string) => { const r = await api.delete(`/doctor/patients/${id}`); return r.data; },
 };

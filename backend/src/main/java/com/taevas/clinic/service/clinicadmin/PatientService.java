@@ -4,8 +4,10 @@ import com.taevas.clinic.dto.clinicadmin.PatientDto;
 import com.taevas.clinic.dto.clinicadmin.PatientRequest;
 import com.taevas.clinic.exception.ResourceNotFoundException;
 import com.taevas.clinic.exception.UnauthorizedException;
+import com.taevas.clinic.model.Clinic;
 import com.taevas.clinic.model.ClinicPatient;
 import com.taevas.clinic.repository.ClinicPatientRepository;
+import com.taevas.clinic.repository.ClinicRepository;
 import jakarta.persistence.criteria.Predicate;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -19,6 +21,7 @@ import java.util.*;
 @Service @RequiredArgsConstructor @Transactional(readOnly = true)
 public class PatientService {
     private final ClinicPatientRepository repo;
+    private final ClinicRepository clinicRepo;
 
     public Page<PatientDto> getAll(UUID clinicId, String status, String search, Pageable pageable) {
         Specification<ClinicPatient> spec = (root, q, cb) -> {
@@ -27,7 +30,7 @@ public class PatientService {
             if (status != null && !status.isBlank()) preds.add(cb.equal(root.get("status"), status));
             if (search != null && !search.isBlank()) {
                 String p = "%" + search.toLowerCase() + "%";
-                preds.add(cb.or(cb.like(cb.lower(root.get("firstName")), p), cb.like(cb.lower(root.get("lastName")), p), cb.like(cb.lower(root.get("phone")), p)));
+                preds.add(cb.or(cb.like(cb.lower(root.get("firstName")), p), cb.like(cb.lower(root.get("lastName")), p), cb.like(cb.lower(root.get("phone")), p), cb.like(cb.lower(root.get("patientCode")), p)));
             }
             return cb.and(preds.toArray(new Predicate[0]));
         };
@@ -41,11 +44,26 @@ public class PatientService {
     }
 
     @Transactional public PatientDto create(UUID clinicId, PatientRequest r) {
-        ClinicPatient p = ClinicPatient.builder().clinicId(clinicId).firstName(r.getFirstName())
-            .lastName(r.getLastName()).phone(r.getPhone()).email(r.getEmail()).gender(r.getGender())
-            .bloodGroup(r.getBloodGroup()).dateOfBirth(r.getDateOfBirth() != null ? LocalDate.parse(r.getDateOfBirth()) : null)
+        String patientCode = generatePatientCode(clinicId);
+        ClinicPatient p = ClinicPatient.builder().clinicId(clinicId).patientCode(patientCode)
+            .firstName(r.getFirstName()).lastName(r.getLastName()).phone(r.getPhone()).email(r.getEmail())
+            .gender(r.getGender()).bloodGroup(r.getBloodGroup())
+            .dateOfBirth(r.getDateOfBirth() != null ? LocalDate.parse(r.getDateOfBirth()) : null)
             .status("ACTIVE").build();
         return toDto(repo.save(p));
+    }
+
+    private String generatePatientCode(UUID clinicId) {
+        Clinic clinic = clinicRepo.findById(clinicId)
+            .orElseThrow(() -> new ResourceNotFoundException("Clinic", "id", clinicId));
+        String prefix = clinic.getPatientCodePrefix() != null ? clinic.getPatientCodePrefix() : "PT";
+        long count = repo.countByClinicId(clinicId);
+        String code;
+        do {
+            count++;
+            code = prefix + "-" + String.format("%04d", count);
+        } while (repo.existsByPatientCode(code));
+        return code;
     }
 
     @Transactional public PatientDto update(UUID clinicId, UUID id, PatientRequest r) {
@@ -57,9 +75,17 @@ public class PatientService {
         return toDto(repo.save(p));
     }
 
+    @Transactional public void delete(UUID clinicId, UUID id) {
+        ClinicPatient p = repo.findById(id).orElseThrow(() -> new ResourceNotFoundException("Patient", "id", id));
+        if (!p.getClinicId().equals(clinicId)) throw new UnauthorizedException("Access denied to this patient");
+        p.setStatus("INACTIVE");
+        repo.save(p);
+    }
+
     private PatientDto toDto(ClinicPatient p) {
         return PatientDto.builder().id(p.getId().toString()).clinicId(p.getClinicId().toString())
             .userId(p.getUserId() != null ? p.getUserId().toString() : null)
+            .patientCode(p.getPatientCode())
             .firstName(p.getFirstName()).lastName(p.getLastName()).phone(p.getPhone()).email(p.getEmail())
             .gender(p.getGender()).bloodGroup(p.getBloodGroup())
             .dateOfBirth(p.getDateOfBirth() != null ? p.getDateOfBirth().toString() : null)

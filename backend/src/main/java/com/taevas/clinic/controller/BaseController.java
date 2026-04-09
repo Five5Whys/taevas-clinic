@@ -1,8 +1,12 @@
 package com.taevas.clinic.controller;
 
+import com.taevas.clinic.model.Clinic;
+import com.taevas.clinic.repository.ClinicRepository;
 import com.taevas.clinic.security.UserPrincipal;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -10,14 +14,19 @@ import java.util.UUID;
  */
 public abstract class BaseController {
 
+    @Autowired private ClinicRepository clinicRepository;
+
     protected UserPrincipal getPrincipal() {
         return (UserPrincipal) SecurityContextHolder.getContext()
                 .getAuthentication().getPrincipal();
     }
 
-    /** Clinic / tenant the user belongs to */
+    /** Resolves clinic ID from the user's tenant — looks up clinics by tenantId, falls back to direct UUID */
     protected UUID getClinicId() {
-        return UUID.fromString(getPrincipal().getTenantId());
+        UUID tenantId = UUID.fromString(getPrincipal().getTenantId());
+        List<Clinic> clinics = clinicRepository.findByTenantId(tenantId);
+        if (!clinics.isEmpty()) return clinics.get(0).getId();
+        return tenantId; // fallback
     }
 
     /** The authenticated user's own ID (staff or patient) */

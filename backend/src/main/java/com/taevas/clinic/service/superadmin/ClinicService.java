@@ -64,6 +64,7 @@ public class ClinicService {
                 .licenseValidUntil(request.getLicenseValidUntil() != null
                         ? LocalDate.parse(request.getLicenseValidUntil()) : null)
                 .logoUrl(request.getLogoUrl())
+                .patientCodePrefix(request.getPatientCodePrefix() != null ? request.getPatientCodePrefix() : "PT")
                 .status(ClinicStatus.valueOf(request.getStatus()))
                 .build();
 
@@ -93,6 +94,9 @@ public class ClinicService {
         clinic.setLicenseValidUntil(request.getLicenseValidUntil() != null
                 ? LocalDate.parse(request.getLicenseValidUntil()) : null);
         clinic.setLogoUrl(request.getLogoUrl());
+        if (request.getPatientCodePrefix() != null) {
+            clinic.setPatientCodePrefix(request.getPatientCodePrefix());
+        }
         clinic.setStatus(ClinicStatus.valueOf(request.getStatus()));
 
         Clinic saved = clinicRepository.save(clinic);
@@ -134,6 +138,7 @@ public class ClinicService {
                 .licenseValidUntil(clinic.getLicenseValidUntil() != null
                         ? clinic.getLicenseValidUntil().toString() : null)
                 .logoUrl(clinic.getLogoUrl())
+                .patientCodePrefix(clinic.getPatientCodePrefix())
                 .status(clinic.getStatus().name())
                 .createdAt(clinic.getCreatedAt() != null ? clinic.getCreatedAt().toString() : null)
                 .updatedAt(clinic.getUpdatedAt() != null ? clinic.getUpdatedAt().toString() : null)

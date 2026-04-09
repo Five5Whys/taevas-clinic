@@ -32,4 +32,7 @@ public class ClinicAdminPatientController extends BaseController {
     @PutMapping("/{id}") public ResponseEntity<ApiResponse<PatientDto>> update(@PathVariable UUID id, @Valid @RequestBody PatientRequest r) {
         return ResponseEntity.ok(ApiResponse.success(service.update(getClinicId(), id, r), "Patient updated"));
     }
+    @DeleteMapping("/{id}") public ResponseEntity<ApiResponse<Void>> delete(@PathVariable UUID id) {
+        service.delete(getClinicId(), id); return ResponseEntity.ok(ApiResponse.success(null, "Patient deleted"));
+    }
 }

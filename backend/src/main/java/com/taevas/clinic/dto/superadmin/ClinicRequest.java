@@ -33,6 +33,7 @@ public class ClinicRequest {
     private String licenseNumber;
     private String licenseValidUntil;
     private String logoUrl;
+    private String patientCodePrefix;
 
     @NotBlank(message = "Status is required")
     private String status;

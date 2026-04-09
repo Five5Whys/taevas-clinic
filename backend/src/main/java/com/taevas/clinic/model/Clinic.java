@@ -63,6 +63,9 @@ public class Clinic extends BaseEntity {
     @Column(name = "logo_url")
     private String logoUrl;
 
+    @Column(name = "patient_code_prefix")
+    private String patientCodePrefix;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
     private ClinicStatus status;

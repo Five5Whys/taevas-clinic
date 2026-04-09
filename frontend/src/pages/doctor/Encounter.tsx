@@ -27,7 +27,9 @@ import {
   CheckCircle,
   Warning,
   Description,
+  InfoOutlined,
 } from '@mui/icons-material';
+import Tooltip from '@mui/material/Tooltip';
 import { useSearchParams } from 'react-router-dom';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import { useEncounterByAppointment } from '@/hooks/doctor';
@@ -249,7 +251,21 @@ const Encounter: React.FC = () => {
         <Card>
           <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
             <Tabs value={tabValue} onChange={handleTabChange} sx={{ '& .MuiTab-root': { fontSize: '0.85rem' } }}>
-              <Tab label="SOAP Note" id="encounter-tab-0" />
+              <Tab
+                label={
+                  <Box sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.5 }}>
+                    SOAP Note
+                    <Tooltip
+                      title="S — Subjective (patient's symptoms & history)  |  O — Objective (clinical findings & vitals)  |  A — Assessment (diagnosis)  |  P — Plan (treatment & follow-up)"
+                      arrow
+                      placement="top"
+                    >
+                      <InfoOutlined sx={{ fontSize: 14, color: '#9CA3AF', cursor: 'help' }} />
+                    </Tooltip>
+                  </Box>
+                }
+                id="encounter-tab-0"
+              />
               <Tab label="ENT Exam" id="encounter-tab-1" />
               <Tab label="Timeline" id="encounter-tab-2" />
               <Tab label="Reports" id="encounter-tab-3" />

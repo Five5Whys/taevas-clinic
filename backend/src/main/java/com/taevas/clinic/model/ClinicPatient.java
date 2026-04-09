@@ -18,6 +18,7 @@ public class ClinicPatient extends BaseEntity {
     @Column(name = "gender") private String gender;
     @Column(name = "blood_group") private String bloodGroup;
     @Column(name = "date_of_birth") private LocalDate dateOfBirth;
+    @Column(name = "patient_code", unique = true, nullable = false) private String patientCode;
     @Column(name = "status", nullable = false) private String status;
     @Column(name = "last_visit") private LocalDate lastVisit;
 }

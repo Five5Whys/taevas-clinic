@@ -64,6 +64,9 @@ export const API_ENDPOINTS = {
   DOCTOR_FAMILY: '/doctor/family',
   DOCTOR_WHATSAPP: '/doctor/whatsapp',
   DOCTOR_MARKETING: '/doctor/marketing',
+  DOCTOR_PROFILE: '/doctors/profile',
+  DOCTOR_PROFILE_COMPLETION: '/doctors/profile/completion',
+  FILES_UPLOAD: '/files/upload',
 
   // Patient
   PATIENT_DASHBOARD: '/patient/dashboard',
@@ -119,6 +122,7 @@ export const NAVIGATION_CONFIG = {
   [ROLES.DOCTOR]: [
     // Clinical
     { id: 'dashboard',      label: 'Dashboard',       emoji: '📊', icon: 'Dashboard',        path: '/doctor',                 section: 'Clinical' },
+    { id: 'profile',        label: 'My Profile',      emoji: '👤', icon: 'Person',            path: '/doctor/profile',         section: 'Clinical' },
     { id: 'appointments',   label: 'Appointments',    emoji: '📅', icon: 'EventNote',         path: '/doctor/appointments',    section: 'Clinical', badge: '7' },
     { id: 'patients',       label: 'Patients',        emoji: '👥', icon: 'People',            path: '/doctor/patients',        section: 'Clinical' },
     { id: 'encounter',      label: 'Encounter',       emoji: '🩺', icon: 'MedicalServices',   path: '/doctor/encounter',       section: 'Clinical' },

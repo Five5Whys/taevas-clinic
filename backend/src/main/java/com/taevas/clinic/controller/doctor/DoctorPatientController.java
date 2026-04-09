@@ -27,4 +27,10 @@ public class DoctorPatientController extends BaseController {
     @PostMapping public ResponseEntity<ApiResponse<PatientDto>> create(@RequestBody com.taevas.clinic.dto.clinicadmin.PatientRequest request) {
         return ResponseEntity.ok(ApiResponse.success(service.create(getClinicId(), request)));
     }
+    @PutMapping("/{id}") public ResponseEntity<ApiResponse<PatientDto>> update(@PathVariable UUID id, @RequestBody com.taevas.clinic.dto.clinicadmin.PatientRequest request) {
+        return ResponseEntity.ok(ApiResponse.success(service.update(getClinicId(), id, request), "Patient updated"));
+    }
+    @DeleteMapping("/{id}") public ResponseEntity<ApiResponse<Void>> delete(@PathVariable UUID id) {
+        service.delete(getClinicId(), id); return ResponseEntity.ok(ApiResponse.success(null, "Patient deleted"));
+    }
 }

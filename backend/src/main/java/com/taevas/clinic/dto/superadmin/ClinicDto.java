@@ -27,6 +27,7 @@ public class ClinicDto {
     private String licenseNumber;
     private String licenseValidUntil;
     private String logoUrl;
+    private String patientCodePrefix;
     private String status;
     private String createdAt;
     private String updatedAt;

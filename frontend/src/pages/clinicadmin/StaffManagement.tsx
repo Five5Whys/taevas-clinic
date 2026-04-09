@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Box,
   Typography,
@@ -57,6 +58,7 @@ const FALLBACK_STAFF: ClinicUser[] = [
 ];
 
 const StaffManagement: React.FC = () => {
+  const navigate = useNavigate();
   const { data: usersData = [], isLoading, isError } = useStaffList();
   const isMock = localStorage.getItem('authToken') === 'mock-jwt-token-for-dev-only';
   const [localStaff, setLocalStaff] = useState<ClinicUser[]>([]);
@@ -238,15 +240,28 @@ const StaffManagement: React.FC = () => {
                     <TableCell>{getStatusChip(u.status)}</TableCell>
                     <TableCell sx={{ fontSize: '11px', color: SUB }}>{u.createdAt}</TableCell>
                     <TableCell>
-                      <Tooltip title="Manage Roles" arrow>
-                        <Button
-                          size="small" variant="outlined"
-                          onClick={() => { setSelectedUser(u); setEditRoles([...u.roles]); setAssignOpen(true); }}
-                          sx={{ fontSize: '10px', textTransform: 'none', fontWeight: 600, borderColor: BORDER, color: BRAND, minWidth: 0, px: 1 }}
-                        >
-                          Roles
-                        </Button>
-                      </Tooltip>
+                      <Box sx={{ display: 'flex', gap: 0.5 }}>
+                        <Tooltip title="Manage Roles" arrow>
+                          <Button
+                            size="small" variant="outlined"
+                            onClick={() => { setSelectedUser(u); setEditRoles([...u.roles]); setAssignOpen(true); }}
+                            sx={{ fontSize: '10px', textTransform: 'none', fontWeight: 600, borderColor: BORDER, color: BRAND, minWidth: 0, px: 1 }}
+                          >
+                            Roles
+                          </Button>
+                        </Tooltip>
+                        {u.roles.includes('DOCTOR') && (
+                          <Tooltip title="View Doctor Profile" arrow>
+                            <Button
+                              size="small" variant="outlined"
+                              onClick={() => navigate(`/admin/staff/doctor/${u.id}/profile`)}
+                              sx={{ fontSize: '10px', textTransform: 'none', fontWeight: 600, borderColor: BORDER, color: '#A046F0', minWidth: 0, px: 1 }}
+                            >
+                              Profile
+                            </Button>
+                          </Tooltip>
+                        )}
+                      </Box>
                     </TableCell>
                   </TableRow>
                 ))}

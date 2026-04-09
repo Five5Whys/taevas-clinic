@@ -47,6 +47,7 @@ public class SecurityConfig {
                         .requestMatchers("/swagger-ui/**").permitAll()
                         .requestMatchers("/v3/api-docs/**").permitAll()
                         .requestMatchers("/actuator/health").permitAll()
+                        .requestMatchers("/uploads/**").permitAll()
                         .requestMatchers("/actuator/**").hasRole("SUPERADMIN")
                         .requestMatchers("/h2-console/**").access((a, ctx) ->
                             new org.springframework.security.authorization.AuthorizationDecision(
@@ -54,6 +55,8 @@ public class SecurityConfig {
                         .requestMatchers("/api/superadmin/**").hasRole("SUPERADMIN")
                         .requestMatchers("/api/clinicadmin/**").hasRole("CLINIC_ADMIN")
                         .requestMatchers("/api/doctor/**").hasAnyRole("DOCTOR", "CLINIC_ADMIN")
+                        .requestMatchers("/api/doctors/**").hasAnyRole("DOCTOR", "CLINIC_ADMIN")
+                        .requestMatchers("/api/files/**").authenticated()
                         .requestMatchers("/api/patient/**").hasAnyRole("PATIENT", "DOCTOR", "CLINIC_ADMIN")
                         .anyRequest().authenticated()
                 )

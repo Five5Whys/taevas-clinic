@@ -16,4 +16,5 @@ public interface ClinicPatientRepository extends JpaRepository<ClinicPatient, UU
     Page<ClinicPatient> findByClinicId(UUID clinicId, Pageable pageable);
     long countByClinicId(UUID clinicId);
     List<ClinicPatient> findByClinicIdAndStatus(UUID clinicId, String status);
+    boolean existsByPatientCode(String patientCode);
 }

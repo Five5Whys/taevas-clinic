@@ -14,4 +14,6 @@ public interface ClinicRepository extends JpaRepository<Clinic, UUID>, JpaSpecif
     List<Clinic> findByCountryId(UUID countryId);
 
     long countByCountryId(UUID countryId);
+
+    List<Clinic> findByTenantId(UUID tenantId);
 }

@@ -8,3 +8,6 @@ export { deviceReportService } from './deviceReportService';
 export { familyService } from './familyService';
 export { whatsappService } from './whatsappService';
 export { marketingService } from './marketingService';
+export { doctorProfileService } from './profileService';
+export type { DoctorProfileData, ProfileCompletion } from './profileService';
+export { emergencyContactService } from './emergencyContactService';

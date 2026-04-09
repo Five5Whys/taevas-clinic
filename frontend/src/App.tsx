@@ -9,6 +9,7 @@ import ChangePasswordPage from '@/pages/auth/ChangePasswordPage';
 import OtpVerifyPage from '@/pages/auth/OtpVerifyPage';
 import ProtectedRoute from '@/components/common/ProtectedRoute';
 import DevRoleSwitcher from '@/components/common/DevRoleSwitcher';
+import ProfileCompletionGuard from '@/components/doctor/ProfileCompletionGuard';
 
 // SuperAdmin Pages
 const SADashboard = lazy(() => import('@/pages/superadmin/Dashboard'));
@@ -38,6 +39,7 @@ const CAUserManagement = lazy(() => import('@/pages/clinicadmin/UserManagement')
 const CAReports = lazy(() => import('@/pages/clinicadmin/Reports'));
 const CAPatientRegistry = lazy(() => import('@/pages/clinicadmin/PatientRegistry'));
 const CAStaffManagement = lazy(() => import('@/pages/clinicadmin/StaffManagement'));
+const CADoctorProfileView = lazy(() => import('@/pages/clinicadmin/DoctorProfileView'));
 
 // Doctor Pages
 const DRDashboard = lazy(() => import('@/pages/doctor/Dashboard'));
@@ -50,6 +52,7 @@ const DRFamily = lazy(() => import('@/pages/doctor/Family'));
 const DRBilling = lazy(() => import('@/pages/doctor/Billing'));
 const DRWhatsApp = lazy(() => import('@/pages/doctor/WhatsApp'));
 const DRMarketing = lazy(() => import('@/pages/doctor/Marketing'));
+const DRProfile = lazy(() => import('@/pages/doctor/Profile'));
 
 // Patient
 const PatientDashboard = lazy(() => import('@/pages/patient/Dashboard'));
@@ -161,6 +164,7 @@ const App: React.FC = () => {
                   <Route path="reports" element={<CAReports />} />
                   <Route path="patients" element={<CAPatientRegistry />} />
                   <Route path="staff" element={<CAStaffManagement />} />
+                  <Route path="staff/doctor/:doctorId/profile" element={<CADoctorProfileView />} />
                 </Routes>
               </ProtectedRoute>
             }
@@ -171,18 +175,21 @@ const App: React.FC = () => {
             path="/doctor/*"
             element={
               <ProtectedRoute requiredRole={ROLES.DOCTOR}>
-                <Routes>
-                  <Route index element={<DRDashboard />} />
-                  <Route path="appointments" element={<DRAppointments />} />
-                  <Route path="patients" element={<DRPatients />} />
-                  <Route path="encounter" element={<DREncounter />} />
-                  <Route path="prescriptions" element={<DRPrescriptions />} />
-                  <Route path="device-reports" element={<DRDeviceReports />} />
-                  <Route path="family" element={<DRFamily />} />
-                  <Route path="billing" element={<DRBilling />} />
-                  <Route path="whatsapp" element={<DRWhatsApp />} />
-                  <Route path="marketing" element={<DRMarketing />} />
-                </Routes>
+                <ProfileCompletionGuard>
+                  <Routes>
+                    <Route index element={<DRDashboard />} />
+                    <Route path="profile" element={<DRProfile />} />
+                    <Route path="appointments" element={<DRAppointments />} />
+                    <Route path="patients" element={<DRPatients />} />
+                    <Route path="encounter" element={<DREncounter />} />
+                    <Route path="prescriptions" element={<DRPrescriptions />} />
+                    <Route path="device-reports" element={<DRDeviceReports />} />
+                    <Route path="family" element={<DRFamily />} />
+                    <Route path="billing" element={<DRBilling />} />
+                    <Route path="whatsapp" element={<DRWhatsApp />} />
+                    <Route path="marketing" element={<DRMarketing />} />
+                  </Routes>
+                </ProfileCompletionGuard>
               </ProtectedRoute>
             }
           />
