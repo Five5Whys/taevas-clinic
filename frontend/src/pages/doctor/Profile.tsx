@@ -127,7 +127,7 @@ const FileUploadZone: React.FC<{
             <Box
               component="img"
               src={value}
-              alt={label}
+              alt={typeof label === 'string' ? label : 'file preview'}
               sx={{ width: 48, height: 48, objectFit: 'cover', borderRadius: '6px', border: `1px solid ${BORDER}` }}
             />
           )}

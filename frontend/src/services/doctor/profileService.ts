@@ -29,6 +29,8 @@ export interface DoctorProfileData {
 }
 
 export interface ProfileCompletion {
+  complete: boolean;
+  missingFields: string[];
   status: 'DRAFT' | 'COMPLETE';
   percentage: number;
   missingMandatory: string[];
