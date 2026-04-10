@@ -2,7 +2,7 @@ export { useDoctorDashboard } from './useDashboard';
 export { useDoctorAppointments, useDoctorAppointment, useUpdateAppointmentStatus } from './useAppointments';
 export { useEncounterByAppointment, useCreateEncounter, useUpdateEncounter } from './useEncounters';
 export { usePrescriptionsByEncounter, usePrescriptionsByPatient, useCreatePrescription } from './usePrescriptions';
-export { useDoctorPatients, useDoctorPatient, useCreateDoctorPatient, useUpdateDoctorPatient, useDeleteDoctorPatient } from './usePatients';
+export { useDoctorPatients, useDoctorPatient, useCreateDoctorPatient, useUpdateDoctorPatient, useDeleteDoctorPatient, useAssignPatients, useMyPatients, useUnassignPatient } from './usePatients';
 export { useDoctorBilling } from './useBilling';
 export { useDoctorDeviceReports } from './useDeviceReports';
 export { useFamilyByPatient } from './useFamily';

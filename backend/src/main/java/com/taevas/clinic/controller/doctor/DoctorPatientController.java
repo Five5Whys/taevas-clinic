@@ -3,8 +3,12 @@ package com.taevas.clinic.controller.doctor;
 import com.taevas.clinic.controller.BaseController;
 import com.taevas.clinic.dto.ApiResponse;
 import com.taevas.clinic.dto.clinicadmin.PatientDto;
+import com.taevas.clinic.dto.doctor.AssignPatientsRequest;
+import com.taevas.clinic.dto.doctor.AssignPatientsResponse;
 import com.taevas.clinic.service.clinicadmin.PatientService;
+import com.taevas.clinic.service.doctor.DoctorPatientService;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +20,7 @@ import java.util.UUID;
 @Tag(name = "Doctor - Patients") @RequiredArgsConstructor
 public class DoctorPatientController extends BaseController {
     private final PatientService service;
+    private final DoctorPatientService doctorPatientService;
 
     @GetMapping public ResponseEntity<ApiResponse<Page<PatientDto>>> getAll(
             @RequestParam(required = false) String search, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
@@ -32,5 +37,29 @@ public class DoctorPatientController extends BaseController {
     }
     @DeleteMapping("/{id}") public ResponseEntity<ApiResponse<Void>> delete(@PathVariable UUID id) {
         service.delete(getClinicId(), id); return ResponseEntity.ok(ApiResponse.success(null, "Patient deleted"));
+    }
+
+    // ── Doctor-Patient Assignment Endpoints ──────────────────────────────
+
+    @PostMapping("/assign")
+    public ResponseEntity<ApiResponse<AssignPatientsResponse>> assignPatients(
+            @Valid @RequestBody AssignPatientsRequest request) {
+        return ResponseEntity.ok(ApiResponse.success(
+                doctorPatientService.assignPatients(getStaffId(), request), "Patients assigned"));
+    }
+
+    @GetMapping("/my-patients")
+    public ResponseEntity<ApiResponse<Page<PatientDto>>> getMyPatients(
+            @RequestParam(required = false) String search,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        return ResponseEntity.ok(ApiResponse.success(
+                doctorPatientService.getMyPatients(getStaffId(), search, PageRequest.of(page, size))));
+    }
+
+    @DeleteMapping("/unassign/{patientId}")
+    public ResponseEntity<ApiResponse<Void>> unassignPatient(@PathVariable UUID patientId) {
+        doctorPatientService.unassignPatient(getStaffId(), patientId);
+        return ResponseEntity.ok(ApiResponse.success(null, "Patient unassigned"));
     }
 }

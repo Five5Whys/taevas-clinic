@@ -28,10 +28,14 @@ import {
   Alert,
   Divider,
   Chip,
+  ToggleButtonGroup,
+  ToggleButton,
+  Checkbox,
+  Tooltip,
 } from '@mui/material';
-import { Search, Add, Visibility as Eye, Edit as EditIcon, Delete as DeleteIcon, Close as CloseIcon } from '@mui/icons-material';
+import { Search, Add, Visibility as Eye, Edit as EditIcon, Delete as DeleteIcon, Close as CloseIcon, PersonAdd as PersonAddIcon, PersonRemove as PersonRemoveIcon } from '@mui/icons-material';
 import DashboardLayout from '@/components/layout/DashboardLayout';
-import { useDoctorPatients, useCreateDoctorPatient, useUpdateDoctorPatient, useDeleteDoctorPatient, useEmergencyContacts, useAddEmergencyContact, useUpdateEmergencyContact, useDeleteEmergencyContact } from '@/hooks/doctor';
+import { useDoctorPatients, useCreateDoctorPatient, useUpdateDoctorPatient, useDeleteDoctorPatient, useEmergencyContacts, useAddEmergencyContact, useUpdateEmergencyContact, useDeleteEmergencyContact, useAssignPatients, useMyPatients, useUnassignPatient } from '@/hooks/doctor';
 
 const BRAND = '#5519E6';
 const RELATIONSHIPS = ['Spouse', 'Parent', 'Sibling', 'Child', 'Friend', 'Other'];
@@ -144,8 +148,12 @@ const EmergencyContactsPanel: React.FC<{ patientId: string; onSnack: (msg: strin
 /* ---------- Main Patients Component ---------- */
 const Patients: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
+  const [viewMode, setViewMode] = useState<'all' | 'my'>('all');
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const { data: patientsData, isLoading } = useDoctorPatients();
+  const { data: myPatientsData, isLoading: isLoadingMy } = useMyPatients(searchQuery);
   const patients = (Array.isArray(patientsData) ? patientsData : patientsData?.content ?? patientsData?.patients ?? []) as any[];
+  const myPatients = (Array.isArray(myPatientsData) ? myPatientsData : (myPatientsData as any)?.data?.content ?? (myPatientsData as any)?.data ?? (myPatientsData as any)?.content ?? []) as any[];
 
   const [open, setOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -156,6 +164,25 @@ const Patients: React.FC = () => {
   const createPatient = useCreateDoctorPatient();
   const updatePatient = useUpdateDoctorPatient();
   const deletePatient = useDeleteDoctorPatient();
+  const assignPatients = useAssignPatients();
+  const unassignPatient = useUnassignPatient();
+
+  const handleAssignSingle = async (patientId: string, name: string) => {
+    await assignPatients.mutateAsync({ patientIds: [patientId] });
+    setSnack(`${name} assigned to you.`);
+  };
+  const handleAssignBulk = async () => {
+    if (!selectedIds.length) return;
+    await assignPatients.mutateAsync({ patientIds: selectedIds });
+    setSnack(`${selectedIds.length} patient(s) assigned to you.`);
+    setSelectedIds([]);
+  };
+  const handleUnassign = async (patientId: string, name: string) => {
+    await unassignPatient.mutateAsync(patientId);
+    setSnack(`${name} unassigned from you.`);
+  };
+  const toggleSelect = (id: string) => setSelectedIds(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
+  const toggleSelectAll = (list: any[]) => setSelectedIds(prev => prev.length === list.length ? [] : list.map(p => p.id));
 
   const filteredPatients = patients.filter(
     (p) => {
@@ -192,7 +219,10 @@ const Patients: React.FC = () => {
     setDeleteConfirm({ open: false, id: '', name: '' });
   };
 
-  if (isLoading) {
+  const activeLoading = viewMode === 'all' ? isLoading : isLoadingMy;
+  const activeList = viewMode === 'all' ? filteredPatients : myPatients;
+
+  if (isLoading && viewMode === 'all') {
     return (
       <DashboardLayout pageTitle="Patients">
         <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 400 }}>
@@ -205,6 +235,25 @@ const Patients: React.FC = () => {
   return (
     <DashboardLayout pageTitle="Patients">
       <Container maxWidth="lg" sx={{ py: 3 }}>
+        <Box sx={{ display: 'flex', gap: 2, mb: 2, alignItems: 'center' }}>
+          <ToggleButtonGroup
+            value={viewMode} exclusive
+            onChange={(_, v) => { if (v) { setViewMode(v); setSelectedIds([]); } }}
+            size="small"
+            sx={{ '& .MuiToggleButton-root': { textTransform: 'none', fontWeight: 600, px: 2 }, '& .Mui-selected': { backgroundColor: '#EDE9FE !important', color: `${BRAND} !important` } }}
+          >
+            <ToggleButton value="all">All Patients</ToggleButton>
+            <ToggleButton value="my">My Patients</ToggleButton>
+          </ToggleButtonGroup>
+          <Box sx={{ flex: 1 }} />
+          {viewMode === 'all' && selectedIds.length > 0 && (
+            <Button variant="contained" startIcon={<PersonAddIcon />} onClick={handleAssignBulk}
+              disabled={assignPatients.isPending}
+              sx={{ backgroundColor: BRAND, color: '#fff', '&:hover': { backgroundColor: '#4410cc' }, whiteSpace: 'nowrap', textTransform: 'none', fontWeight: 700 }}>
+              Assign {selectedIds.length} to Me
+            </Button>
+          )}
+        </Box>
         <Box sx={{ display: 'flex', gap: 2, mb: 4, alignItems: 'center' }}>
           <TextField
             fullWidth placeholder="Search by patient name or ID..." value={searchQuery}
@@ -220,18 +269,36 @@ const Patients: React.FC = () => {
 
         <Card>
           <CardContent>
-            <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 2 }}>Patients ({filteredPatients.length})</Typography>
+            <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 2 }}>
+              {viewMode === 'all' ? 'Patients' : 'My Patients'} ({activeLoading ? '...' : activeList.length})
+            </Typography>
+            {activeLoading && viewMode === 'my' ? (
+              <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}><CircularProgress sx={{ color: BRAND }} /></Box>
+            ) : (
             <TableContainer>
               <Table size="small">
                 <TableHead>
                   <TableRow sx={{ backgroundColor: '#f5f5f5' }}>
+                    {viewMode === 'all' && (
+                      <TableCell padding="checkbox">
+                        <Checkbox size="small" checked={selectedIds.length > 0 && selectedIds.length === activeList.length}
+                          indeterminate={selectedIds.length > 0 && selectedIds.length < activeList.length}
+                          onChange={() => toggleSelectAll(activeList)} sx={{ color: BRAND, '&.Mui-checked': { color: BRAND }, '&.MuiCheckbox-indeterminate': { color: BRAND } }} />
+                      </TableCell>
+                    )}
                     <TableCell>Patient ID</TableCell><TableCell>Name</TableCell><TableCell>Gender</TableCell>
                     <TableCell>Blood Group</TableCell><TableCell>Email</TableCell><TableCell>Last Visit</TableCell><TableCell>Action</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {filteredPatients.map((patient) => (
-                    <TableRow key={patient.id}>
+                  {activeList.map((patient: any) => (
+                    <TableRow key={patient.id} selected={selectedIds.includes(patient.id)}>
+                      {viewMode === 'all' && (
+                        <TableCell padding="checkbox">
+                          <Checkbox size="small" checked={selectedIds.includes(patient.id)} onChange={() => toggleSelect(patient.id)}
+                            sx={{ color: BRAND, '&.Mui-checked': { color: BRAND } }} />
+                        </TableCell>
+                      )}
                       <TableCell><Chip label={patient.patientCode || patient.id} size="small" sx={{ fontFamily: 'monospace', fontWeight: 700, backgroundColor: '#EDE9FE', color: BRAND }} /></TableCell>
                       <TableCell sx={{ fontWeight: '500' }}>{patient.firstName} {patient.lastName}</TableCell>
                       <TableCell>{patient.gender || '-'}</TableCell>
@@ -242,12 +309,23 @@ const Patients: React.FC = () => {
                         <IconButton size="small" sx={{ color: BRAND }} title="View Patient Record" onClick={() => setViewPatient(patient)}><Eye fontSize="small" /></IconButton>
                         <IconButton size="small" sx={{ color: BRAND }} title="Edit Patient" onClick={() => handleEdit(patient)}><EditIcon fontSize="small" /></IconButton>
                         <IconButton size="small" sx={{ color: '#EF4444' }} title="Delete Patient" onClick={() => setDeleteConfirm({ open: true, id: patient.id, name: `${patient.firstName} ${patient.lastName || ''}`.trim() })}><DeleteIcon fontSize="small" /></IconButton>
+                        {viewMode === 'all' ? (
+                          <Tooltip title="Assign to Me"><IconButton size="small" sx={{ color: BRAND }} onClick={() => handleAssignSingle(patient.id, `${patient.firstName} ${patient.lastName || ''}`.trim())}><PersonAddIcon fontSize="small" /></IconButton></Tooltip>
+                        ) : (
+                          <Tooltip title="Unassign"><IconButton size="small" sx={{ color: '#EF4444' }} onClick={() => handleUnassign(patient.id, `${patient.firstName} ${patient.lastName || ''}`.trim())}><PersonRemoveIcon fontSize="small" /></IconButton></Tooltip>
+                        )}
                       </TableCell>
                     </TableRow>
                   ))}
+                  {activeList.length === 0 && (
+                    <TableRow><TableCell colSpan={viewMode === 'all' ? 8 : 7} sx={{ textAlign: 'center', color: '#9CA3AF', py: 4 }}>
+                      {viewMode === 'my' ? 'No patients assigned to you yet.' : 'No patients found.'}
+                    </TableCell></TableRow>
+                  )}
                 </TableBody>
               </Table>
             </TableContainer>
+            )}
           </CardContent>
         </Card>
       </Container>
