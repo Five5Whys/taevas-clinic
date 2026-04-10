@@ -380,7 +380,7 @@ const DoctorProfile: React.FC<DoctorProfileProps> = ({ readOnly = false }) => {
   const [expanded, setExpanded] = useState<string | false>('professional');
   const [showSaved, setShowSaved] = useState(false);
   const [saveKey, setSaveKey] = useState(0);
-  const savedTimerRef = useRef<ReturnType<typeof setTimeout>>();
+  const savedTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   // Populate form from server data
   useEffect(() => {
