@@ -171,7 +171,7 @@ const Appointments: React.FC = () => {
 
       {/* Walk-In Dialog */}
       <Dialog open={walkInOpen} onClose={resetWi} maxWidth="xs" fullWidth>
-        <DialogTitle sx={{ fontWeight: 700 }}>Register Walk-In</DialogTitle>
+        <DialogTitle sx={{ fontWeight: 700 }}>Add Walk-In</DialogTitle>
         <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: '16px !important' }}>
           <TextField fullWidth size="small" label="Patient Name *" value={wi.patientName} onChange={e => setWi(p => ({ ...p, patientName: e.target.value }))} />
           <TextField fullWidth size="small" label="Phone" value={wi.phone}
@@ -183,7 +183,7 @@ const Appointments: React.FC = () => {
           <Button onClick={resetWi} sx={{ color: '#6B7280', textTransform: 'none' }}>Cancel</Button>
           <Button variant="contained" onClick={handleWalkIn} disabled={!wi.patientName.trim()}
             sx={{ background: BRAND, '&:hover': { background: '#4410C0' }, fontWeight: 700, textTransform: 'none' }}>
-            Register
+            Add
           </Button>
         </DialogActions>
       </Dialog>

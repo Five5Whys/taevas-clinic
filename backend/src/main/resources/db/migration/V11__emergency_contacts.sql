@@ -6,6 +6,6 @@ CREATE TABLE IF NOT EXISTS emergency_contacts (
     contact_number VARCHAR(20) NOT NULL,
     created_at TIMESTAMP DEFAULT NOW(),
     updated_at TIMESTAMP DEFAULT NOW(),
-    created_by UUID
+    created_by VARCHAR(255)
 );
 CREATE INDEX idx_emergency_contacts_patient ON emergency_contacts(patient_id);

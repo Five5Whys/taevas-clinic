@@ -31,8 +31,7 @@ import {
 } from '@mui/material';
 import { Search, Add, Visibility as Eye, Edit as EditIcon, Delete as DeleteIcon, Close as CloseIcon } from '@mui/icons-material';
 import DashboardLayout from '@/components/layout/DashboardLayout';
-import { useDoctorPatients, useUpdateDoctorPatient, useDeleteDoctorPatient, useEmergencyContacts, useAddEmergencyContact, useUpdateEmergencyContact, useDeleteEmergencyContact } from '@/hooks/doctor';
-import { doctorPatientService } from '@/services/doctor';
+import { useDoctorPatients, useCreateDoctorPatient, useUpdateDoctorPatient, useDeleteDoctorPatient, useEmergencyContacts, useAddEmergencyContact, useUpdateEmergencyContact, useDeleteEmergencyContact } from '@/hooks/doctor';
 
 const BRAND = '#5519E6';
 const RELATIONSHIPS = ['Spouse', 'Parent', 'Sibling', 'Child', 'Friend', 'Other'];
@@ -154,6 +153,7 @@ const Patients: React.FC = () => {
   const [form, setForm] = useState({ firstName: '', lastName: '', phone: '', age: '', gender: 'M', abhaId: '', bloodGroup: 'O+', allergy: '' });
   const [snack, setSnack] = useState('');
   const [deleteConfirm, setDeleteConfirm] = useState<{ open: boolean; id: string; name: string }>({ open: false, id: '', name: '' });
+  const createPatient = useCreateDoctorPatient();
   const updatePatient = useUpdateDoctorPatient();
   const deletePatient = useDeleteDoctorPatient();
 
@@ -174,7 +174,7 @@ const Patients: React.FC = () => {
       await updatePatient.mutateAsync({ id: editingId, data: payload });
       setSnack(`Patient ${form.firstName} ${form.lastName} updated.`);
     } else {
-      await doctorPatientService.create(payload);
+      await createPatient.mutateAsync(payload);
       setSnack(`Patient ${form.firstName} ${form.lastName} registered.`);
     }
     resetForm();
@@ -254,7 +254,7 @@ const Patients: React.FC = () => {
 
       {/* Patient Dialog (Create / Edit) */}
       <Dialog open={open} onClose={resetForm} maxWidth="xs" fullWidth>
-        <DialogTitle sx={{ fontWeight: 700 }}>{editingId ? 'Edit Patient' : 'Register New Patient'}</DialogTitle>
+        <DialogTitle sx={{ fontWeight: 700 }}>{editingId ? 'Edit Patient' : 'Add New Patient'}</DialogTitle>
         <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: '16px !important' }}>
           <Box sx={{ display: 'flex', gap: 1.5 }}>
             <TextField fullWidth size="small" label="First Name *" value={form.firstName} onChange={e => setForm(p => ({ ...p, firstName: e.target.value }))} />
@@ -284,7 +284,7 @@ const Patients: React.FC = () => {
           <Button onClick={resetForm} sx={{ color: '#6B7280', textTransform: 'none' }}>Cancel</Button>
           <Button variant="contained" onClick={handleSave} disabled={!form.firstName.trim() || !form.phone.trim()}
             sx={{ background: BRAND, '&:hover': { background: '#4410C0' }, fontWeight: 700, textTransform: 'none' }}>
-            {editingId ? 'Update' : 'Register'}
+            {editingId ? 'Update' : 'Add'}
           </Button>
         </DialogActions>
       </Dialog>
