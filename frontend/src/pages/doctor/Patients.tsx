@@ -154,6 +154,7 @@ const Patients: React.FC = () => {
   const { data: myPatientsData, isLoading: isLoadingMy } = useMyPatients(searchQuery);
   const patients = (Array.isArray(patientsData) ? patientsData : patientsData?.content ?? patientsData?.patients ?? []) as any[];
   const myPatients = (Array.isArray(myPatientsData) ? myPatientsData : (myPatientsData as any)?.data?.content ?? (myPatientsData as any)?.data ?? (myPatientsData as any)?.content ?? []) as any[];
+  const myPatientIds = new Set(myPatients.map((p: any) => p.id));
 
   const [open, setOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -310,7 +311,11 @@ const Patients: React.FC = () => {
                         <IconButton size="small" sx={{ color: BRAND }} title="Edit Patient" onClick={() => handleEdit(patient)}><EditIcon fontSize="small" /></IconButton>
                         <IconButton size="small" sx={{ color: '#EF4444' }} title="Delete Patient" onClick={() => setDeleteConfirm({ open: true, id: patient.id, name: `${patient.firstName} ${patient.lastName || ''}`.trim() })}><DeleteIcon fontSize="small" /></IconButton>
                         {viewMode === 'all' ? (
-                          <Tooltip title="Assign to Me"><IconButton size="small" sx={{ color: BRAND }} onClick={() => handleAssignSingle(patient.id, `${patient.firstName} ${patient.lastName || ''}`.trim())}><PersonAddIcon fontSize="small" /></IconButton></Tooltip>
+                          myPatientIds.has(patient.id) ? (
+                            <Tooltip title="Unassign from me"><IconButton size="small" sx={{ color: '#EF4444' }} onClick={() => handleUnassign(patient.id, `${patient.firstName} ${patient.lastName || ''}`.trim())}><PersonRemoveIcon fontSize="small" /></IconButton></Tooltip>
+                          ) : (
+                            <Tooltip title="Assign to Me"><IconButton size="small" sx={{ color: BRAND }} onClick={() => handleAssignSingle(patient.id, `${patient.firstName} ${patient.lastName || ''}`.trim())}><PersonAddIcon fontSize="small" /></IconButton></Tooltip>
+                          )
                         ) : (
                           <Tooltip title="Unassign"><IconButton size="small" sx={{ color: '#EF4444' }} onClick={() => handleUnassign(patient.id, `${patient.firstName} ${patient.lastName || ''}`.trim())}><PersonRemoveIcon fontSize="small" /></IconButton></Tooltip>
                         )}
