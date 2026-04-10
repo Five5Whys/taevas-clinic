@@ -19,4 +19,8 @@ public interface DoctorPatientAssignmentRepository extends JpaRepository<DoctorP
     void deleteByDoctorIdAndPatientId(UUID doctorId, UUID patientId);
 
     List<DoctorPatientAssignment> findByDoctorIdAndPatientIdIn(UUID doctorId, List<UUID> patientIds);
+
+    List<DoctorPatientAssignment> findByPatientIdIn(List<UUID> patientIds);
+
+    void deleteByPatientId(UUID patientId);
 }

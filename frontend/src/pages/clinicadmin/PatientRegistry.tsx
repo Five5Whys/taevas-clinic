@@ -23,10 +23,12 @@ import {
   Snackbar,
   Alert,
   CircularProgress,
+  IconButton,
+  Tooltip,
 } from '@mui/material';
-import { Add as Plus } from '@mui/icons-material';
+import { Add as Plus, PersonAdd as PersonAddIcon, PersonRemove as PersonRemoveIcon } from '@mui/icons-material';
 import DashboardLayout from '@/components/layout/DashboardLayout';
-import { usePatientList, useCreatePatient } from '@/hooks/clinicadmin';
+import { usePatientList, useCreatePatient, useClinicDoctors, useCAAssignPatient, useCAUnassignPatient } from '@/hooks/clinicadmin';
 
 const BRAND = '#5519E6';
 const SUB = '#6B7280';
@@ -42,6 +44,16 @@ interface Patient {
   bloodGroup: string;
   lastVisit: string;
   status: 'ACTIVE' | 'INACTIVE';
+  assignedDoctorId: string | null;
+  assignedDoctorName: string | null;
+}
+
+interface ClinicDoctor {
+  id: string;
+  firstName: string;
+  lastName: string;
+  department: string;
+  doctorCode: string;
 }
 
 const BLOOD_GROUPS = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
@@ -55,11 +67,20 @@ const PatientRegistry: React.FC = () => {
     severity: 'success',
   });
 
+  const [assignDialogOpen, setAssignDialogOpen] = useState(false);
+  const [unassignDialogOpen, setUnassignDialogOpen] = useState(false);
+  const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
+  const [selectedDoctorId, setSelectedDoctorId] = useState('');
+
   const { data: patientData, isLoading, isError } = usePatientList({ search: searchQuery || undefined });
   const createPatient = useCreatePatient();
+  const { data: doctorsData } = useClinicDoctors();
+  const assignPatient = useCAAssignPatient();
+  const unassignPatient = useCAUnassignPatient();
+  const doctors: ClinicDoctor[] = Array.isArray(doctorsData) ? doctorsData : [];
 
   const FALLBACK_PATIENTS: Patient[] = [
-    { id: 'P-001', firstName: 'Anita', lastName: 'Sharma', phone: '9876500001', email: 'anita@email.com', gender: 'Female', bloodGroup: 'B+', lastVisit: '2026-03-28', status: 'ACTIVE' },
+    { id: 'P-001', firstName: 'Anita', lastName: 'Sharma', phone: '9876500001', email: 'anita@email.com', gender: 'Female', bloodGroup: 'B+', lastVisit: '2026-03-28', status: 'ACTIVE', assignedDoctorId: null, assignedDoctorName: null },
   ];
 
   const isMock = localStorage.getItem('authToken') === 'mock-jwt-token-for-dev-only';
@@ -89,6 +110,48 @@ const PatientRegistry: React.FC = () => {
           (p.email ?? '').toLowerCase().includes(searchQuery.toLowerCase())
       )
     : patients;
+
+  const handleOpenAssign = (patient: Patient) => {
+    setSelectedPatient(patient);
+    setSelectedDoctorId('');
+    setAssignDialogOpen(true);
+  };
+
+  const handleOpenUnassign = (patient: Patient) => {
+    setSelectedPatient(patient);
+    setUnassignDialogOpen(true);
+  };
+
+  const handleAssignConfirm = () => {
+    if (!selectedPatient || !selectedDoctorId) return;
+    assignPatient.mutate(
+      { patientId: selectedPatient.id, doctorId: selectedDoctorId },
+      {
+        onSuccess: () => {
+          setAssignDialogOpen(false);
+          setSelectedPatient(null);
+          setSnackbar({ open: true, message: 'Patient assigned successfully', severity: 'success' });
+        },
+        onError: () => {
+          setSnackbar({ open: true, message: 'Failed to assign patient', severity: 'error' });
+        },
+      }
+    );
+  };
+
+  const handleUnassignConfirm = () => {
+    if (!selectedPatient) return;
+    unassignPatient.mutate(selectedPatient.id, {
+      onSuccess: () => {
+        setUnassignDialogOpen(false);
+        setSelectedPatient(null);
+        setSnackbar({ open: true, message: 'Patient unassigned successfully', severity: 'success' });
+      },
+      onError: () => {
+        setSnackbar({ open: true, message: 'Failed to unassign patient', severity: 'error' });
+      },
+    });
+  };
 
   const handleOpenDialog = () => {
     setForm({ firstName: '', lastName: '', phone: '', email: '', gender: '', bloodGroup: '', dob: '' });
@@ -127,6 +190,8 @@ const PatientRegistry: React.FC = () => {
         bloodGroup: form.bloodGroup,
         lastVisit: new Date().toISOString().split('T')[0] ?? '',
         status: 'ACTIVE',
+        assignedDoctorId: null,
+        assignedDoctorName: null,
       };
       setLocalPatients(prev => [...prev, newPatient]);
       setDialogOpen(false);
@@ -216,6 +281,7 @@ const PatientRegistry: React.FC = () => {
                   <TableCell sx={{ fontWeight: 600, color: SUB }}>Blood Group</TableCell>
                   <TableCell sx={{ fontWeight: 600, color: SUB }}>Last Visit</TableCell>
                   <TableCell sx={{ fontWeight: 600, color: SUB }}>Status</TableCell>
+                  <TableCell sx={{ fontWeight: 600, color: SUB }}>Actions</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -243,11 +309,34 @@ const PatientRegistry: React.FC = () => {
                         }}
                       />
                     </TableCell>
+                    <TableCell>
+                      {patient.assignedDoctorId ? (
+                        <Tooltip title={`Assigned to Dr. ${patient.assignedDoctorName || 'Unknown'}`} arrow>
+                          <IconButton
+                            size="small"
+                            onClick={() => handleOpenUnassign(patient)}
+                            sx={{ color: '#DC2626', '&:hover': { backgroundColor: 'rgba(220,38,38,0.08)' } }}
+                          >
+                            <PersonRemoveIcon fontSize="small" />
+                          </IconButton>
+                        </Tooltip>
+                      ) : (
+                        <Tooltip title="Assign to doctor" arrow>
+                          <IconButton
+                            size="small"
+                            onClick={() => handleOpenAssign(patient)}
+                            sx={{ color: BRAND, '&:hover': { backgroundColor: 'rgba(85,25,230,0.08)' } }}
+                          >
+                            <PersonAddIcon fontSize="small" />
+                          </IconButton>
+                        </Tooltip>
+                      )}
+                    </TableCell>
                   </TableRow>
                 ))}
                 {filteredPatients.length === 0 && (
                   <TableRow>
-                    <TableCell colSpan={7} align="center" sx={{ py: 4, color: SUB }}>
+                    <TableCell colSpan={8} align="center" sx={{ py: 4, color: SUB }}>
                       No patients found
                     </TableCell>
                   </TableRow>
@@ -351,6 +440,83 @@ const PatientRegistry: React.FC = () => {
               }}
             >
               {createPatient.isPending ? 'Registering...' : 'Register'}
+            </Button>
+          </DialogActions>
+        </Dialog>
+
+        {/* Assign Patient Dialog */}
+        <Dialog open={assignDialogOpen} onClose={() => setAssignDialogOpen(false)} maxWidth="sm" fullWidth>
+          <DialogTitle sx={{ fontWeight: 700 }}>
+            Assign {selectedPatient ? `${selectedPatient.firstName} ${selectedPatient.lastName}` : ''} to Doctor
+          </DialogTitle>
+          <DialogContent>
+            <Box sx={{ pt: 1 }}>
+              <FormControl fullWidth size="small">
+                <InputLabel>Select Doctor</InputLabel>
+                <Select
+                  value={selectedDoctorId}
+                  label="Select Doctor"
+                  onChange={(e) => setSelectedDoctorId(e.target.value)}
+                >
+                  {doctors.map((doc) => (
+                    <MenuItem key={doc.id} value={doc.id}>
+                      <Box>
+                        <Typography sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
+                          Dr. {doc.firstName} {doc.lastName}
+                        </Typography>
+                        <Typography sx={{ fontSize: '0.75rem', color: SUB }}>
+                          {doc.department} &middot; {doc.doctorCode}
+                        </Typography>
+                      </Box>
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Box>
+          </DialogContent>
+          <DialogActions sx={{ px: 3, pb: 2 }}>
+            <Button onClick={() => setAssignDialogOpen(false)} sx={{ color: SUB }}>
+              Cancel
+            </Button>
+            <Button
+              variant="contained"
+              onClick={handleAssignConfirm}
+              disabled={!selectedDoctorId || assignPatient.isPending}
+              sx={{
+                background: `linear-gradient(135deg, ${BRAND} 0%, #A046F0 100%)`,
+                textTransform: 'none',
+                fontWeight: 600,
+              }}
+            >
+              {assignPatient.isPending ? 'Assigning...' : 'Assign'}
+            </Button>
+          </DialogActions>
+        </Dialog>
+
+        {/* Unassign Confirmation Dialog */}
+        <Dialog open={unassignDialogOpen} onClose={() => setUnassignDialogOpen(false)} maxWidth="xs" fullWidth>
+          <DialogTitle sx={{ fontWeight: 700 }}>Unassign Patient</DialogTitle>
+          <DialogContent>
+            <Typography>
+              Unassign {selectedPatient ? `${selectedPatient.firstName} ${selectedPatient.lastName}` : ''} from Dr. {selectedPatient?.assignedDoctorName || 'Unknown'}?
+            </Typography>
+          </DialogContent>
+          <DialogActions sx={{ px: 3, pb: 2 }}>
+            <Button onClick={() => setUnassignDialogOpen(false)} sx={{ color: SUB }}>
+              Cancel
+            </Button>
+            <Button
+              variant="contained"
+              onClick={handleUnassignConfirm}
+              disabled={unassignPatient.isPending}
+              sx={{
+                backgroundColor: '#DC2626',
+                textTransform: 'none',
+                fontWeight: 600,
+                '&:hover': { backgroundColor: '#B91C1C' },
+              }}
+            >
+              {unassignPatient.isPending ? 'Unassigning...' : 'Confirm'}
             </Button>
           </DialogActions>
         </Dialog>

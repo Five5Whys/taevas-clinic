@@ -5,4 +5,7 @@ export const patientService = {
   getById: async (id: string) => { const r = await api.get(`/clinicadmin/patients/${id}`); return r.data.data; },
   create: async (data: any) => { const r = await api.post('/clinicadmin/patients', data); return r.data.data; },
   update: async (id: string, data: any) => { const r = await api.put(`/clinicadmin/patients/${id}`, data); return r.data.data; },
+  getClinicDoctors: async () => { const r = await api.get('/clinicadmin/doctors'); return r.data.data; },
+  assignPatient: async (data: { patientId: string; doctorId: string }) => { const r = await api.post('/clinicadmin/patients/assign', data); return r.data.data; },
+  unassignPatient: async (patientId: string) => { const r = await api.delete(`/clinicadmin/patients/unassign/${patientId}`); return r.data.data; },
 };

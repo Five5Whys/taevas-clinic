@@ -311,9 +311,7 @@ const Patients: React.FC = () => {
                         <IconButton size="small" sx={{ color: BRAND }} title="Edit Patient" onClick={() => handleEdit(patient)}><EditIcon fontSize="small" /></IconButton>
                         <IconButton size="small" sx={{ color: '#EF4444' }} title="Delete Patient" onClick={() => setDeleteConfirm({ open: true, id: patient.id, name: `${patient.firstName} ${patient.lastName || ''}`.trim() })}><DeleteIcon fontSize="small" /></IconButton>
                         {viewMode === 'all' ? (
-                          myPatientIds.has(patient.id) ? (
-                            <Tooltip title="Unassign from me"><IconButton size="small" sx={{ color: '#EF4444' }} onClick={() => handleUnassign(patient.id, `${patient.firstName} ${patient.lastName || ''}`.trim())}><PersonRemoveIcon fontSize="small" /></IconButton></Tooltip>
-                          ) : (
+                          !myPatientIds.has(patient.id) && (
                             <Tooltip title="Assign to Me"><IconButton size="small" sx={{ color: BRAND }} onClick={() => handleAssignSingle(patient.id, `${patient.firstName} ${patient.lastName || ''}`.trim())}><PersonAddIcon fontSize="small" /></IconButton></Tooltip>
                           )
                         ) : (

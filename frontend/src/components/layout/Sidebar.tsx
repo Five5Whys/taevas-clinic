@@ -35,7 +35,7 @@ const ROLE_BRANDING = {
     dark: true,
     logoEmoji: '🏥',
     logoTitle: 'Taevas Clinic',
-    logoSub: 'ENT Platform',
+    logoSub: 'ENT Doctor',
   },
   PATIENT: {
     dark: false,

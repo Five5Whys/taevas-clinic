@@ -6,8 +6,12 @@ import com.taevas.clinic.exception.ResourceNotFoundException;
 import com.taevas.clinic.exception.UnauthorizedException;
 import com.taevas.clinic.model.Clinic;
 import com.taevas.clinic.model.ClinicPatient;
+import com.taevas.clinic.model.DoctorPatientAssignment;
+import com.taevas.clinic.model.User;
 import com.taevas.clinic.repository.ClinicPatientRepository;
 import com.taevas.clinic.repository.ClinicRepository;
+import com.taevas.clinic.repository.DoctorPatientAssignmentRepository;
+import com.taevas.clinic.repository.UserRepository;
 import jakarta.persistence.criteria.Predicate;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -17,11 +21,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service @RequiredArgsConstructor @Transactional(readOnly = true)
 public class PatientService {
     private final ClinicPatientRepository repo;
     private final ClinicRepository clinicRepo;
+    private final DoctorPatientAssignmentRepository assignmentRepo;
+    private final UserRepository userRepo;
 
     public Page<PatientDto> getAll(UUID clinicId, String status, String search, Pageable pageable) {
         Specification<ClinicPatient> spec = (root, q, cb) -> {
@@ -34,13 +42,17 @@ public class PatientService {
             }
             return cb.and(preds.toArray(new Predicate[0]));
         };
-        return repo.findAll(spec, pageable).map(this::toDto);
+        Page<PatientDto> page = repo.findAll(spec, pageable).map(this::toDto);
+        enrichWithAssignments(page.getContent());
+        return page;
     }
 
     public PatientDto getById(UUID clinicId, UUID id) {
         ClinicPatient p = repo.findById(id).orElseThrow(() -> new ResourceNotFoundException("Patient", "id", id));
         if (!p.getClinicId().equals(clinicId)) throw new UnauthorizedException("Access denied to this patient");
-        return toDto(p);
+        PatientDto dto = toDto(p);
+        enrichWithAssignments(List.of(dto));
+        return dto;
     }
 
     @Transactional public PatientDto create(UUID clinicId, PatientRequest r) {
@@ -80,6 +92,48 @@ public class PatientService {
         if (!p.getClinicId().equals(clinicId)) throw new UnauthorizedException("Access denied to this patient");
         p.setStatus("INACTIVE");
         repo.save(p);
+    }
+
+    /**
+     * Batch-enrich a list of PatientDto with assignment info (doctor ID + name).
+     * Uses two queries total regardless of list size (no N+1).
+     */
+    private void enrichWithAssignments(List<PatientDto> dtos) {
+        if (dtos.isEmpty()) return;
+
+        List<UUID> patientIds = dtos.stream()
+                .map(d -> UUID.fromString(d.getId()))
+                .toList();
+
+        // Batch fetch assignments for all patients on this page
+        List<DoctorPatientAssignment> assignments = assignmentRepo.findByPatientIdIn(patientIds);
+        if (assignments.isEmpty()) return;
+
+        // Build patientId -> doctorId map (first assignment wins if multiple exist)
+        Map<UUID, UUID> patientDoctorMap = new LinkedHashMap<>();
+        for (DoctorPatientAssignment a : assignments) {
+            patientDoctorMap.putIfAbsent(a.getPatientId(), a.getDoctorId());
+        }
+
+        // Batch fetch all distinct doctor users
+        Set<UUID> doctorIds = new HashSet<>(patientDoctorMap.values());
+        Map<UUID, User> doctorMap = userRepo.findAllById(doctorIds).stream()
+                .collect(Collectors.toMap(User::getId, Function.identity()));
+
+        // Enrich each DTO
+        for (PatientDto dto : dtos) {
+            UUID pid = UUID.fromString(dto.getId());
+            UUID docId = patientDoctorMap.get(pid);
+            if (docId != null) {
+                dto.setAssignedDoctorId(docId.toString());
+                User doctor = doctorMap.get(docId);
+                if (doctor != null) {
+                    String name = "Dr. " + (doctor.getFirstName() != null ? doctor.getFirstName() : "")
+                            + (doctor.getLastName() != null ? " " + doctor.getLastName() : "");
+                    dto.setAssignedDoctorName(name.trim());
+                }
+            }
+        }
     }
 
     private PatientDto toDto(ClinicPatient p) {

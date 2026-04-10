@@ -6,8 +6,10 @@ import com.taevas.clinic.dto.doctor.AssignPatientsResponse;
 import com.taevas.clinic.exception.ResourceNotFoundException;
 import com.taevas.clinic.model.ClinicPatient;
 import com.taevas.clinic.model.DoctorPatientAssignment;
+import com.taevas.clinic.model.User;
 import com.taevas.clinic.repository.ClinicPatientRepository;
 import com.taevas.clinic.repository.DoctorPatientAssignmentRepository;
+import com.taevas.clinic.repository.UserRepository;
 import jakarta.persistence.criteria.Predicate;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -27,6 +29,7 @@ public class DoctorPatientService {
 
     private final DoctorPatientAssignmentRepository assignmentRepo;
     private final ClinicPatientRepository patientRepo;
+    private final UserRepository userRepo;
 
     /**
      * Bulk assign patients to a doctor. Skips patients already assigned.
@@ -98,7 +101,23 @@ public class DoctorPatientService {
             return cb.and(preds.toArray(new Predicate[0]));
         };
 
-        return patientRepo.findAll(spec, pageable).map(this::toDto);
+        Page<PatientDto> result = patientRepo.findAll(spec, pageable).map(this::toDto);
+
+        // Enrich all results with this doctor's assignment info (single user lookup)
+        if (!result.getContent().isEmpty()) {
+            String doctorIdStr = doctorId.toString();
+            String doctorName = userRepo.findById(doctorId)
+                    .map(u -> "Dr. " + (u.getFirstName() != null ? u.getFirstName() : "")
+                            + (u.getLastName() != null ? " " + u.getLastName() : ""))
+                    .map(String::trim)
+                    .orElse(null);
+            for (PatientDto dto : result.getContent()) {
+                dto.setAssignedDoctorId(doctorIdStr);
+                dto.setAssignedDoctorName(doctorName);
+            }
+        }
+
+        return result;
     }
 
     /**
