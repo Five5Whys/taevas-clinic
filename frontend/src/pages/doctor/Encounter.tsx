@@ -27,7 +27,7 @@ import {
   CheckCircle,
   Warning,
   Description,
-  InfoOutlined,
+  LightbulbOutlined,
 } from '@mui/icons-material';
 import Tooltip from '@mui/material/Tooltip';
 import { useSearchParams } from 'react-router-dom';
@@ -260,7 +260,7 @@ const Encounter: React.FC = () => {
                       arrow
                       placement="top"
                     >
-                      <InfoOutlined sx={{ fontSize: 14, color: '#9CA3AF', cursor: 'help' }} />
+                      <LightbulbOutlined sx={{ fontSize: 14, color: '#F59E0B', cursor: 'help' }} />
                     </Tooltip>
                   </Box>
                 }

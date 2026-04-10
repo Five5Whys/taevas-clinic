@@ -1,5 +1,8 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
   Box,
   Typography,
   TextField,
@@ -20,6 +23,7 @@ import {
   Visibility as VisibilityIcon,
   Draw as DrawIcon,
   Upload as UploadIcon,
+  ExpandMore as ExpandMoreIcon,
 } from '@mui/icons-material';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import {
@@ -359,34 +363,6 @@ const SignaturePad: React.FC<{
   );
 };
 
-// ── Section Wrapper ──────────────────────────────────────────────────────────
-const Section: React.FC<{ title: string; children: React.ReactNode }> = ({ title, children }) => (
-  <Paper
-    elevation={0}
-    sx={{
-      border: `1px solid ${BORDER}`,
-      borderRadius: '10px',
-      p: 2.5,
-      mb: 2,
-    }}
-  >
-    <Typography
-      variant="subtitle2"
-      sx={{
-        fontWeight: 700,
-        fontSize: '13px',
-        color: '#0A0A0F',
-        mb: 2,
-        pb: 1,
-        borderBottom: `1px solid ${BORDER}`,
-      }}
-    >
-      {title}
-    </Typography>
-    {children}
-  </Paper>
-);
-
 // ── Required asterisk ────────────────────────────────────────────────────────
 const Req: React.FC = () => <span style={{ color: '#EF4444', marginLeft: 2 }}>*</span>;
 
@@ -401,6 +377,10 @@ const DoctorProfile: React.FC<DoctorProfileProps> = ({ readOnly = false }) => {
   const [initialized, setInitialized] = useState(false);
   const [alertMsg, setAlertMsg] = useState('');
   const [uploadingField, setUploadingField] = useState<string | null>(null);
+  const [expanded, setExpanded] = useState<string | false>('professional');
+  const [showSaved, setShowSaved] = useState(false);
+  const [saveKey, setSaveKey] = useState(0);
+  const savedTimerRef = useRef<ReturnType<typeof setTimeout>>();
 
   // Populate form from server data
   useEffect(() => {
@@ -430,6 +410,22 @@ const DoctorProfile: React.FC<DoctorProfileProps> = ({ readOnly = false }) => {
       autoSave(form);
     }
   }, [form, readOnly, initialized]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Flash "Saved ✓" fresh on each save, auto-hide after 2s
+  useEffect(() => {
+    if (saveStatus === 'saved') {
+      setSaveKey((k) => k + 1);
+      setShowSaved(true);
+      clearTimeout(savedTimerRef.current);
+      savedTimerRef.current = setTimeout(() => setShowSaved(false), 2000);
+    } else if (saveStatus === 'saving') {
+      setShowSaved(true);
+      clearTimeout(savedTimerRef.current);
+    } else {
+      setShowSaved(false);
+    }
+    return () => clearTimeout(savedTimerRef.current);
+  }, [saveStatus]);
 
   // Field updater
   const updateField = useCallback(
@@ -481,7 +477,7 @@ const DoctorProfile: React.FC<DoctorProfileProps> = ({ readOnly = false }) => {
 
   // Save status indicator
   const SaveIndicator: React.FC = () => {
-    if (readOnly) return null;
+    if (readOnly || !showSaved) return null;
     return (
       <Typography
         variant="caption"
@@ -497,7 +493,20 @@ const DoctorProfile: React.FC<DoctorProfileProps> = ({ readOnly = false }) => {
       >
         {saveStatus === 'saving' && 'Saving...'}
         {saveStatus === 'saved' && (
-          <Box component="span" sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.3 }}>
+          <Box
+            key={saveKey}
+            component="span"
+            sx={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 0.3,
+              animation: 'fadeInSaved 0.3s ease-in',
+              '@keyframes fadeInSaved': {
+                from: { opacity: 0, transform: 'translateY(-2px)' },
+                to: { opacity: 1, transform: 'translateY(0)' },
+              },
+            }}
+          >
             <CheckCircleIcon sx={{ fontSize: 13 }} /> Saved
           </Box>
         )}
@@ -579,8 +588,12 @@ const DoctorProfile: React.FC<DoctorProfileProps> = ({ readOnly = false }) => {
         </Paper>
       )}
 
-      {/* ─── Professional Info ─── */}
-      <Section title="Professional Information">
+      {/* ─── 1. Professional Details ─── */}
+      <Accordion expanded={expanded === 'professional'} onChange={(_, isExp) => setExpanded(isExp ? 'professional' : false)} disableGutters elevation={0} sx={{ border: `1px solid ${BORDER}`, borderRadius: '8px !important', mb: 2, '&:before': { display: 'none' } }}>
+        <AccordionSummary expandIcon={<ExpandMoreIcon sx={{ color: BRAND }} />} sx={{ px: 2.5, '& .MuiAccordionSummary-content': { my: 1.5 } }}>
+          <Typography sx={{ fontWeight: 700, fontSize: '14px' }}>Professional Details</Typography>
+        </AccordionSummary>
+        <AccordionDetails sx={{ px: 2.5, pb: 2.5, pt: 0 }}>
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
           <Box>
             <Typography variant="body2" sx={{ fontWeight: 600, fontSize: '12px', mb: 0.5, color: '#374151' }}>
@@ -617,7 +630,6 @@ const DoctorProfile: React.FC<DoctorProfileProps> = ({ readOnly = false }) => {
               )}
             />
           </Box>
-
           <Box>
             <Typography variant="body2" sx={{ fontWeight: 600, fontSize: '12px', mb: 0.5, color: '#374151' }}>
               Specializations<Req />
@@ -653,7 +665,6 @@ const DoctorProfile: React.FC<DoctorProfileProps> = ({ readOnly = false }) => {
               )}
             />
           </Box>
-
           <Box>
             <Typography variant="body2" sx={{ fontWeight: 600, fontSize: '12px', mb: 0.5, color: '#374151' }}>
               Experience (years)<Req />
@@ -670,12 +681,10 @@ const DoctorProfile: React.FC<DoctorProfileProps> = ({ readOnly = false }) => {
               sx={{ '& .MuiOutlinedInput-root': { borderRadius: '8px' }, maxWidth: 200 }}
             />
           </Box>
-        </Box>
-      </Section>
 
-      {/* ─── License ─── */}
-      <Section title="Medical License">
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+          <Typography variant="body2" sx={{ fontWeight: 700, fontSize: '13px', color: BRAND, mt: 1, borderTop: `1px solid ${BORDER}`, pt: 2 }}>
+            Medical License
+          </Typography>
           <Box>
             <Typography variant="body2" sx={{ fontWeight: 600, fontSize: '12px', mb: 0.5, color: '#374151' }}>
               License Number
@@ -729,10 +738,15 @@ const DoctorProfile: React.FC<DoctorProfileProps> = ({ readOnly = false }) => {
             readOnly={readOnly}
           />
         </Box>
-      </Section>
+        </AccordionDetails>
+      </Accordion>
 
-      {/* ─── Identity ─── */}
-      <Section title="Identity Verification">
+      {/* ─── 2. Verification & Signature ─── */}
+      <Accordion expanded={expanded === 'verification'} onChange={(_, isExp) => setExpanded(isExp ? 'verification' : false)} disableGutters elevation={0} sx={{ border: `1px solid ${BORDER}`, borderRadius: '8px !important', mb: 2, '&:before': { display: 'none' } }}>
+        <AccordionSummary expandIcon={<ExpandMoreIcon sx={{ color: BRAND }} />} sx={{ px: 2.5, '& .MuiAccordionSummary-content': { my: 1.5 } }}>
+          <Typography sx={{ fontWeight: 700, fontSize: '14px' }}>Verification & Signature</Typography>
+        </AccordionSummary>
+        <AccordionDetails sx={{ px: 2.5, pb: 2.5, pt: 0 }}>
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
           <Box>
             <Typography variant="body2" sx={{ fontWeight: 600, fontSize: '12px', mb: 0.5, color: '#374151' }}>
@@ -757,42 +771,47 @@ const DoctorProfile: React.FC<DoctorProfileProps> = ({ readOnly = false }) => {
             uploading={uploadingField === 'panCardAttachmentUrl'}
             readOnly={readOnly}
           />
-        </Box>
-      </Section>
 
-      {/* ─── Signature ─── */}
-      <Section title="Digital Signature">
-        <SignaturePad
-          value={form.signatureUrl}
-          onChange={(url) => updateField('signatureUrl', url)}
-          onUpload={handleFileUpload('signatureUrl', 'SIGNATURE')}
-          uploading={uploadingField === 'signatureUrl'}
-          readOnly={readOnly}
-        />
-      </Section>
-
-      {/* ─── Contact ─── */}
-      <Section title="Contact Information">
-        <Box>
-          <Typography variant="body2" sx={{ fontWeight: 600, fontSize: '12px', mb: 0.5, color: '#374151' }}>
-            Email Address <span style={{ color: SUB, fontWeight: 400 }}>(optional)</span>
+          <Typography variant="body2" sx={{ fontWeight: 700, fontSize: '13px', color: BRAND, mt: 1, borderTop: `1px solid ${BORDER}`, pt: 2 }}>
+            Digital Signature
           </Typography>
-          <TextField
-            size="small"
-            fullWidth
-            type="email"
-            value={form.email ?? ''}
-            onChange={(e) => updateField('email', e.target.value)}
-            placeholder="e.g. doctor@example.com"
-            InputProps={{ readOnly }}
-            sx={{ '& .MuiOutlinedInput-root': { borderRadius: '8px' }, maxWidth: 400 }}
+          <SignaturePad
+            value={form.signatureUrl}
+            onChange={(url) => updateField('signatureUrl', url)}
+            onUpload={handleFileUpload('signatureUrl', 'SIGNATURE')}
+            uploading={uploadingField === 'signatureUrl'}
+            readOnly={readOnly}
           />
         </Box>
-      </Section>
+        </AccordionDetails>
+      </Accordion>
 
-      {/* ─── Address ─── */}
-      <Section title="Address">
+      {/* ─── 3. Contact & Address ─── */}
+      <Accordion expanded={expanded === 'contact'} onChange={(_, isExp) => setExpanded(isExp ? 'contact' : false)} disableGutters elevation={0} sx={{ border: `1px solid ${BORDER}`, borderRadius: '8px !important', mb: 2, '&:before': { display: 'none' } }}>
+        <AccordionSummary expandIcon={<ExpandMoreIcon sx={{ color: BRAND }} />} sx={{ px: 2.5, '& .MuiAccordionSummary-content': { my: 1.5 } }}>
+          <Typography sx={{ fontWeight: 700, fontSize: '14px' }}>Contact & Address</Typography>
+        </AccordionSummary>
+        <AccordionDetails sx={{ px: 2.5, pb: 2.5, pt: 0 }}>
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+          <Box>
+            <Typography variant="body2" sx={{ fontWeight: 600, fontSize: '12px', mb: 0.5, color: '#374151' }}>
+              Email Address <span style={{ color: SUB, fontWeight: 400 }}>(optional)</span>
+            </Typography>
+            <TextField
+              size="small"
+              fullWidth
+              type="email"
+              value={form.email ?? ''}
+              onChange={(e) => updateField('email', e.target.value)}
+              placeholder="e.g. doctor@example.com"
+              InputProps={{ readOnly }}
+              sx={{ '& .MuiOutlinedInput-root': { borderRadius: '8px' }, maxWidth: 400 }}
+            />
+          </Box>
+
+          <Typography variant="body2" sx={{ fontWeight: 700, fontSize: '13px', color: BRAND, mt: 1, borderTop: `1px solid ${BORDER}`, pt: 2 }}>
+            Address
+          </Typography>
           <Box>
             <Typography variant="body2" sx={{ fontWeight: 600, fontSize: '12px', mb: 0.5, color: '#374151' }}>
               Home Address
@@ -853,13 +872,8 @@ const DoctorProfile: React.FC<DoctorProfileProps> = ({ readOnly = false }) => {
               />
             </Box>
           </Box>
-        </Box>
-      </Section>
 
-      {/* ─── Other ─── */}
-      <Section title="Other">
-        <Box>
-          <Typography variant="body2" sx={{ fontWeight: 600, fontSize: '12px', mb: 0.5, color: '#374151' }}>
+          <Typography variant="body2" sx={{ fontWeight: 700, fontSize: '13px', color: BRAND, mt: 1, borderTop: `1px solid ${BORDER}`, pt: 2 }}>
             Remarks
           </Typography>
           <TextField
@@ -874,7 +888,8 @@ const DoctorProfile: React.FC<DoctorProfileProps> = ({ readOnly = false }) => {
             sx={{ '& .MuiOutlinedInput-root': { borderRadius: '8px' } }}
           />
         </Box>
-      </Section>
+        </AccordionDetails>
+      </Accordion>
 
       {/* Bottom spacer for mobile nav */}
       <Box sx={{ height: 16 }} />
