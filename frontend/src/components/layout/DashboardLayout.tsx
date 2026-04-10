@@ -18,6 +18,9 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
+    try { return localStorage.getItem('sidebarCollapsed') === 'true'; } catch { return false; }
+  });
 
   const handleDrawerClose = () => {
     setSidebarOpen(false);
@@ -27,10 +30,18 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
     setSidebarOpen(!sidebarOpen);
   };
 
+  const handleToggleCollapse = () => {
+    setSidebarCollapsed(prev => {
+      const next = !prev;
+      try { localStorage.setItem('sidebarCollapsed', String(next)); } catch {}
+      return next;
+    });
+  };
+
   return (
     <Box sx={{ display: 'flex', height: '100vh', backgroundColor: theme.palette.background.default }}>
       {/* Sidebar */}
-      {!isMobile && <Sidebar open={true} />}
+      {!isMobile && <Sidebar open={true} collapsed={sidebarCollapsed} onToggleCollapse={handleToggleCollapse} />}
       {isMobile && (
         <Sidebar
           open={sidebarOpen}

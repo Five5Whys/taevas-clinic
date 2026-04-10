@@ -30,7 +30,9 @@ import {
   Alert,
   CircularProgress,
 } from '@mui/material';
-import { Delete, Lock } from '@mui/icons-material';
+import { Delete, Lock, LightbulbOutlined } from '@mui/icons-material';
+
+const SOAP_TOOLTIP = <>S — Subjective (patient's symptoms & history)<br/>O — Objective (clinical findings & vitals)<br/>A — Assessment (diagnosis)<br/>P — Plan (treatment & follow-up)</>;
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import { useCustomFields, useCreateCustomField, useDeleteCustomField } from '@/hooks/clinicadmin/useCustomFields';
 
@@ -210,7 +212,7 @@ const CustomFields: React.FC = () => {
           }}
         >
           <Tab label="INTAKE FIELDS" />
-          <Tab label="SOAP FIELDS" />
+          <Tab label={<Box sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.5 }}>SOAP FIELDS<Tooltip title={SOAP_TOOLTIP} arrow placement="top"><LightbulbOutlined sx={{ fontSize: 14, color: '#F59E0B', cursor: 'help' }} /></Tooltip></Box>} />
         </Tabs>
 
         {/* Table */}

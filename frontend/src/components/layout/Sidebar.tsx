@@ -6,16 +6,21 @@ import {
   Typography,
   Tooltip,
   Collapse,
+  IconButton,
+  Avatar,
   useMediaQuery,
   useTheme,
 } from '@mui/material';
 import * as Icons from '@mui/icons-material';
 import { useAuth } from '@/hooks/useAuth';
 import { NAVIGATION_CONFIG } from '@/utils/constants';
+import { getUserInitials, getFullName } from '@/utils/helpers';
 
 interface SidebarProps {
   open: boolean;
   onClose?: () => void;
+  collapsed?: boolean;
+  onToggleCollapse?: () => void;
 }
 
 const ROLE_BRANDING = {
@@ -46,12 +51,14 @@ const ROLE_BRANDING = {
 };
 
 const SIDEBAR_W = 240;
+const SIDEBAR_COLLAPSED_W = 64;
 
-const Sidebar: React.FC<SidebarProps> = ({ open, onClose }) => {
+const Sidebar: React.FC<SidebarProps> = ({ open, onClose, collapsed = false, onToggleCollapse }) => {
   const theme = useTheme();
   const location = useLocation();
-  const { userRole } = useAuth();
+  const { user, userRole, logout } = useAuth();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const isCollapsed = !isMobile && collapsed;
 
   const role = (userRole || 'PATIENT') as keyof typeof ROLE_BRANDING;
   const branding = ROLE_BRANDING[role] || ROLE_BRANDING.PATIENT;
@@ -83,14 +90,14 @@ const Sidebar: React.FC<SidebarProps> = ({ open, onClose }) => {
   });
 
   // Collapsible state — first section open by default, rest open too
-  const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
+  const [sectionCollapsed, setSectionCollapsed] = useState<Record<string, boolean>>({});
 
   const toggleSection = (title: string) => {
-    setCollapsed(prev => ({ ...prev, [title]: !prev[title] }));
+    setSectionCollapsed(prev => ({ ...prev, [title]: !prev[title] }));
   };
 
   const isSectionOpen = (title: string) => {
-    return collapsed[title] !== true; // open by default
+    return sectionCollapsed[title] !== true; // open by default
   };
 
   const isActive = (path: string) => {
@@ -113,56 +120,77 @@ const Sidebar: React.FC<SidebarProps> = ({ open, onClose }) => {
       {/* ── Logo / Branding ── */}
       <Box
         sx={{
-          px: 2,
+          px: isCollapsed ? 0 : 2,
           py: 1.5,
           display: 'flex',
           alignItems: 'center',
-          gap: 1.25,
+          justifyContent: isCollapsed ? 'center' : 'flex-start',
+          gap: isCollapsed ? 0 : 1.25,
           borderBottom: `1px solid ${borderCol}`,
           flexShrink: 0,
+          position: 'relative',
         }}
       >
-        <Box
-          sx={{
-            width: 32,
-            height: 32,
-            borderRadius: '8px',
-            background: 'linear-gradient(135deg, #5519E6 0%, #A046F0 100%)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontSize: '1rem',
-            flexShrink: 0,
-          }}
-        >
-          {branding.logoEmoji}
-        </Box>
-        <Box sx={{ minWidth: 0 }}>
-          <Typography
+        <Tooltip title={isCollapsed ? branding.logoTitle : ''} placement="right" arrow>
+          <Box
             sx={{
-              fontSize: '0.78rem',
-              fontWeight: 700,
-              color: textPrimary,
-              lineHeight: 1.2,
-              whiteSpace: 'nowrap',
+              width: 32,
+              height: 32,
+              borderRadius: '8px',
+              background: 'linear-gradient(135deg, #5519E6 0%, #A046F0 100%)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '1rem',
+              flexShrink: 0,
+              cursor: isCollapsed ? 'pointer' : 'default',
             }}
+            onClick={isCollapsed ? onToggleCollapse : undefined}
           >
-            {branding.logoTitle}
-          </Typography>
-          <Typography
-            sx={{
-              fontSize: '0.6rem',
-              color: textMuted,
-              lineHeight: 1.2,
-            }}
-          >
-            {branding.logoSub}
-          </Typography>
-        </Box>
+            {branding.logoEmoji}
+          </Box>
+        </Tooltip>
+        {!isCollapsed && (
+          <>
+            <Box sx={{ minWidth: 0, flex: 1 }}>
+              <Typography
+                sx={{
+                  fontSize: '0.78rem',
+                  fontWeight: 700,
+                  color: textPrimary,
+                  lineHeight: 1.2,
+                  whiteSpace: 'nowrap',
+                }}
+              >
+                {branding.logoTitle}
+              </Typography>
+              <Typography
+                sx={{
+                  fontSize: '0.6rem',
+                  color: textMuted,
+                  lineHeight: 1.2,
+                }}
+              >
+                {branding.logoSub}
+              </Typography>
+            </Box>
+            <IconButton
+              size="small"
+              onClick={onToggleCollapse}
+              sx={{
+                color: textMuted,
+                p: 0.25,
+                '&:hover': { color: textPrimary, backgroundColor: hoverBg },
+              }}
+            >
+              <Icons.ChevronLeft sx={{ fontSize: '1.1rem' }} />
+            </IconButton>
+          </>
+        )}
       </Box>
 
       {/* ── Navigation ── */}
-      <Box sx={{ flex: 1, overflowY: 'auto', py: 0.5, px: 1 }}>
+      <Box sx={{ flex: 1, overflowY: 'auto', py: 0.5, px: isCollapsed ? 0.5 : 1 }}>
         {sections.map((section, si) => {
           const hasTitle = !!section.title;
           const sectionOpen = isSectionOpen(section.title);
@@ -170,7 +198,7 @@ const Sidebar: React.FC<SidebarProps> = ({ open, onClose }) => {
           return (
             <Box key={si} sx={{ mb: 0.25 }}>
               {/* Collapsible section header */}
-              {hasTitle ? (
+              {hasTitle && !isCollapsed ? (
                 <Box
                   onClick={() => toggleSection(section.title)}
                   sx={{
@@ -202,93 +230,142 @@ const Sidebar: React.FC<SidebarProps> = ({ open, onClose }) => {
                     <Icons.ExpandMore sx={{ fontSize: '0.85rem', color: sectionText }} />
                   )}
                 </Box>
+              ) : isCollapsed && hasTitle && si > 0 ? (
+                <Box sx={{ borderTop: `1px solid ${borderCol}`, my: 0.5, mx: 1 }} />
               ) : null}
 
-              {/* Nav items — collapsible */}
-              <Collapse in={hasTitle ? sectionOpen : true} timeout={200}>
+              {/* Nav items */}
+              <Collapse in={isCollapsed || (hasTitle ? sectionOpen : true)} timeout={200}>
                 {section.items.map((item: any) => {
                   const active = isActive(item.path);
                   const isUpcoming = item.upcoming;
                   const navItem = (
-                    <Box
-                      key={item.id}
-                      {...(!isUpcoming ? { component: RouterLink, to: item.path } : {})}
-                      onClick={!isUpcoming && isMobile ? onClose : undefined}
-                      sx={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 1,
-                        px: 1.5,
-                        py: 0.6,
-                        mb: 0.15,
-                        borderRadius: '7px',
-                        textDecoration: 'none',
-                        cursor: isUpcoming ? 'default' : 'pointer',
-                        opacity: isUpcoming ? 0.4 : 1,
-                        position: 'relative',
-                        transition: 'background 0.15s, color 0.15s',
-                        backgroundColor: active ? activeBg : 'transparent',
-                        '&:hover': isUpcoming ? {} : { backgroundColor: active ? activeBg : hoverBg },
-                      }}
-                    >
-                      <Box sx={{ fontSize: '0.85rem', width: 18, textAlign: 'center', flexShrink: 0 }}>
-                        {item.emoji || '•'}
-                      </Box>
-                      <Typography
+                    <Tooltip key={item.id} title={isCollapsed ? item.label : (isUpcoming ? 'Upcoming' : '')} arrow placement="right">
+                      <Box
+                        {...(!isUpcoming ? { component: RouterLink, to: item.path } : {})}
+                        onClick={!isUpcoming && isMobile ? onClose : undefined}
                         sx={{
-                          flex: 1,
-                          fontSize: '0.75rem',
-                          fontWeight: active ? 600 : 500,
-                          color: active ? activeText : (isDark ? 'rgba(255,255,255,0.75)' : '#374151'),
-                          lineHeight: 1.3,
-                          whiteSpace: 'nowrap',
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: isCollapsed ? 'center' : 'flex-start',
+                          gap: isCollapsed ? 0 : 1,
+                          px: isCollapsed ? 0 : 1.5,
+                          py: 0.6,
+                          mb: 0.15,
+                          borderRadius: '7px',
+                          textDecoration: 'none',
+                          cursor: isUpcoming ? 'default' : 'pointer',
+                          opacity: isUpcoming ? 0.4 : 1,
+                          position: 'relative',
+                          transition: 'background 0.15s, color 0.15s',
+                          backgroundColor: active ? activeBg : 'transparent',
+                          '&:hover': isUpcoming ? {} : { backgroundColor: active ? activeBg : hoverBg },
                         }}
                       >
-                        {item.label}
-                      </Typography>
-                      {isUpcoming ? (
-                        <Box
-                          sx={{
-                            px: 0.75, py: 0.1, borderRadius: '10px', fontSize: '0.5rem',
-                            fontWeight: 700, backgroundColor: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)',
-                            color: isDark ? 'rgba(255,255,255,0.35)' : '#9CA3AF',
-                            textTransform: 'uppercase', letterSpacing: '0.05em',
-                          }}
-                        >
-                          Soon
+                        <Box sx={{ fontSize: isCollapsed ? '1rem' : '0.85rem', width: isCollapsed ? 'auto' : 18, textAlign: 'center', flexShrink: 0 }}>
+                          {item.emoji || '\u2022'}
                         </Box>
-                      ) : item.badge ? (
-                        <Box
-                          sx={{
-                            px: 0.6, py: 0.1, borderRadius: '10px', fontSize: '0.55rem',
-                            fontWeight: 700, minWidth: 18, textAlign: 'center',
-                            backgroundColor: active ? (isDark ? 'rgba(196,161,255,0.18)' : 'rgba(85,25,230,0.15)') : badgeBg,
-                            color: active ? activeText : badgeText,
-                          }}
-                        >
-                          {item.badge}
-                        </Box>
-                      ) : null}
-                      {active && (
-                        <Box
-                          sx={{
-                            position: 'absolute', left: 0, top: '50%', transform: 'translateY(-50%)',
-                            width: 3, height: '55%', borderRadius: '0 3px 3px 0', backgroundColor: activeText,
-                          }}
-                        />
-                      )}
-                    </Box>
+                        {!isCollapsed && (
+                          <Typography
+                            sx={{
+                              flex: 1,
+                              fontSize: '0.75rem',
+                              fontWeight: active ? 600 : 500,
+                              color: active ? activeText : (isDark ? 'rgba(255,255,255,0.75)' : '#374151'),
+                              lineHeight: 1.3,
+                              whiteSpace: 'nowrap',
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis',
+                            }}
+                          >
+                            {item.label}
+                          </Typography>
+                        )}
+                        {!isCollapsed && isUpcoming ? (
+                          <Box
+                            sx={{
+                              px: 0.75, py: 0.1, borderRadius: '10px', fontSize: '0.5rem',
+                              fontWeight: 700, backgroundColor: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)',
+                              color: isDark ? 'rgba(255,255,255,0.35)' : '#9CA3AF',
+                              textTransform: 'uppercase', letterSpacing: '0.05em',
+                            }}
+                          >
+                            Soon
+                          </Box>
+                        ) : !isCollapsed && item.badge ? (
+                          <Box
+                            sx={{
+                              px: 0.6, py: 0.1, borderRadius: '10px', fontSize: '0.55rem',
+                              fontWeight: 700, minWidth: 18, textAlign: 'center',
+                              backgroundColor: active ? (isDark ? 'rgba(196,161,255,0.18)' : 'rgba(85,25,230,0.15)') : badgeBg,
+                              color: active ? activeText : badgeText,
+                            }}
+                          >
+                            {item.badge}
+                          </Box>
+                        ) : null}
+                        {active && (
+                          <Box
+                            sx={{
+                              position: 'absolute', left: 0, top: '50%', transform: 'translateY(-50%)',
+                              width: 3, height: '55%', borderRadius: '0 3px 3px 0', backgroundColor: activeText,
+                            }}
+                          />
+                        )}
+                      </Box>
+                    </Tooltip>
                   );
-                  return isUpcoming ? (
-                    <Tooltip key={item.id} title="Upcoming" arrow placement="right">{navItem}</Tooltip>
-                  ) : navItem;
+                  return navItem;
                 })}
               </Collapse>
             </Box>
           );
         })}
+      </Box>
+
+      {/* ── Profile at Bottom ── */}
+      <Box
+        sx={{
+          borderTop: `1px solid ${borderCol}`,
+          px: isCollapsed ? 0.5 : 1.5,
+          py: 1,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: isCollapsed ? 'center' : 'flex-start',
+          gap: isCollapsed ? 0 : 1,
+          flexShrink: 0,
+        }}
+      >
+        <Tooltip title={isCollapsed ? (getFullName(user) || 'Profile') : ''} placement="right" arrow>
+          <Avatar
+            sx={{
+              width: 28,
+              height: 28,
+              fontSize: '0.7rem',
+              fontWeight: 700,
+              backgroundColor: isDark ? 'rgba(255,255,255,0.15)' : '#5519E6',
+              color: isDark ? '#C4A1FF' : '#fff',
+              flexShrink: 0,
+            }}
+          >
+            {getUserInitials(user) || <Icons.PersonOutlined sx={{ fontSize: '0.9rem' }} />}
+          </Avatar>
+        </Tooltip>
+        {!isCollapsed && (
+          <>
+            <Box sx={{ flex: 1, minWidth: 0 }}>
+              <Typography sx={{ fontSize: '0.72rem', fontWeight: 600, color: textPrimary, lineHeight: 1.2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                {getFullName(user) || 'User'}
+              </Typography>
+              <Typography sx={{ fontSize: '0.55rem', color: textMuted, lineHeight: 1.2 }}>
+                {userRole?.replace('_', ' ') || ''}
+              </Typography>
+            </Box>
+            <IconButton size="small" onClick={logout} sx={{ color: textMuted, p: 0.25, '&:hover': { color: '#DC2626' } }}>
+              <Icons.LogoutOutlined sx={{ fontSize: '0.9rem' }} />
+            </IconButton>
+          </>
+        )}
       </Box>
     </Box>
   );
@@ -299,13 +376,16 @@ const Sidebar: React.FC<SidebarProps> = ({ open, onClose }) => {
       open={isMobile ? open : true}
       onClose={onClose}
       sx={{
-        width: SIDEBAR_W,
+        width: isCollapsed ? SIDEBAR_COLLAPSED_W : SIDEBAR_W,
         flexShrink: 0,
+        transition: 'width 0.2s ease',
         '& .MuiDrawer-paper': {
-          width: SIDEBAR_W,
+          width: isCollapsed ? SIDEBAR_COLLAPSED_W : SIDEBAR_W,
           boxSizing: 'border-box',
           border: 'none',
           borderRight: `1px solid ${borderCol}`,
+          transition: 'width 0.2s ease',
+          overflowX: 'hidden',
         },
       }}
     >

@@ -116,16 +116,21 @@ const TopBar: React.FC<TopBarProps> = ({ onMenuClick }) => {
             </IconButton>
           )}
 
-          {/* Back button — hidden on root dashboard pages */}
-          {!isRootPage && (
-            <IconButton
-              color="inherit"
-              onClick={() => navigate(-1)}
-              sx={{ '&:hover': { backgroundColor: theme.palette.action.hover } }}
-            >
-              <Icons.ArrowBack sx={{ fontSize: '1.2rem' }} />
-            </IconButton>
-          )}
+          {/* Back / Forward navigation */}
+          <IconButton
+            color="inherit"
+            onClick={() => navigate(-1)}
+            sx={{ '&:hover': { backgroundColor: theme.palette.action.hover } }}
+          >
+            <Icons.ArrowBack sx={{ fontSize: '1.2rem' }} />
+          </IconButton>
+          <IconButton
+            color="inherit"
+            onClick={() => navigate(1)}
+            sx={{ '&:hover': { backgroundColor: theme.palette.action.hover } }}
+          >
+            <Icons.ArrowForward sx={{ fontSize: '1.2rem' }} />
+          </IconButton>
         </Box>
 
         {/* Clinic Switcher — shows when user has multiple role+clinic assignments */}

@@ -256,7 +256,7 @@ const Encounter: React.FC = () => {
                   <Box sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.5 }}>
                     SOAP Note
                     <Tooltip
-                      title="S — Subjective (patient's symptoms & history)  |  O — Objective (clinical findings & vitals)  |  A — Assessment (diagnosis)  |  P — Plan (treatment & follow-up)"
+                      title={<>S — Subjective (patient's symptoms & history)<br/>O — Objective (clinical findings & vitals)<br/>A — Assessment (diagnosis)<br/>P — Plan (treatment & follow-up)</>}
                       arrow
                       placement="top"
                     >

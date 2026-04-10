@@ -24,7 +24,10 @@ import {
   Tooltip,
   Switch,
 } from '@mui/material';
+import { LightbulbOutlined } from '@mui/icons-material';
 import DashboardLayout from '@/components/layout/DashboardLayout';
+
+const SOAP_TOOLTIP = <>S — Subjective (patient's symptoms & history)<br/>O — Objective (clinical findings & vitals)<br/>A — Assessment (diagnosis)<br/>P — Plan (treatment & follow-up)</>;
 import { useCountries } from '@/hooks/superadmin/useCountries';
 import { useFields, useAddField, useUpdateField, useDeleteField, useToggleFieldLock } from '@/hooks/superadmin/useFields';
 import type { FieldDefinitionDto, CountryConfig } from '@/types/superadmin';
@@ -249,6 +252,7 @@ const SectionHeader: React.FC<{
   <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1.5 }}>
     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
       <Typography variant="subtitle1" sx={{ fontWeight: 700, fontSize: '13.5px' }}>{title}</Typography>
+      {title.includes('SOAP') && <Tooltip title={SOAP_TOOLTIP} arrow placement="top"><LightbulbOutlined sx={{ fontSize: 14, color: '#F59E0B', cursor: 'help' }} /></Tooltip>}
       <Chip label={count} size="small" sx={{ height: 20, fontSize: '10px', fontWeight: 700, background: '#5519E610', color: '#5519E6' }} />
     </Box>
     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
