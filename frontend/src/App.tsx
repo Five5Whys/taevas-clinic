@@ -10,6 +10,7 @@ import OtpVerifyPage from '@/pages/auth/OtpVerifyPage';
 import ProtectedRoute from '@/components/common/ProtectedRoute';
 import DevRoleSwitcher from '@/components/common/DevRoleSwitcher';
 import ProfileCompletionGuard from '@/components/doctor/ProfileCompletionGuard';
+import DashboardLayout from '@/components/layout/DashboardLayout';
 
 // SuperAdmin Pages
 const SADashboard = lazy(() => import('@/pages/superadmin/Dashboard'));
@@ -162,8 +163,8 @@ const App: React.FC = () => {
                   <Route path="data-import" element={<CADataImport />} />
                   <Route path="users" element={<CAUserManagement />} />
                   <Route path="reports" element={<CAReports />} />
-                  <Route path="patients" element={<CAPatientRegistry />} />
-                  <Route path="staff" element={<CAStaffManagement />} />
+                  <Route path="patients" element={<DashboardLayout pageTitle="Patients"><CAPatientRegistry /></DashboardLayout>} />
+                  <Route path="staff" element={<DashboardLayout pageTitle="Staff Management"><CAStaffManagement /></DashboardLayout>} />
                   <Route path="staff/doctor/:doctorId/profile" element={<CADoctorProfileView />} />
                 </Routes>
               </ProtectedRoute>

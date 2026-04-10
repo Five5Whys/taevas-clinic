@@ -128,9 +128,10 @@ public class PatientService {
                 dto.setAssignedDoctorId(docId.toString());
                 User doctor = doctorMap.get(docId);
                 if (doctor != null) {
-                    String name = "Dr. " + (doctor.getFirstName() != null ? doctor.getFirstName() : "")
-                            + (doctor.getLastName() != null ? " " + doctor.getLastName() : "");
-                    dto.setAssignedDoctorName(name.trim());
+                    String fn = doctor.getFirstName() != null ? doctor.getFirstName() : "";
+                    String ln = doctor.getLastName() != null ? doctor.getLastName() : "";
+                    String full = (fn + " " + ln).trim();
+                    dto.setAssignedDoctorName(full.startsWith("Dr.") ? full : "Dr. " + full);
                 }
             }
         }

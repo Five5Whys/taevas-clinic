@@ -107,9 +107,12 @@ public class DoctorPatientService {
         if (!result.getContent().isEmpty()) {
             String doctorIdStr = doctorId.toString();
             String doctorName = userRepo.findById(doctorId)
-                    .map(u -> "Dr. " + (u.getFirstName() != null ? u.getFirstName() : "")
-                            + (u.getLastName() != null ? " " + u.getLastName() : ""))
-                    .map(String::trim)
+                    .map(u -> {
+                        String fn = u.getFirstName() != null ? u.getFirstName() : "";
+                        String ln = u.getLastName() != null ? u.getLastName() : "";
+                        String full = (fn + " " + ln).trim();
+                        return full.startsWith("Dr.") ? full : "Dr. " + full;
+                    })
                     .orElse(null);
             for (PatientDto dto : result.getContent()) {
                 dto.setAssignedDoctorId(doctorIdStr);
