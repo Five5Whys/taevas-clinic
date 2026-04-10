@@ -14,7 +14,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 @Slf4j
 @Component
-@Profile({"dev", "local"})
+@Profile({"dev", "local", "prod"})
 public class InMemoryTokenStore implements TokenStore {
 
     private final Map<String, String> store = new ConcurrentHashMap<>();

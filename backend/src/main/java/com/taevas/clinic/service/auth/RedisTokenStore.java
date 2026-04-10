@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 import java.time.Duration;
 
 @Component
-@Profile("prod")
+@Profile("redis")
 @RequiredArgsConstructor
 public class RedisTokenStore implements TokenStore {
 
