@@ -16,12 +16,11 @@ import {
 } from '@mui/material';
 import * as Icons from '@mui/icons-material';
 import { useAuth } from '@/hooks/useAuth';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { getFullName, getUserInitials } from '@/utils/helpers';
 import { ROLE_REDIRECT_MAP } from '@/utils/constants';
 import type { UserRole } from '@/types';
 
-const ROOT_PATHS = ['/superadmin', '/admin', '/doctor', '/patient'];
 
 interface TopBarProps {
   onMenuClick?: () => void;
@@ -41,10 +40,9 @@ const ROLE_LABELS: Record<string, string> = {
 const TopBar: React.FC<TopBarProps> = ({ onMenuClick }) => {
   const theme = useTheme();
   const navigate = useNavigate();
-  const location = useLocation();
   const { user, logout, setUser } = useAuth();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
-  const isRootPage = ROOT_PATHS.includes(location.pathname);
+
 
   const [userMenuAnchor, setUserMenuAnchor] = useState<null | HTMLElement>(null);
   const [notificationAnchor, setNotificationAnchor] = useState<null | HTMLElement>(null);

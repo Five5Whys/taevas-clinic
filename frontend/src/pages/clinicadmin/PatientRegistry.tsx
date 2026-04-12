@@ -87,7 +87,7 @@ const PatientRegistry: React.FC = () => {
   const doctors: ClinicDoctor[] = Array.isArray(doctorsData) ? doctorsData : [];
 
   const FALLBACK_PATIENTS: Patient[] = [
-    { id: 'P-001', firstName: 'Anita', lastName: 'Sharma', phone: '9876500001', email: 'anita@email.com', gender: 'Female', bloodGroup: 'B+', lastVisit: '2026-03-28', status: 'ACTIVE', assignedDoctorId: null, assignedDoctorName: null },
+    { id: 'P-001', firstName: 'Anita', lastName: 'Sharma', phone: '9876500001', email: 'anita@email.com', gender: 'Female', bloodGroup: 'B+', lastVisit: '2026-03-28', status: 'ACTIVE', assignedDoctorId: null, assignedDoctorName: null, completeAddress: '', postalCode: '', country: '', state: '', city: '', smsNotifications: false, remarks: '' },
   ];
 
   const isMock = localStorage.getItem('authToken') === 'mock-jwt-token-for-dev-only';
