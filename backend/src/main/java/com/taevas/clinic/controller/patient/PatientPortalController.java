@@ -17,6 +17,12 @@ import java.util.*;
 public class PatientPortalController extends BaseController {
     private final PatientPortalService service;
 
+    @GetMapping("/profile") public ResponseEntity<ApiResponse<PatientDto>> getProfile() {
+        return ResponseEntity.ok(ApiResponse.success(service.getProfile(getClinicId(), getPatientId())));
+    }
+    @PutMapping("/profile") public ResponseEntity<ApiResponse<PatientDto>> updateProfile(@RequestBody PatientRequest request) {
+        return ResponseEntity.ok(ApiResponse.success(service.updateProfile(getClinicId(), getPatientId(), request), "Profile updated"));
+    }
     @GetMapping("/dashboard") public ResponseEntity<ApiResponse<Map<String, Object>>> getDashboard() {
         return ResponseEntity.ok(ApiResponse.success(service.getDashboard(getClinicId(), getPatientId())));
     }
