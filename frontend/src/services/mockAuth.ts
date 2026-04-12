@@ -77,10 +77,10 @@ const MOCK_TOKEN = 'mock-jwt-token-for-dev-only';
 
 /** Dev credentials for each role — must match seeded backend users */
 const MOCK_CREDENTIALS: Partial<Record<UserRole, { identifier: string; password: string }>> = {
-  SUPERADMIN:   { identifier: '9876543210', password: 'password' },
-  CLINIC_ADMIN: { identifier: '9876543211', password: 'password' },
-  DOCTOR:       { identifier: '9876543212', password: 'password' },
-  PATIENT:      { identifier: '9876543213', password: 'password' },
+  SUPERADMIN:   { identifier: '9876543210', password: 'wecandonow' },
+  CLINIC_ADMIN: { identifier: '9876543211', password: 'wecandonow' },
+  DOCTOR:       { identifier: '9876543212', password: 'wecandonow' },
+  PATIENT:      { identifier: '9876543213', password: 'wecandonow' },
 };
 
 // TODO: Re-enable when real token acquisition flow is needed

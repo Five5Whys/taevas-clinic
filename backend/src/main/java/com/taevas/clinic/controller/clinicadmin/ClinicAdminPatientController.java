@@ -26,6 +26,9 @@ public class ClinicAdminPatientController extends BaseController {
     @GetMapping("/{id}") public ResponseEntity<ApiResponse<PatientDto>> getById(@PathVariable UUID id) {
         return ResponseEntity.ok(ApiResponse.success(service.getById(getClinicId(), id)));
     }
+    @GetMapping("/code/{code}") public ResponseEntity<ApiResponse<PatientDto>> getByCode(@PathVariable String code) {
+        return ResponseEntity.ok(ApiResponse.success(service.getByCode(getClinicId(), code)));
+    }
     @PostMapping public ResponseEntity<ApiResponse<PatientDto>> create(@Valid @RequestBody PatientRequest r) {
         return ResponseEntity.ok(ApiResponse.success(service.create(getClinicId(), r), "Patient created"));
     }

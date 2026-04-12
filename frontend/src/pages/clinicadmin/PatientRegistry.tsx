@@ -25,6 +25,7 @@ import {
   CircularProgress,
   IconButton,
   Tooltip,
+  Switch,
 } from '@mui/material';
 import { Add as Plus, PersonAdd as PersonAddIcon, PersonRemove as PersonRemoveIcon } from '@mui/icons-material';
 import { usePatientList, useCreatePatient, useClinicDoctors, useCAAssignPatient, useCAUnassignPatient } from '@/hooks/clinicadmin';
@@ -41,6 +42,13 @@ interface Patient {
   email: string;
   gender: string;
   bloodGroup: string;
+  completeAddress: string;
+  postalCode: string;
+  country: string;
+  state: string;
+  city: string;
+  smsNotifications: boolean;
+  remarks: string;
   lastVisit: string;
   status: 'ACTIVE' | 'INACTIVE';
   assignedDoctorId: string | null;
@@ -98,6 +106,13 @@ const PatientRegistry: React.FC = () => {
     gender: '',
     bloodGroup: '',
     dob: '',
+    completeAddress: '',
+    postalCode: '',
+    country: '',
+    state: '',
+    city: '',
+    smsNotifications: false,
+    remarks: '',
   });
   const [contactError, setContactError] = useState(false);
 
@@ -153,7 +168,7 @@ const PatientRegistry: React.FC = () => {
   };
 
   const handleOpenDialog = () => {
-    setForm({ firstName: '', lastName: '', phone: '', email: '', gender: '', bloodGroup: '', dob: '' });
+    setForm({ firstName: '', lastName: '', phone: '', email: '', gender: '', bloodGroup: '', dob: '', completeAddress: '', postalCode: '', country: '', state: '', city: '', smsNotifications: false, remarks: '' });
     setContactError(false);
     setDialogOpen(true);
   };
@@ -187,6 +202,13 @@ const PatientRegistry: React.FC = () => {
         email: form.email,
         gender: form.gender,
         bloodGroup: form.bloodGroup,
+        completeAddress: form.completeAddress,
+        postalCode: form.postalCode,
+        country: form.country,
+        state: form.state,
+        city: form.city,
+        smsNotifications: form.smsNotifications,
+        remarks: form.remarks,
         lastVisit: new Date().toISOString().split('T')[0] ?? '',
         status: 'ACTIVE',
         assignedDoctorId: null,
@@ -207,6 +229,13 @@ const PatientRegistry: React.FC = () => {
         gender: form.gender,
         bloodGroup: form.bloodGroup || undefined,
         dateOfBirth: form.dob || undefined,
+        completeAddress: form.completeAddress || undefined,
+        postalCode: form.postalCode || undefined,
+        country: form.country || undefined,
+        state: form.state || undefined,
+        city: form.city || undefined,
+        smsNotifications: form.smsNotifications,
+        remarks: form.remarks || undefined,
       },
       {
         onSuccess: () => {
@@ -418,6 +447,36 @@ const PatientRegistry: React.FC = () => {
                 fullWidth
                 size="small"
                 InputLabelProps={{ shrink: true }}
+              />
+              <TextField
+                fullWidth
+                size="small"
+                label="Address"
+                value={form.completeAddress}
+                onChange={e => setForm(p => ({ ...p, completeAddress: e.target.value }))}
+                multiline
+                rows={2}
+              />
+              <Box sx={{ display: 'flex', gap: 1.5 }}>
+                <TextField fullWidth size="small" label="City" value={form.city} onChange={e => setForm(p => ({ ...p, city: e.target.value }))} />
+                <TextField fullWidth size="small" label="State" value={form.state} onChange={e => setForm(p => ({ ...p, state: e.target.value }))} />
+              </Box>
+              <Box sx={{ display: 'flex', gap: 1.5 }}>
+                <TextField fullWidth size="small" label="Postal Code" value={form.postalCode} onChange={e => setForm(p => ({ ...p, postalCode: e.target.value }))} />
+                <TextField fullWidth size="small" label="Country" value={form.country} onChange={e => setForm(p => ({ ...p, country: e.target.value }))} />
+              </Box>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <Typography variant="body2" sx={{ fontSize: '13px' }}>SMS Notifications</Typography>
+                <Switch size="small" checked={form.smsNotifications} onChange={e => setForm(p => ({ ...p, smsNotifications: e.target.checked }))} />
+              </Box>
+              <TextField
+                fullWidth
+                size="small"
+                label="Remarks"
+                value={form.remarks}
+                onChange={e => setForm(p => ({ ...p, remarks: e.target.value }))}
+                multiline
+                rows={2}
               />
             </Box>
           </DialogContent>

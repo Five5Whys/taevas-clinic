@@ -17,4 +17,5 @@ public interface ClinicPatientRepository extends JpaRepository<ClinicPatient, UU
     long countByClinicId(UUID clinicId);
     List<ClinicPatient> findByClinicIdAndStatus(UUID clinicId, String status);
     boolean existsByPatientCode(String patientCode);
+    Optional<ClinicPatient> findByPatientCodeAndClinicId(String patientCode, UUID clinicId);
 }

@@ -28,7 +28,7 @@ npm run dev -- --host
 Frontend runs on `http://localhost:5173`. Vite proxies `/api` → `localhost:8080`.
 
 ## Login Credentials
-- Phone: `9876543210` / Password: `password` → SUPERADMIN role
+- Phone: `9876543210` / Password: `wecandonow` → SUPERADMIN role
 
 ## Roles
 SUPERADMIN, CLINIC_ADMIN, DOCTOR, PATIENT

@@ -21,4 +21,11 @@ public class ClinicPatient extends BaseEntity {
     @Column(name = "patient_code", unique = true, nullable = false) private String patientCode;
     @Column(name = "status", nullable = false) private String status;
     @Column(name = "last_visit") private LocalDate lastVisit;
+    @Column(name = "complete_address", length = 500) private String completeAddress;
+    @Column(name = "postal_code", length = 20) private String postalCode;
+    @Column(name = "country", length = 100) private String country;
+    @Column(name = "state", length = 100) private String state;
+    @Column(name = "city", length = 100) private String city;
+    @Column(name = "sms_notifications") private Boolean smsNotifications;
+    @Column(name = "remarks", columnDefinition = "TEXT") private String remarks;
 }

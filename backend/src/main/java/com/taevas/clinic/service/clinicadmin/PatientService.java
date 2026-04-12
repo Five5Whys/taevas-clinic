@@ -61,6 +61,9 @@ public class PatientService {
             .firstName(r.getFirstName()).lastName(r.getLastName()).phone(r.getPhone()).email(r.getEmail())
             .gender(r.getGender()).bloodGroup(r.getBloodGroup())
             .dateOfBirth(r.getDateOfBirth() != null ? LocalDate.parse(r.getDateOfBirth()) : null)
+            .completeAddress(r.getCompleteAddress()).postalCode(r.getPostalCode())
+            .country(r.getCountry()).state(r.getState()).city(r.getCity())
+            .smsNotifications(r.getSmsNotifications()).remarks(r.getRemarks())
             .status("ACTIVE").build();
         return toDto(repo.save(p));
     }
@@ -84,6 +87,9 @@ public class PatientService {
         p.setFirstName(r.getFirstName()); p.setLastName(r.getLastName()); p.setPhone(r.getPhone());
         p.setEmail(r.getEmail()); p.setGender(r.getGender()); p.setBloodGroup(r.getBloodGroup());
         if (r.getDateOfBirth() != null) p.setDateOfBirth(LocalDate.parse(r.getDateOfBirth()));
+        p.setCompleteAddress(r.getCompleteAddress()); p.setPostalCode(r.getPostalCode());
+        p.setCountry(r.getCountry()); p.setState(r.getState()); p.setCity(r.getCity());
+        p.setSmsNotifications(r.getSmsNotifications()); p.setRemarks(r.getRemarks());
         return toDto(repo.save(p));
     }
 
@@ -137,6 +143,14 @@ public class PatientService {
         }
     }
 
+    public PatientDto getByCode(UUID clinicId, String code) {
+        ClinicPatient p = repo.findByPatientCodeAndClinicId(code, clinicId)
+                .orElseThrow(() -> new ResourceNotFoundException("Patient", "code", code));
+        PatientDto dto = toDto(p);
+        enrichWithAssignments(List.of(dto));
+        return dto;
+    }
+
     private PatientDto toDto(ClinicPatient p) {
         return PatientDto.builder().id(p.getId().toString()).clinicId(p.getClinicId().toString())
             .userId(p.getUserId() != null ? p.getUserId().toString() : null)
@@ -145,6 +159,9 @@ public class PatientService {
             .gender(p.getGender()).bloodGroup(p.getBloodGroup())
             .dateOfBirth(p.getDateOfBirth() != null ? p.getDateOfBirth().toString() : null)
             .status(p.getStatus()).lastVisit(p.getLastVisit() != null ? p.getLastVisit().toString() : null)
-            .createdAt(p.getCreatedAt() != null ? p.getCreatedAt().toString() : null).build();
+            .createdAt(p.getCreatedAt() != null ? p.getCreatedAt().toString() : null)
+            .completeAddress(p.getCompleteAddress()).postalCode(p.getPostalCode())
+            .country(p.getCountry()).state(p.getState()).city(p.getCity())
+            .smsNotifications(p.getSmsNotifications()).remarks(p.getRemarks()).build();
     }
 }

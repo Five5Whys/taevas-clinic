@@ -32,6 +32,7 @@ import {
   ToggleButton,
   Checkbox,
   Tooltip,
+  Switch,
 } from '@mui/material';
 import { Search, Add, Visibility as Eye, Edit as EditIcon, Delete as DeleteIcon, Close as CloseIcon, PersonAdd as PersonAddIcon, PersonRemove as PersonRemoveIcon } from '@mui/icons-material';
 import DashboardLayout from '@/components/layout/DashboardLayout';
@@ -159,7 +160,7 @@ const Patients: React.FC = () => {
   const [open, setOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [viewPatient, setViewPatient] = useState<any | null>(null);
-  const [form, setForm] = useState({ firstName: '', lastName: '', phone: '', age: '', gender: 'M', abhaId: '', bloodGroup: 'O+', allergy: '' });
+  const [form, setForm] = useState({ firstName: '', lastName: '', phone: '', age: '', gender: 'M', abhaId: '', bloodGroup: 'O+', allergy: '', completeAddress: '', postalCode: '', country: '', state: '', city: '', smsNotifications: false, remarks: '' });
   const [snack, setSnack] = useState('');
   const [deleteConfirm, setDeleteConfirm] = useState<{ open: boolean; id: string; name: string }>({ open: false, id: '', name: '' });
   const createPatient = useCreateDoctorPatient();
@@ -193,11 +194,11 @@ const Patients: React.FC = () => {
     }
   );
 
-  const resetForm = () => { setForm({ firstName: '', lastName: '', phone: '', age: '', gender: 'M', abhaId: '', bloodGroup: 'O+', allergy: '' }); setEditingId(null); setOpen(false); };
+  const resetForm = () => { setForm({ firstName: '', lastName: '', phone: '', age: '', gender: 'M', abhaId: '', bloodGroup: 'O+', allergy: '', completeAddress: '', postalCode: '', country: '', state: '', city: '', smsNotifications: false, remarks: '' }); setEditingId(null); setOpen(false); };
 
   const handleSave = async () => {
     if (!form.firstName.trim() || !form.phone.trim()) return;
-    const payload = { firstName: form.firstName, lastName: form.lastName, phone: form.phone, gender: form.gender, bloodGroup: form.bloodGroup, email: '', dateOfBirth: null as string | null };
+    const payload = { firstName: form.firstName, lastName: form.lastName, phone: form.phone, gender: form.gender, bloodGroup: form.bloodGroup, email: '', dateOfBirth: null as string | null, completeAddress: form.completeAddress, postalCode: form.postalCode, country: form.country, state: form.state, city: form.city, smsNotifications: form.smsNotifications, remarks: form.remarks };
     if (editingId) {
       await updatePatient.mutateAsync({ id: editingId, data: payload });
       setSnack(`Patient ${form.firstName} ${form.lastName} updated.`);
@@ -209,7 +210,7 @@ const Patients: React.FC = () => {
   };
 
   const handleEdit = (patient: any) => {
-    setForm({ firstName: patient.firstName || '', lastName: patient.lastName || '', phone: patient.phone || '', age: '', gender: patient.gender || 'M', abhaId: '', bloodGroup: patient.bloodGroup || 'O+', allergy: '' });
+    setForm({ firstName: patient.firstName || '', lastName: patient.lastName || '', phone: patient.phone || '', age: '', gender: patient.gender || 'M', abhaId: '', bloodGroup: patient.bloodGroup || 'O+', allergy: '', completeAddress: patient.completeAddress || '', postalCode: patient.postalCode || '', country: patient.country || '', state: patient.state || '', city: patient.city || '', smsNotifications: patient.smsNotifications || false, remarks: patient.remarks || '' });
     setEditingId(patient.id);
     setOpen(true);
   };
@@ -360,6 +361,20 @@ const Patients: React.FC = () => {
           </Box>
           <TextField fullWidth size="small" label="ABHA ID" value={form.abhaId} onChange={e => setForm(p => ({ ...p, abhaId: e.target.value }))} placeholder="Optional" />
           <TextField fullWidth size="small" label="Known Allergies" value={form.allergy} onChange={e => setForm(p => ({ ...p, allergy: e.target.value }))} placeholder="Optional" />
+          <TextField fullWidth size="small" label="Address" value={form.completeAddress} onChange={e => setForm(p => ({ ...p, completeAddress: e.target.value }))} multiline rows={2} />
+          <Box sx={{ display: 'flex', gap: 1.5 }}>
+            <TextField fullWidth size="small" label="City" value={form.city} onChange={e => setForm(p => ({ ...p, city: e.target.value }))} />
+            <TextField fullWidth size="small" label="State" value={form.state} onChange={e => setForm(p => ({ ...p, state: e.target.value }))} />
+          </Box>
+          <Box sx={{ display: 'flex', gap: 1.5 }}>
+            <TextField fullWidth size="small" label="Postal Code" value={form.postalCode} onChange={e => setForm(p => ({ ...p, postalCode: e.target.value }))} />
+            <TextField fullWidth size="small" label="Country" value={form.country} onChange={e => setForm(p => ({ ...p, country: e.target.value }))} />
+          </Box>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <Typography variant="body2" sx={{ fontSize: '13px' }}>SMS Notifications</Typography>
+            <Switch size="small" checked={form.smsNotifications} onChange={e => setForm(p => ({ ...p, smsNotifications: e.target.checked }))} />
+          </Box>
+          <TextField fullWidth size="small" label="Remarks" value={form.remarks} onChange={e => setForm(p => ({ ...p, remarks: e.target.value }))} multiline rows={2} />
         </DialogContent>
         <DialogActions sx={{ px: 3, pb: 2 }}>
           <Button onClick={resetForm} sx={{ color: '#6B7280', textTransform: 'none' }}>Cancel</Button>
@@ -386,6 +401,11 @@ const Patients: React.FC = () => {
                 <Typography variant="body2"><strong>Blood Group:</strong> {viewPatient.bloodGroup || '-'}</Typography>
                 <Typography variant="body2"><strong>Email:</strong> {viewPatient.email || '-'}</Typography>
                 <Typography variant="body2"><strong>Last Visit:</strong> {viewPatient.lastVisit || '-'}</Typography>
+                <Typography variant="body2"><strong>Address:</strong> {viewPatient.completeAddress || '-'}</Typography>
+                <Typography variant="body2"><strong>City:</strong> {viewPatient.city || '-'} | <strong>State:</strong> {viewPatient.state || '-'}</Typography>
+                <Typography variant="body2"><strong>Postal Code:</strong> {viewPatient.postalCode || '-'} | <strong>Country:</strong> {viewPatient.country || '-'}</Typography>
+                <Typography variant="body2"><strong>SMS Notifications:</strong> {viewPatient.smsNotifications ? 'Enabled' : 'Disabled'}</Typography>
+                <Typography variant="body2"><strong>Remarks:</strong> {viewPatient.remarks || '-'}</Typography>
               </Box>
               <Divider sx={{ my: 2 }} />
               <EmergencyContactsPanel patientId={viewPatient.id} onSnack={setSnack} />
