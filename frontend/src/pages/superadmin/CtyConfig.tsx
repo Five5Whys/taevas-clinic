@@ -20,6 +20,7 @@ import { useCountries, useUpdateCountry } from '@/hooks/superadmin/useCountries'
 import { useBillingConfig, useUpdateBilling } from '@/hooks/superadmin/useBilling';
 import { useLocaleSettings, useUpdateLocale } from '@/hooks/superadmin/useLocale';
 import type { CountryConfig, BillingConfigDto, LocaleSettingsDto } from '@/types/superadmin';
+import { toTitle } from '@/utils/helpers';
 
 // ─── Constants ──────────────────────────────────────────────────────────────────
 const STATUS_STYLES: Record<string, { color: string; bg: string }> = {
@@ -255,7 +256,7 @@ const CtyConfig: React.FC = () => {
                   <Typography sx={{ fontSize: '10px', color: '#9CA3AF' }}>{c.clinicCount} clinics</Typography>
                 </Box>
                 <Chip
-                  label={c.status}
+                  label={toTitle(c.status)}
                   size="small"
                   sx={{ background: ss.bg, color: ss.color, fontWeight: 700, fontSize: '9px', height: 18, '& .MuiChip-label': { px: 0.75 } }}
                 />
@@ -272,7 +273,7 @@ const CtyConfig: React.FC = () => {
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 2 }}>
                 <Typography sx={{ fontSize: '20px', fontWeight: 800 }}>{selected.name}</Typography>
                 <Chip
-                  label={selected.status}
+                  label={toTitle(selected.status)}
                   size="small"
                   sx={{ background: statusStyle?.bg, color: statusStyle?.color, fontWeight: 700, fontSize: '11px', height: 22 }}
                 />

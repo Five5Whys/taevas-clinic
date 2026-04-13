@@ -19,6 +19,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import { useClinicDashboard } from '@/hooks/clinicadmin';
+import { toTitle } from '@/utils/helpers';
 
 const BRAND = '#5519E6';
 const SUB = '#6B7280';
@@ -186,7 +187,7 @@ const Dashboard: React.FC = () => {
                       <TableCell>{appt.type}</TableCell>
                       <TableCell>
                         <Chip
-                          label={appt.status}
+                          label={toTitle(appt.status)}
                           size="small"
                           sx={{
                             background: statusStyle.bg,

@@ -25,6 +25,7 @@ import {
 import { useSearchParams } from 'react-router-dom';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import { useFamilyByPatient } from '@/hooks/doctor';
+import { toTitle } from '@/utils/helpers';
 
 const MEMBER_COLORS = ['#5519E6', '#A046F0', '#CDDC50', '#FF8232', '#25D366', '#1976D2'];
 
@@ -134,7 +135,7 @@ const Family: React.FC = () => {
                         </Box>
                       </Box>
                       <Chip
-                        label={member.status}
+                        label={toTitle(member.status)}
                         size="small"
                         sx={{
                           backgroundColor: getStatusBgColor(member.status),

@@ -13,11 +13,14 @@ import {
   Avatar,
 } from '@mui/material';
 import * as Icons from '@mui/icons-material';
+import { useNavigate } from 'react-router-dom';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import { usePatientDashboard, usePatientAppointments, usePatientPrescriptions, usePatientFamily } from '@/hooks/patient/usePortal';
+import { toTitle } from '@/utils/helpers';
 
 const PatientDashboard: React.FC = () => {
   const theme = useTheme();
+  const navigate = useNavigate();
   usePatientDashboard();
   const { data: appointmentsRaw } = usePatientAppointments({ page: 0, size: 5 });
   const { data: prescriptionsRaw } = usePatientPrescriptions({ page: 0, size: 5 });
@@ -34,6 +37,7 @@ const PatientDashboard: React.FC = () => {
         <Grid container spacing={2.5} sx={{ mb: 4 }}>
           <Grid item xs={12} sm={6} md={3}>
             <Card
+              onClick={() => navigate('/patient/appointments?book=1')}
               sx={{
                 p: 2.5,
                 cursor: 'pointer',
@@ -73,6 +77,7 @@ const PatientDashboard: React.FC = () => {
 
           <Grid item xs={12} sm={6} md={3}>
             <Card
+              onClick={() => navigate('/patient/prescriptions')}
               sx={{
                 p: 2.5,
                 cursor: 'pointer',
@@ -112,6 +117,7 @@ const PatientDashboard: React.FC = () => {
 
           <Grid item xs={12} sm={6} md={3}>
             <Card
+              onClick={() => navigate('/patient/health-records')}
               sx={{
                 p: 2.5,
                 cursor: 'pointer',
@@ -151,6 +157,7 @@ const PatientDashboard: React.FC = () => {
 
           <Grid item xs={12} sm={6} md={3}>
             <Card
+              onClick={() => navigate('/patient/family')}
               sx={{
                 p: 2.5,
                 cursor: 'pointer',
@@ -234,13 +241,13 @@ const PatientDashboard: React.FC = () => {
                         {appointment.doctorName}
                       </Typography>
                       <Typography variant="caption" color="textSecondary">
-                        {appointment.type ?? 'Consultation'}
+                        {toTitle(appointment.type) || 'Consultation'}
                       </Typography>
                       <Typography variant="caption" color="textSecondary" sx={{ display: 'block', mt: 0.5 }}>
                         {appointment.appointmentDate} • {appointment.startTime}
                       </Typography>
                     </Box>
-                    <Chip label={appointment.status} size="small" color="success" />
+                    <Chip label={toTitle(appointment.status)} size="small" color="success" />
                   </ListItem>
                 ))}
               </List>
@@ -297,7 +304,7 @@ const PatientDashboard: React.FC = () => {
                       </Typography>
                     </Box>
                     <Chip
-                      label={prescription.status}
+                      label={toTitle(prescription.status)}
                       size="small"
                       color={prescription.status === 'ACTIVE' ? 'success' : 'default'}
                       variant="outlined"

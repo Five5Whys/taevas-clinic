@@ -31,6 +31,7 @@ const SOAP_TOOLTIP = <>S — Subjective (patient's symptoms & history)<br/>O —
 import { useCountries } from '@/hooks/superadmin/useCountries';
 import { useFields, useAddField, useUpdateField, useDeleteField, useToggleFieldLock } from '@/hooks/superadmin/useFields';
 import type { FieldDefinitionDto, CountryConfig } from '@/types/superadmin';
+import { toTitle } from '@/utils/helpers';
 
 // ---- Types ------------------------------------------------------------------
 interface FieldRow {
@@ -201,7 +202,7 @@ const FieldItem: React.FC<{
 
     {/* Type chip */}
     <Chip
-      label={field.type}
+      label={toTitle(field.type)}
       size="small"
       sx={{
         background: '#F3F4F6', color: '#374151',

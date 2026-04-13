@@ -138,9 +138,10 @@ export const NAVIGATION_CONFIG = {
   ],
   [ROLES.PATIENT]: [
     { id: 'dashboard',     label: 'Dashboard',      emoji: '📊', icon: 'Dashboard',         path: '/patient' },
+    { id: 'profile',       label: 'My Profile',     emoji: '👤', icon: 'Person',             path: '/patient/profile' },
     { id: 'appointments',  label: 'Appointments',   emoji: '📅', icon: 'EventNote',          path: '/patient/appointments' },
     { id: 'prescriptions', label: 'Prescriptions',  emoji: '💊', icon: 'Receipt',            path: '/patient/prescriptions' },
-    { id: 'health',        label: 'Health Records', emoji: '❤️', icon: 'HealthAndSafety',    path: '/patient/health' },
+    { id: 'health',        label: 'Health Records', emoji: '❤️', icon: 'HealthAndSafety',    path: '/patient/health-records' },
     { id: 'family',        label: 'Family',         emoji: '👨‍👩‍👧', icon: 'Group',              path: '/patient/family' },
   ],
 };

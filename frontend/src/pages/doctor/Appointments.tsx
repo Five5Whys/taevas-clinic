@@ -32,6 +32,7 @@ import {
 import { Phone, PhoneCallback, Add } from '@mui/icons-material';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import { useDoctorAppointments } from '@/hooks/doctor';
+import { toTitle } from '@/utils/helpers';
 
 const BRAND = '#5519E6';
 
@@ -117,7 +118,7 @@ const Appointments: React.FC = () => {
                           <TableCell>{apt.patient}</TableCell>
                           <TableCell>{apt.reason}</TableCell>
                           <TableCell>
-                            <Chip label={apt.status} size="small"
+                            <Chip label={toTitle(apt.status)} size="small"
                               sx={{ backgroundColor: getStatusColor(apt.status), color: '#fff', fontWeight: 'bold' }} />
                           </TableCell>
                           <TableCell>

@@ -197,6 +197,22 @@ export const capitalize = (str: string): string => {
 };
 
 /**
+ * Convert UPPER_SNAKE_CASE or lower_snake_case to Title Case.
+ * Examples:
+ *   toTitle('ACTIVE') -> 'Active'
+ *   toTitle('IN_PROGRESS') -> 'In Progress'
+ *   toTitle('no_show') -> 'No Show'
+ *   toTitle('Chest X-Ray') -> 'Chest X-Ray'  (preserves words with mixed case)
+ */
+export const toTitle = (s?: string | null): string => {
+  if (!s) return '';
+  return s
+    .split(/[\s_]+/)
+    .map((w) => (w ? w.charAt(0).toUpperCase() + w.slice(1).toLowerCase() : w))
+    .join(' ');
+};
+
+/**
  * Calculate wait time between two timestamps
  */
 export const calculateWaitTime = (startTime: string | Date): number => {

@@ -18,6 +18,7 @@ import {
 } from '@mui/material';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import { useDoctorDashboard } from '@/hooks/doctor';
+import { toTitle } from '@/utils/helpers';
 
 const getStatusColor = (status: string) => {
   switch (status) {
@@ -198,7 +199,7 @@ const Dashboard: React.FC = () => {
                           <TableCell sx={{ color: 'text.secondary', fontSize: '11px' }}>{apt.reason}</TableCell>
                           <TableCell>
                             <Chip
-                              label={apt.status}
+                              label={toTitle(apt.status)}
                               size="small"
                               sx={{
                                 backgroundColor: `${getStatusColor(apt.status)}20`,

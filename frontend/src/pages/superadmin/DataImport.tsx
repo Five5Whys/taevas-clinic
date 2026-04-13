@@ -16,6 +16,7 @@ import {
 } from '@mui/material';
 import * as Icons from '@mui/icons-material';
 import DashboardLayout from '@/components/layout/DashboardLayout';
+import { toTitle } from '@/utils/helpers';
 
 const BRAND = '#5519E6';
 const SUB = '#6B7280';
@@ -224,7 +225,7 @@ const DataImport: React.FC = () => {
                       <TableCell sx={{ fontSize: '0.85rem' }}>{row.records}</TableCell>
                       <TableCell>
                         <Chip
-                          label={row.status.replace('_', ' ')}
+                          label={toTitle(row.status)}
                           size="small"
                           sx={{
                             fontWeight: 600,

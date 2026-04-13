@@ -18,10 +18,14 @@ import java.util.UUID;
 @Slf4j
 public class FileUploadService {
 
-    private static final long MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB
+    private static final long MAX_VIDEO_SIZE = 50L * 1024 * 1024; // 50 MB for video
+    private static final long MAX_NONVIDEO_SIZE = 10L * 1024 * 1024; // 10 MB for PDF/image/DOC
+
+    private static final Set<String> VIDEO_EXTENSIONS = Set.of("mp4", "webm", "mov", "m4v");
 
     private static final Set<String> ALLOWED_EXTENSIONS = Set.of(
-            "pdf", "jpg", "jpeg", "png", "webp", "bmp", "tiff", "heic", "svg", "doc", "docx"
+            "pdf", "jpg", "jpeg", "png", "webp", "bmp", "tiff", "heic", "svg", "doc", "docx",
+            "mp4", "webm", "mov", "m4v"
     );
 
     private static final String UPLOAD_BASE_DIR = "uploads";
@@ -61,19 +65,23 @@ public class FileUploadService {
             throw new BadRequestException("File is empty");
         }
 
-        if (file.getSize() > MAX_FILE_SIZE) {
-            throw new BadRequestException("File size exceeds maximum allowed size of 10 MB");
-        }
-
         String originalFilename = file.getOriginalFilename();
         if (originalFilename == null || originalFilename.isBlank()) {
             throw new BadRequestException("File name is missing");
         }
 
-        String extension = getFileExtension(originalFilename);
-        if (!ALLOWED_EXTENSIONS.contains(extension.toLowerCase())) {
+        String extension = getFileExtension(originalFilename).toLowerCase();
+        if (!ALLOWED_EXTENSIONS.contains(extension)) {
             throw new BadRequestException(
                     "File format not allowed. Accepted formats: " + String.join(", ", ALLOWED_EXTENSIONS));
+        }
+
+        boolean isVideo = VIDEO_EXTENSIONS.contains(extension);
+        long limit = isVideo ? MAX_VIDEO_SIZE : MAX_NONVIDEO_SIZE;
+        if (file.getSize() > limit) {
+            throw new BadRequestException(
+                    isVideo ? "Video file exceeds maximum allowed size of 50 MB"
+                            : "File exceeds maximum allowed size of 10 MB (videos up to 50 MB)");
         }
     }
 

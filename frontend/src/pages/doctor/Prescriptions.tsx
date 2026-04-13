@@ -23,6 +23,7 @@ import { Add, Delete, Print, WhatsApp, QrCode } from '@mui/icons-material';
 import { useSearchParams } from 'react-router-dom';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import { usePrescriptionsByEncounter } from '@/hooks/doctor';
+import { toTitle } from '@/utils/helpers';
 
 const Prescriptions: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -172,7 +173,7 @@ const Prescriptions: React.FC = () => {
                         </Box>
                         <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mt: 1 }}>
                           <Chip
-                            label={drug.frequency}
+                            label={toTitle(drug.frequency)}
                             size="small"
                             variant="outlined"
                           />

@@ -29,6 +29,7 @@ import {
 } from '@mui/material';
 import { Add as Plus, PersonAdd as PersonAddIcon, PersonRemove as PersonRemoveIcon } from '@mui/icons-material';
 import { usePatientList, useCreatePatient, useClinicDoctors, useCAAssignPatient, useCAUnassignPatient } from '@/hooks/clinicadmin';
+import { toTitle } from '@/utils/helpers';
 
 const BRAND = '#5519E6';
 const SUB = '#6B7280';
@@ -324,7 +325,7 @@ const PatientRegistry: React.FC = () => {
                     <TableCell>{patient.lastVisit || '\u2014'}</TableCell>
                     <TableCell>
                       <Chip
-                        label={patient.status}
+                        label={toTitle(patient.status)}
                         size="small"
                         sx={{
                           fontWeight: 600,

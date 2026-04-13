@@ -21,6 +21,7 @@ import {
 import type { SelectChangeEvent } from '@mui/material';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import { useClinicReport } from '@/hooks/clinicadmin/useReports';
+import { toTitle } from '@/utils/helpers';
 
 const BRAND = '#5519E6';
 const SUB = '#6B7280';
@@ -150,7 +151,7 @@ const Reports: React.FC = () => {
               <TableRow key={row.type}>
                 <TableCell>
                   <Chip
-                    label={row.type}
+                    label={toTitle(row.type)}
                     size="small"
                     sx={{ bgcolor: row.color, color: '#fff', fontWeight: 600 }}
                   />

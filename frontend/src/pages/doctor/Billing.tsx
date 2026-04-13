@@ -26,6 +26,7 @@ import {
 } from '@mui/icons-material';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import { useDoctorBilling } from '@/hooks/doctor';
+import { toTitle } from '@/utils/helpers';
 
 const Billing: React.FC = () => {
   const { data: billingData, isLoading } = useDoctorBilling();
@@ -171,7 +172,7 @@ const Billing: React.FC = () => {
                           </TableCell>
                           <TableCell>
                             <Chip
-                              label={bill.status}
+                              label={toTitle(bill.status)}
                               size="small"
                               sx={{
                                 backgroundColor: bill.status === 'Paid' ? '#CDDC50' : '#FF8232',

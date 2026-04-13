@@ -35,6 +35,7 @@ import { Delete, Lock, LightbulbOutlined } from '@mui/icons-material';
 const SOAP_TOOLTIP = <>S — Subjective (patient's symptoms & history)<br/>O — Objective (clinical findings & vitals)<br/>A — Assessment (diagnosis)<br/>P — Plan (treatment & follow-up)</>;
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import { useCustomFields, useCreateCustomField, useDeleteCustomField } from '@/hooks/clinicadmin/useCustomFields';
+import { toTitle } from '@/utils/helpers';
 
 // ---- Constants ---------------------------------------------------------------
 const BRAND = '#5519E6';
@@ -266,7 +267,7 @@ const CustomFields: React.FC = () => {
                         </TableCell>
                         <TableCell>
                           <Chip
-                            label={field.type}
+                            label={toTitle(field.type)}
                             size="small"
                             sx={{
                               background: '#F3F4F6',

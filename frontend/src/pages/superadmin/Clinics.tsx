@@ -24,6 +24,7 @@ import * as Icons from '@mui/icons-material';
 // DashboardLayout provided by parent Manage page
 import { useClinics, useCreateClinic } from '@/hooks/superadmin/useClinics';
 import type { ClinicSummary } from '@/types/superadmin';
+import { toTitle } from '@/utils/helpers';
 
 // ─── Helpers ────────────────────────────────────────────────────────────────────
 const AVATAR_PALETTE = ['#5519E6', '#A046F0', '#FF8232', '#25D366', '#CDDC50'];
@@ -203,7 +204,7 @@ const Clinics: React.FC = () => {
                       {/* Badges row */}
                       <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap', mb: 1.25 }}>
                         <Chip
-                          label={c.status}
+                          label={toTitle(c.status)}
                           size="small"
                           sx={{
                             height: 18, fontSize: '10px', fontWeight: 700,

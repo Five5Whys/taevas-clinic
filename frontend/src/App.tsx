@@ -61,6 +61,7 @@ const PatientAppointments = lazy(() => import('@/pages/patient/Appointments'));
 const PatientPrescriptions = lazy(() => import('@/pages/patient/Prescriptions'));
 const PatientHealthRecords = lazy(() => import('@/pages/patient/HealthRecords'));
 const PatientFamily = lazy(() => import('@/pages/patient/Family'));
+const PatientProfile = lazy(() => import('@/pages/patient/Profile'));
 
 // SA extras
 const SATemplates = lazy(() => import('@/pages/superadmin/Templates'));
@@ -202,9 +203,10 @@ const App: React.FC = () => {
               <ProtectedRoute requiredRole={ROLES.PATIENT}>
                 <Routes>
                   <Route index element={<PatientDashboard />} />
+                  <Route path="profile" element={<PatientProfile />} />
                   <Route path="appointments" element={<PatientAppointments />} />
                   <Route path="prescriptions" element={<PatientPrescriptions />} />
-                  <Route path="health" element={<PatientHealthRecords />} />
+                  <Route path="health-records" element={<PatientHealthRecords />} />
                   <Route path="family" element={<PatientFamily />} />
                 </Routes>
               </ProtectedRoute>

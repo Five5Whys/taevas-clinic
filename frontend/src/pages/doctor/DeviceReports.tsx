@@ -21,6 +21,7 @@ import {
 } from '@mui/icons-material';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import { useDoctorDeviceReports } from '@/hooks/doctor';
+import { toTitle } from '@/utils/helpers';
 
 const DeviceReports: React.FC = () => {
   const [dragActive, setDragActive] = useState(false);
@@ -174,7 +175,7 @@ const DeviceReports: React.FC = () => {
                       </Box>
                       <Chip
                         icon={item.status === 'Completed' ? <CheckCircle /> : <Clock />}
-                        label={item.status}
+                        label={toTitle(item.status)}
                         size="small"
                         variant="outlined"
                         sx={{
