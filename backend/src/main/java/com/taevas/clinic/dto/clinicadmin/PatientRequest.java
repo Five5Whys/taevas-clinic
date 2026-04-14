@@ -1,3 +1,3 @@
 package com.taevas.clinic.dto.clinicadmin;
 import jakarta.validation.constraints.NotBlank; import lombok.*; @Data @Builder @NoArgsConstructor @AllArgsConstructor
-public class PatientRequest { @NotBlank private String firstName; private String lastName, phone, email, gender, bloodGroup, dateOfBirth, completeAddress, postalCode, country, state, city, remarks; private Boolean smsNotifications; }
+public class PatientRequest { @NotBlank private String firstName; private String lastName, phone, email, gender, bloodGroup, dateOfBirth, completeAddress, postalCode, country, state, city, remarks; private Boolean smsNotifications; private Boolean emailNotifications; }

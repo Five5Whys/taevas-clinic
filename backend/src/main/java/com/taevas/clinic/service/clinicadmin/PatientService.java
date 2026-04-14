@@ -63,7 +63,7 @@ public class PatientService {
             .dateOfBirth(r.getDateOfBirth() != null ? LocalDate.parse(r.getDateOfBirth()) : null)
             .completeAddress(r.getCompleteAddress()).postalCode(r.getPostalCode())
             .country(r.getCountry()).state(r.getState()).city(r.getCity())
-            .smsNotifications(r.getSmsNotifications()).remarks(r.getRemarks())
+            .smsNotifications(r.getSmsNotifications()).emailNotifications(r.getEmailNotifications()).remarks(r.getRemarks())
             .status("ACTIVE").build();
         return toDto(repo.save(p));
     }
@@ -162,6 +162,6 @@ public class PatientService {
             .createdAt(p.getCreatedAt() != null ? p.getCreatedAt().toString() : null)
             .completeAddress(p.getCompleteAddress()).postalCode(p.getPostalCode())
             .country(p.getCountry()).state(p.getState()).city(p.getCity())
-            .smsNotifications(p.getSmsNotifications()).remarks(p.getRemarks()).build();
+            .smsNotifications(p.getSmsNotifications()).emailNotifications(p.getEmailNotifications()).remarks(p.getRemarks()).build();
     }
 }

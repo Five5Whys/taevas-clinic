@@ -13,6 +13,9 @@ import {
   InsertDriveFile as FileIcon,
   MemoryOutlined as DeviceIcon,
   LightbulbOutlined as BulbIcon,
+  Close as CloseIcon,
+  WhatsApp as WhatsAppIcon,
+  Email as EmailIcon,
 } from '@mui/icons-material';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import { usePatientHealthRecords, useUploadHealthRecord, useDeleteHealthRecord } from '../../hooks/patient';
@@ -92,6 +95,7 @@ const HealthRecords = () => {
   const [notes, setNotes] = useState('');
   const [file, setFile] = useState<File | null>(null);
   const [toast, setToast] = useState<{ open: boolean; msg: string; severity: 'success' | 'error' }>({ open: false, msg: '', severity: 'success' });
+  const [preview, setPreview] = useState<MediaItem | null>(null);
 
   const reset = () => { setTitle(''); setReportType('OTHER'); setReportDate(new Date().toISOString().slice(0, 10)); setNotes(''); setFile(null); };
 
@@ -192,19 +196,35 @@ const HealthRecords = () => {
                           {[r.doctorName, r.reportDate, r.notes].filter(Boolean).join(' · ') || 'No details'}
                         </Typography>
                         {r.media && r.media.length > 0 && (
-                          <Stack direction="row" spacing={1} mt={0.8} flexWrap="wrap">
+                          <Stack direction="row" spacing={1} mt={0.8} flexWrap="wrap" alignItems="center">
                             {r.media.map((m) => (
                               <Link
                                 key={m.id}
-                                href={m.fileUrl}
-                                target="_blank"
-                                rel="noopener"
+                                component="button"
+                                onClick={() => setPreview(m)}
                                 underline="hover"
-                                sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.5, fontSize: 13 }}
+                                sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.5, fontSize: 13, cursor: 'pointer' }}
                               >
                                 {getMediaIcon(m.contentType, m.fileName)} {m.fileName}
                               </Link>
                             ))}
+                            {r.media.map((m) => {
+                              const url = `${window.location.origin}${m.fileUrl}`;
+                              return (
+                                <Stack key={`share-${m.id}`} direction="row" spacing={0.3}>
+                                  <Tooltip title="Share via WhatsApp">
+                                    <IconButton size="small" onClick={() => window.open(`https://wa.me/?text=${encodeURIComponent(`${r.title || 'Health Record'}: ${url}`)}`, '_blank')} sx={{ color: '#25D366' }}>
+                                      <WhatsAppIcon sx={{ fontSize: 18 }} />
+                                    </IconButton>
+                                  </Tooltip>
+                                  <Tooltip title="Share via Email">
+                                    <IconButton size="small" onClick={() => window.open(`mailto:?subject=${encodeURIComponent(r.title || 'Health Record')}&body=${encodeURIComponent(`View my health record: ${url}`)}`, '_self')} sx={{ color: '#1976d2' }}>
+                                      <EmailIcon sx={{ fontSize: 18 }} />
+                                    </IconButton>
+                                  </Tooltip>
+                                </Stack>
+                              );
+                            })}
                           </Stack>
                         )}
                       </Box>
@@ -247,6 +267,38 @@ const HealthRecords = () => {
             {uploadMut.isPending ? 'Uploading…' : 'Upload'}
           </Button>
         </DialogActions>
+      </Dialog>
+
+      {/* File Preview Dialog */}
+      <Dialog open={!!preview} onClose={() => setPreview(null)} maxWidth="md" fullWidth>
+        <DialogTitle sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <Stack direction="row" alignItems="center" spacing={1}>
+            {preview && getMediaIcon(preview.contentType, preview.fileName)}
+            <Typography fontWeight={600}>{preview?.fileName}</Typography>
+          </Stack>
+          <IconButton onClick={() => setPreview(null)} size="small"><CloseIcon /></IconButton>
+        </DialogTitle>
+        <DialogContent sx={{ p: 0, display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 300, bgcolor: '#f5f5f5' }}>
+          {preview && (() => {
+            const ct = (preview.contentType || '').toLowerCase();
+            const ext = (preview.fileName || '').split('.').pop()?.toLowerCase() || '';
+            if (ct === 'application/pdf' || ext === 'pdf') {
+              return <iframe src={preview.fileUrl} style={{ width: '100%', height: 500, border: 'none' }} title={preview.fileName} />;
+            }
+            if (ct.startsWith('image/') || ['jpg', 'jpeg', 'png', 'webp', 'bmp', 'svg'].includes(ext)) {
+              return <img src={preview.fileUrl} alt={preview.fileName} style={{ maxWidth: '100%', maxHeight: 500, objectFit: 'contain' }} />;
+            }
+            if (ct.startsWith('video/') || ['mp4', 'webm', 'mov', 'm4v'].includes(ext)) {
+              return <video src={preview.fileUrl} controls style={{ maxWidth: '100%', maxHeight: 500 }} />;
+            }
+            return (
+              <Box sx={{ textAlign: 'center', p: 4 }}>
+                <Typography color="text.secondary" mb={2}>Preview not available for this file type</Typography>
+                <Button variant="contained" href={preview.fileUrl} target="_blank">Download File</Button>
+              </Box>
+            );
+          })()}
+        </DialogContent>
       </Dialog>
 
       <Snackbar open={toast.open} autoHideDuration={3500} onClose={() => setToast({ ...toast, open: false })} anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}>

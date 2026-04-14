@@ -2,6 +2,7 @@ import { useState } from 'react';
 import {
   Box, Typography, Paper, Chip, CircularProgress, Alert, TablePagination,
   Accordion, AccordionSummary, AccordionDetails, Stack, Divider, Grid, Tooltip, IconButton,
+  Dialog, DialogTitle, DialogContent,
 } from '@mui/material';
 import {
   ExpandMore as ExpandMoreIcon,
@@ -11,10 +12,24 @@ import {
   Person as DoctorIcon,
   CalendarToday as DateIcon,
   LightbulbOutlined as BulbIcon,
+  QrCode2 as QrCodeIcon,
+  Close as CloseIcon,
 } from '@mui/icons-material';
+import { QRCodeSVG } from 'qrcode.react';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import { usePatientPrescriptions } from '../../hooks/patient';
 import { toTitle } from '@/utils/helpers';
+
+const buildQrText = (rx: Rx): string => {
+  const lines = [`Prescription — ${rx.createdAt?.split('T')[0] || ''}`, `Doctor: ${rx.doctorName || 'N/A'}`];
+  if (rx.diagnosis) lines.push(`Diagnosis: ${rx.diagnosis}`);
+  rx.items?.forEach((it, i) => {
+    lines.push(`${i + 1}. ${it.medicineName}${it.dosage ? ' — ' + it.dosage : ''}${it.frequency ? ', ' + it.frequency : ''}${it.duration ? ', ' + it.duration : ''}`);
+    if (it.instructions) lines.push(`   ${it.instructions}`);
+  });
+  if (rx.notes) lines.push(`Notes: ${rx.notes}`);
+  return lines.join('\n');
+};
 
 type RxItem = {
   id: string;
@@ -56,6 +71,7 @@ const Prescriptions = () => {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [expandedId, setExpandedId] = useState<string | false>(false);
+  const [qrRx, setQrRx] = useState<Rx | null>(null);
   const { data, isLoading, error } = usePatientPrescriptions({ page, size: rowsPerPage });
 
   const list: Rx[] = Array.isArray(data) ? data : (data?.content || []);
@@ -205,6 +221,14 @@ const Prescriptions = () => {
                       </Typography>
                     </>
                   )}
+
+                  <Divider sx={{ my: 1.5 }} />
+                  <Tooltip title="Show QR code for pharmacist">
+                    <IconButton size="small" onClick={(e) => { e.stopPropagation(); setQrRx(rx); }} sx={{ color: 'primary.main' }}>
+                      <QrCodeIcon sx={{ fontSize: 20 }} />
+                      <Typography variant="caption" sx={{ ml: 0.5 }}>Share QR</Typography>
+                    </IconButton>
+                  </Tooltip>
                 </AccordionDetails>
               </Accordion>
             ))}
@@ -221,6 +245,20 @@ const Prescriptions = () => {
           </Paper>
         )}
       </Box>
+
+      {/* QR Code Dialog */}
+      <Dialog open={!!qrRx} onClose={() => setQrRx(null)} maxWidth="xs" fullWidth>
+        <DialogTitle sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <Typography fontWeight={600}>Prescription QR</Typography>
+          <IconButton onClick={() => setQrRx(null)} size="small"><CloseIcon /></IconButton>
+        </DialogTitle>
+        <DialogContent sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', pb: 3 }}>
+          {qrRx && <QRCodeSVG value={buildQrText(qrRx)} size={220} level="M" />}
+          <Typography variant="caption" color="text.secondary" sx={{ mt: 2, textAlign: 'center' }}>
+            Show this QR to your pharmacist. It contains the full prescription details.
+          </Typography>
+        </DialogContent>
+      </Dialog>
     </DashboardLayout>
   );
 };

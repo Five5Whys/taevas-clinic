@@ -49,7 +49,7 @@ public class PatientPortalService {
         if (r.getDateOfBirth() != null) p.setDateOfBirth(java.time.LocalDate.parse(r.getDateOfBirth()));
         p.setCompleteAddress(r.getCompleteAddress()); p.setPostalCode(r.getPostalCode());
         p.setCountry(r.getCountry()); p.setState(r.getState()); p.setCity(r.getCity());
-        p.setSmsNotifications(r.getSmsNotifications()); p.setRemarks(r.getRemarks());
+        p.setSmsNotifications(r.getSmsNotifications()); p.setEmailNotifications(r.getEmailNotifications()); p.setRemarks(r.getRemarks());
         return toDto(patientRepo.save(p));
     }
 
@@ -64,7 +64,7 @@ public class PatientPortalService {
             .createdAt(p.getCreatedAt() != null ? p.getCreatedAt().toString() : null)
             .completeAddress(p.getCompleteAddress()).postalCode(p.getPostalCode())
             .country(p.getCountry()).state(p.getState()).city(p.getCity())
-            .smsNotifications(p.getSmsNotifications()).remarks(p.getRemarks()).build();
+            .smsNotifications(p.getSmsNotifications()).emailNotifications(p.getEmailNotifications()).remarks(p.getRemarks()).build();
     }
 
     public Map<String, Object> getDashboard(UUID clinicId, UUID userId) {

@@ -27,5 +27,6 @@ public class ClinicPatient extends BaseEntity {
     @Column(name = "state", length = 100) private String state;
     @Column(name = "city", length = 100) private String city;
     @Column(name = "sms_notifications") private Boolean smsNotifications;
+    @Column(name = "email_notifications") private Boolean emailNotifications;
     @Column(name = "remarks", columnDefinition = "TEXT") private String remarks;
 }

@@ -14,7 +14,7 @@ const PatientProfile: React.FC = () => {
   const [form, setForm] = useState({
     firstName: '', lastName: '', phone: '', email: '', gender: '', bloodGroup: '',
     dateOfBirth: '', completeAddress: '', city: '', state: '', postalCode: '', country: '',
-    smsNotifications: false, remarks: '',
+    smsNotifications: false, emailNotifications: false, remarks: '',
   });
   const [snack, setSnack] = useState<{ open: boolean; msg: string; severity: 'success' | 'error' }>({ open: false, msg: '', severity: 'success' });
 
@@ -28,6 +28,7 @@ const PatientProfile: React.FC = () => {
         completeAddress: profile.completeAddress || '', city: profile.city || '',
         state: profile.state || '', postalCode: profile.postalCode || '',
         country: profile.country || '', smsNotifications: profile.smsNotifications || false,
+        emailNotifications: profile.emailNotifications || false,
         remarks: profile.remarks || '',
       });
     }
@@ -67,9 +68,17 @@ const PatientProfile: React.FC = () => {
             </Grid>
             <Grid item xs={12} sm={6} md={3}>
               <TextField fullWidth label="Phone" value={form.phone} onChange={handleChange('phone')} size="small" />
+              <FormControlLabel sx={{ mt: 0.5 }}
+                control={<Switch size="small" checked={form.smsNotifications} onChange={(e) => setForm(prev => ({ ...prev, smsNotifications: e.target.checked }))} />}
+                label={<Typography variant="body2">SMS Notifications</Typography>}
+              />
             </Grid>
             <Grid item xs={12} sm={6} md={3}>
               <TextField fullWidth label="Email" value={form.email} onChange={handleChange('email')} size="small" />
+              <FormControlLabel sx={{ mt: 0.5 }}
+                control={<Switch size="small" checked={form.emailNotifications} onChange={(e) => setForm(prev => ({ ...prev, emailNotifications: e.target.checked }))} />}
+                label={<Typography variant="body2">Email Notifications</Typography>}
+              />
             </Grid>
             <Grid item xs={12} sm={4} md={3}>
               <TextField fullWidth label="Gender" value={form.gender} onChange={handleChange('gender')} size="small" />
@@ -79,12 +88,6 @@ const PatientProfile: React.FC = () => {
             </Grid>
             <Grid item xs={12} sm={4} md={3}>
               <TextField fullWidth label="Date of Birth" value={form.dateOfBirth} onChange={handleChange('dateOfBirth')} size="small" type="date" InputLabelProps={{ shrink: true }} />
-            </Grid>
-            <Grid item xs={12} sm={6} md={3}>
-              <FormControlLabel
-                control={<Switch size="small" checked={form.smsNotifications} onChange={(e) => setForm(prev => ({ ...prev, smsNotifications: e.target.checked }))} />}
-                label={<Typography variant="body2">SMS Notifications</Typography>}
-              />
             </Grid>
 
             {/* Address */}
